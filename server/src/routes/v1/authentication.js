@@ -1,19 +1,19 @@
 const Router = require("express").Router();
-const Response = require("./../../middlewares/Response");
+const multer = require("./../../config/Multer");
+const Authentication = require("./../../controllers/Authentication");
 
-Router.post("/login", async (req, res) => {
-  const {} = req.body;
-  return Response.Success(res, "Login");
-});
+Router.post("/register", multer.none, Authentication.Register);
 
-Router.post("/register", async (req, res) => {
-  const {} = req.body;
-  return Response.Success(res, "Register");
-});
+Router.post("/login", multer.none, Authentication.Login);
 
-Router.post("/forgot-password", async (req, res) => {
-  const {} = req.body;
-  return Response.Success(res, "Forgot Password");
-});
+Router.post("/forgot-password", multer.none, Authentication.ForgotPassword);
+
+Router.post("/reset-password", multer.none, Authentication.ResetPassword);
+
+Router.post("/activate", multer.none, Authentication.Activate);
+
+Router.post("/logout", Authentication.Logout);
+
+Router.post("/refresh-token", Authentication.RefreshToken);
 
 module.exports = Router;
