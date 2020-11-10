@@ -1,8 +1,11 @@
 const Router = require("express").Router();
+const { Authentication } = require("./../../middlewares");
 
-Router.get("/", (req, res) => {
-  const {} = req.body;
-  return res.status(200).json({ message: "Welcome to Express API template" });
+Router.get("/", Authentication.checkAccessToken, (req, res, next) => {
+  res.json({ index: "index" });
 });
+
+const authentication = require("./authentication");
+Router.use("/authentication", authentication);
 
 module.exports = Router;
