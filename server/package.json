@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./build/bin/www",
-    "startdev": "set DEBUG=server:* & nodemon ./src/bin/www"
+    "start": "set DEBUG=server:* & nodemon ./src/bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
