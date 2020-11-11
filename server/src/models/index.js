@@ -1,3 +1,9 @@
 exports.Accounts = require("./Accounts");
-exports.Roles = require("./Roles");
 exports.RefreshTokens = require("./RefreshTokens");
+exports.Roles = require("./Roles");
+exports.Tables = require("./Tables");
+exports.Categories = require("./Categories");
+exports.Menus = require("./Menus");
+exports.Orders = require("./Orders");
+exports.ItemOrders = require("./ItemOrders");
+exports.Transactions = require("./Transactions");

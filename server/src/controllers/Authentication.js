@@ -264,9 +264,9 @@ exports.ForgotPassword = async (req, res, next) => {
   return Response.Success(res, "Email has been sent, follow the intructions");
 };
 
-exports.ResetPassword = async (req, res) => {
+exports.ResetPassword = async (req, res, next) => {
   const schema = Joi.object({
-    token: Joi.string().required().email(),
+    token: Joi.string().required(),
     password: Joi.string().required(),
     repeat_password: Joi.string().valid(Joi.ref("password")).required(),
   });
@@ -281,7 +281,6 @@ exports.ResetPassword = async (req, res) => {
   try {
     const decode = await VerifyResetPasswordToken(body.token);
     if (!decode) return next(err("Invalid token"));
-
     const account = await Accounts.findOne({
       _id: ObjectId(decode.id),
       resetLink: body.token,
@@ -303,5 +302,5 @@ exports.ResetPassword = async (req, res) => {
 
 exports.Activate = async (req, res) => {
   const {} = req.body;
-  return resSuccess(res, "Activate");
+  return Response.Success(res, "Activate");
 };
