@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "set DEBUG=server:* & nodemon ./src/bin/www"
+    "start": "DEBUG=server:* nodemon ./src/bin/www",
+    "dev": "set DEBUG=server:* & nodemon ./src/bin/www"
   },
   "dependencies": {
     "bcrypt": "^5.0.0",
