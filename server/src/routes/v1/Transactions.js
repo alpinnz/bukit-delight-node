@@ -15,6 +15,14 @@ Router.post("/", Multer.none, Transactions.Create);
 /* PUT Account page. */
 Router.put("/:_id", Mongoose.CheckObjectId, Multer.none, Transactions.Update);
 
+/* PUT Account page. */
+Router.put(
+  "/status/:_id",
+  Mongoose.CheckObjectId,
+  Multer.none,
+  Transactions.UpdateStatus
+);
+
 /* DELETE Account page. */
 Router.delete("/:_id", Mongoose.CheckObjectId, Transactions.Delete);
 

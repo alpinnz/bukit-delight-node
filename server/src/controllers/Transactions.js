@@ -213,7 +213,6 @@ exports.Create = async (req, res, next) => {
     id_account: Joi.string().required(),
     id_order: Joi.string().required(),
     note: Joi.string().required(),
-    status: Joi.string().equal("pending", "proses", "done").required(),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -226,6 +225,7 @@ exports.Create = async (req, res, next) => {
 
     const order = await Orders.findById(body.id_order);
     if (!order) return next(err("order not found"));
+    if (order.status != "payment") return next(err("complete payment"));
 
     const itemOrder = await ItemOrders.find({ id_order: order._id });
     const quality = await itemOrder.reduce((a, b) => a + b["quality"], 0);
@@ -237,7 +237,7 @@ exports.Create = async (req, res, next) => {
       quality: quality,
       price: price,
       note: body.note,
-      status: body.status,
+      status: "pending",
     };
 
     const transactions = await Transactions.create(newTransactions);
@@ -286,6 +286,34 @@ exports.Update = async (req, res, next) => {
     const transactionsUpdate = await Transactions.findByIdAndUpdate(
       req.params._id,
       newTransactions
+    );
+    if (!transactionsUpdate) return next(err("Update failed"));
+    return Response.Success(res, "Update", 0, 200, transactionsUpdate);
+  } catch (error) {
+    return next(err(error, 404));
+  }
+};
+
+exports.UpdateStatus = async (req, res, next) => {
+  const schema = Joi.object({
+    note: Joi.string().required(),
+    status: Joi.string().equal("pending", "proses", "done").required(),
+  });
+
+  const { error, value } = schema.validate(req.body);
+  if (error) return next(err(error.details[0].message));
+
+  const body = value;
+  try {
+    const transactions = await Transactions.findById(req.params._id);
+    if (!transactions) return next(err("transactions not found"));
+
+    transactions.note = body.note;
+    transactions.status = body.status;
+
+    const transactionsUpdate = await Transactions.findByIdAndUpdate(
+      req.params._id,
+      transactions
     );
     if (!transactionsUpdate) return next(err("Update failed"));
     return Response.Success(res, "Update", 0, 200, transactionsUpdate);

@@ -276,7 +276,6 @@ exports.Create = async (req, res, next) => {
 
 exports.UpdateStatus = async (req, res, next) => {
   const schema = Joi.object({
-    customer: Joi.string().required(),
     id_table: Joi.string().required(),
     note: Joi.string().required(),
     status: Joi.string().equal("pending", "payment").required(),
@@ -293,7 +292,11 @@ exports.UpdateStatus = async (req, res, next) => {
     const table = await Tables.findById(body.id_table);
     if (!table) return next(err("table not found"));
 
-    order.customer = body.customer;
+    const transactions = await Transactions.findOne({
+      id_order: req.params._id,
+    });
+    if (transactions) return next(err("Order in transactions"));
+
     order.id_table = table._id;
     order.note = body.note;
     order.status = body.status;
