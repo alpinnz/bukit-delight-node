@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use("/public", express.static(path.join(__dirname, "./../public")));
-app.use("/api", indexRouter);
+app.use("/", indexRouter);
 
 // error handler middleware
 app.use(Response.Error);
