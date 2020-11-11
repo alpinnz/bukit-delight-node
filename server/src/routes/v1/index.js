@@ -1,12 +1,36 @@
-const express = require("express");
-const router = express.Router();
+const Router = require("express").Router();
+const middlewares = require("./../../middlewares");
 
-router.get("/", async (req, res) => {
-  const { } = req.body;
-  res.send("api");
-});
+Router.get(
+  "/",
+  middlewares.Authentication.checkAccessToken,
+  (req, res, next) => {
+    res.json({ index: "index" });
+  }
+);
 
-const v1 = require("./v1");
-router.use("/v1", v1);
+const Authentication = require("./Authentication");
+Router.use("/Authentication", Authentication);
 
-module.exports = router;
+const Accounts = require("./Accounts");
+Router.use("/Accounts", Accounts);
+
+const Categories = require("./Categories");
+Router.use("/Categories", Categories);
+
+const Menus = require("./Menus");
+Router.use("/Menus", Menus);
+
+const Tables = require("./Tables");
+Router.use("/Tables", Tables);
+
+const Transactions = require("./Transactions");
+Router.use("/Transactions", Transactions);
+
+const Orders = require("./Orders");
+Router.use("/Orders", Orders);
+
+const ItemOrders = require("./ItemOrders");
+Router.use("/item-orders", ItemOrders);
+
+module.exports = Router;
