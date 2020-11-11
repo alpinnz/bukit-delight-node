@@ -6,6 +6,10 @@ const schema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Accounts",
   },
+  id_customer: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Customers",
+  },
   token: String,
   expires: Date,
   created: { type: Date, default: Date.now },
