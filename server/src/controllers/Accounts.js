@@ -41,7 +41,7 @@ exports.Create = async (req, res, next) => {
   const schema = Joi.object({
     username: Joi.string().required(),
     email: Joi.string().required().email(),
-    role: Joi.string().required(),
+    id_role: Joi.string().required(),
     password: Joi.string().required(),
     repeat_password: Joi.string().valid(Joi.ref("password")).required(),
   });
@@ -65,7 +65,7 @@ exports.Create = async (req, res, next) => {
       return next(err("Email is already"));
     }
 
-    const role = await Roles.findOne({ name: body.role });
+    const role = await Roles.findById(body.id_role);
     if (!role) {
       return next(err("Role not found"));
     }

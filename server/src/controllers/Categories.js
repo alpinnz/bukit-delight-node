@@ -42,6 +42,8 @@ exports.ReadOne = async (req, res, next) => {
 };
 
 exports.Create = async (req, res, next) => {
+  console.log(req.body);
+  console.log(req.file);
   const schema = Joi.object({
     name: Joi.string().required(),
     desc: Joi.string().required(),
