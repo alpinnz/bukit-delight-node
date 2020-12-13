@@ -1,10 +1,12 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import App from "./App";
+import { render } from "react-dom";
+import { Provider } from "react-redux";
+import Routes from "./routes";
+import Store from "./redux";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+render(
+  <Provider store={Store}>
+    <Routes />
+  </Provider>,
   document.getElementById("root")
 );
