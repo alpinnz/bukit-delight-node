@@ -11,6 +11,7 @@ import {
   useTheme,
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import { Link } from "react-router-dom";
 
 const drawerWidth = 180;
 const useStyles = makeStyles((theme) => ({
@@ -72,7 +73,9 @@ function DrawerBasic({ openMobileDrawer, setOpenMobileDrawer }) {
           <ListItem
             selected={path_array[1] === text.toLowerCase() ? true : false}
             button
-            key={text}
+            component={Link}
+            to={`/admin/${text.toLowerCase()}`}
+            key={text + index}
           >
             <ListItemText primary={text} />
           </ListItem>

@@ -97,7 +97,7 @@ exports.Update = async (req, res, next) => {
   const schema = Joi.object({
     username: Joi.string().required(),
     email: Joi.string().required().email(),
-    role: Joi.string().required(),
+    id_role: Joi.string().required(),
     password: Joi.string().required(),
     repeat_password: Joi.string().valid(Joi.ref("password")).required(),
   });
@@ -116,8 +116,10 @@ exports.Update = async (req, res, next) => {
 
     const regexUsername = new RegExp(["^", body.username, "$"].join(""), "i");
     const validUseranme = await Accounts.findOne({ username: regexUsername });
+    console.log({ valid: validUseranme._id });
+    console.log({ _id: req.params._id });
     if (validUseranme) {
-      if (validUseranme._id !== req.params._id) {
+      if (validUseranme._id.toString() !== req.params._id.toString()) {
         return next(err("Username is already"));
       }
     }
@@ -125,12 +127,12 @@ exports.Update = async (req, res, next) => {
     const regexEmail = new RegExp(["^", body.email, "$"].join(""), "i");
     const validEmail = await Accounts.findOne({ email: regexEmail });
     if (validEmail) {
-      if (validEmail._id !== req.params._id) {
+      if (validEmail._id.toString() !== req.params._id.toString()) {
         return next(err("Email is already"));
       }
     }
 
-    const role = await Roles.findOne({ name: body.role });
+    const role = await Roles.findById(body.id_role);
     if (!role) {
       return next(err("Role not found"));
     }

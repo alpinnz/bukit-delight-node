@@ -5,5 +5,7 @@ const UPDATE = (accounts) => {
   };
 };
 
-const AccountsAction = { UPDATE };
+const AccountsAction = {
+  UPDATE,
+};
 export default AccountsAction;

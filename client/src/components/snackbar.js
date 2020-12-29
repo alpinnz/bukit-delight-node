@@ -13,7 +13,7 @@ export default function SnackbarCustom() {
   React.useEffect(() => {
     if (Services.notification.open) {
       setTimeout(() => {
-        dispatch(Actions.Services.popupNotification());
+        dispatch(Actions.Services.closeNotification());
       }, 3000);
       console.log("closeNotification");
     }

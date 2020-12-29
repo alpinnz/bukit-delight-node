@@ -11,7 +11,7 @@ import {
   FormControl,
   InputLabel,
   FormHelperText,
-  // DialogContentText,
+  CircularProgress,
 } from "@material-ui/core";
 import Actions from "./../../../redux/actions";
 import { useDispatch } from "react-redux";
@@ -20,6 +20,7 @@ import Axios from "./../../../helpers/axios";
 const URL_PATH = "api/v1/categories";
 
 export default function Form({ form, setForm }) {
+  const [isSubmit, setIsSubmit] = React.useState(false);
   const [state, setState] = React.useState({
     fields: {},
     errors: {},
@@ -83,24 +84,11 @@ export default function Form({ form, setForm }) {
       errors["name"] = "Cannot be empty";
     }
 
-    // if (typeof fields["name"] !== "undefined") {
-    //   if (!fields["name"].match(/^[a-zA-Z]+$/)) {
-    //     formIsValid = false;
-    //     errors["name"] = "Only letters";
-    //   }
-    // }
-
     if (!fields["desc"]) {
       formIsValid = false;
       errors["desc"] = "Cannot be empty";
     }
 
-    // if (typeof fields["desc"] !== "undefined") {
-    //   if (!fields["desc"].match(/^[a-zA-Z]+$/)) {
-    //     formIsValid = false;
-    //     errors["desc"] = "Only letters";
-    //   }
-    // }
     if (form.type === "add") {
       if (!fields["image"]) {
         formIsValid = false;
@@ -112,7 +100,7 @@ export default function Form({ form, setForm }) {
     return formIsValid;
   };
 
-  const Load_API = async () => {
+  const LOAD_API_GET = async () => {
     await Axios.get("api/v1/categories")
       .then((response) => {
         console.log(response);
@@ -126,6 +114,7 @@ export default function Form({ form, setForm }) {
   };
 
   const onAdd = async () => {
+    setIsSubmit(true);
     const formData = new FormData();
     formData.append("name", state.fields["name"]);
     formData.append("desc", state.fields["desc"]);
@@ -138,32 +127,50 @@ export default function Form({ form, setForm }) {
     })
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Add"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Add Categories"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(
+            Actions.Services.popupNotification(`Add Categories :${err}`)
+          );
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const onDelete = async () => {
+    setIsSubmit(true);
     const _id = form.row._id;
     await Axios.delete(`${URL_PATH}/${_id}`)
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Delete"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Delete Categories"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(
+            Actions.Services.popupNotification(`Delete Categories :${err}`)
+          );
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const onEdit = async () => {
+    setIsSubmit(true);
     const _id = form.row._id;
     const formData = new FormData();
     formData.append("name", state.fields["name"]);
@@ -179,14 +186,22 @@ export default function Form({ form, setForm }) {
     })
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Edit"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Edit Categories"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(
+            Actions.Services.popupNotification(`Edit Categories :${err}`)
+          );
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const _onSubmit = () => {
@@ -196,10 +211,6 @@ export default function Form({ form, setForm }) {
       } else if (form.type === "edit") {
         onEdit();
       }
-
-      // setForm({ ...form, open: false });
-    } else {
-      // dispatch(Actions.ServicesAction.popupNotification("Failed form"));
     }
   };
 
@@ -215,17 +226,29 @@ export default function Form({ form, setForm }) {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="responsive-dialog-title">{`Really delete ${form.row.name} !!!`}</DialogTitle>
-          {/* <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {`Really delete ${form.row.name} !!!`}
-            </DialogContentText>
-          </DialogContent> */}
+
           <DialogActions>
-            <Button onClick={() => _onClose()} color="primary" autoFocus>
+            <Button
+              variant="contained"
+              onClick={() => _onClose()}
+              color="primary"
+              style={{ width: "5.25rem", height: "2.25rem" }}
+            >
               Cancel
             </Button>
-            <Button onClick={() => onDelete()} color="primary" autoFocus>
-              Submit
+            <Button
+              disabled={isSubmit}
+              variant="contained"
+              onClick={() => onDelete()}
+              color="primary"
+              autoFocus
+              style={{ width: "5.25rem", height: "2.25rem" }}
+            >
+              {isSubmit ? (
+                <CircularProgress color="secondary" size={"1.4rem"} />
+              ) : (
+                "Submit"
+              )}
             </Button>
           </DialogActions>
         </Dialog>
@@ -244,11 +267,7 @@ export default function Form({ form, setForm }) {
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6}>
             <FormControl
-              error={
-                state.errors["name"] || state.errors["name"] === ""
-                  ? true
-                  : false
-              }
+              error={state.errors["name"] || state.errors["name"] === ""}
               fullWidth
               variant="outlined"
             >
@@ -267,11 +286,7 @@ export default function Form({ form, setForm }) {
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl
-              error={
-                state.errors["desc"] || state.errors["desc"] === ""
-                  ? true
-                  : false
-              }
+              error={state.errors["desc"] || state.errors["desc"] === ""}
               fullWidth
               variant="outlined"
             >
@@ -290,11 +305,7 @@ export default function Form({ form, setForm }) {
           </Grid>
           <Grid item xs={12} sm={12}>
             <FormControl
-              error={
-                state.errors["image"] || state.errors["image"] === ""
-                  ? true
-                  : false
-              }
+              error={state.errors["image"] || state.errors["image"] === ""}
               fullWidth
               variant="outlined"
             >
@@ -313,11 +324,27 @@ export default function Form({ form, setForm }) {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => _onClose()} color="primary" autoFocus>
+        <Button
+          style={{ width: "5.25rem", height: "2.25rem" }}
+          variant="contained"
+          onClick={() => _onClose()}
+          color="primary"
+        >
           Cancel
         </Button>
-        <Button onClick={() => _onSubmit()} color="primary" autoFocus>
-          Submit
+        <Button
+          disabled={isSubmit}
+          variant="contained"
+          onClick={() => _onSubmit()}
+          color="primary"
+          autoFocus
+          style={{ width: "5.25rem", height: "2.25rem" }}
+        >
+          {isSubmit ? (
+            <CircularProgress color="secondary" size={"1.4rem"} />
+          ) : (
+            "Submit"
+          )}
         </Button>
       </DialogActions>
     </Dialog>

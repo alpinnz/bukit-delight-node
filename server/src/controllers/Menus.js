@@ -52,6 +52,7 @@ exports.Create = async (req, res, next) => {
     name: Joi.string().required(),
     desc: Joi.string().required(),
     price: Joi.number().required(),
+    promo: Joi.number().required(),
     id_category: Joi.string().required(),
   });
 
@@ -75,6 +76,7 @@ exports.Create = async (req, res, next) => {
       desc: body.desc,
       image: req.file.filename,
       price: body.price,
+      promo: body.promo,
       id_category: category._id,
     };
 
@@ -86,6 +88,7 @@ exports.Create = async (req, res, next) => {
       desc: menu.desc,
       image: menu.image,
       price: menu.price,
+      promo: menu.promo,
       category: category.name,
     };
     return Response.Success(res, "Create", 0, 200, data);
@@ -99,6 +102,7 @@ exports.Update = async (req, res, next) => {
     name: Joi.string().required(),
     desc: Joi.string().required(),
     price: Joi.number().required(),
+    promo: Joi.number().required(),
     id_category: Joi.string().required(),
   });
 
@@ -131,6 +135,7 @@ exports.Update = async (req, res, next) => {
       desc: body.desc,
       image: image,
       price: body.price,
+      promo: body.promo,
       id_category: category._id,
     };
 
@@ -145,6 +150,7 @@ exports.Update = async (req, res, next) => {
       desc: menuCheck.desc,
       image: menuCheck.image,
       price: menuCheck.price,
+      promo: menuCheck.promo,
       category: category.name,
     };
     return Response.Success(res, "Update", 0, 200, data);

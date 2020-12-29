@@ -11,7 +11,7 @@ import {
   FormControl,
   InputLabel,
   FormHelperText,
-  // DialogContentText,
+  CircularProgress,
 } from "@material-ui/core";
 import Actions from "./../../../redux/actions";
 import { useDispatch } from "react-redux";
@@ -20,6 +20,7 @@ import Axios from "./../../../helpers/axios";
 const URL_PATH = "api/v1/tables";
 
 export default function Form({ form, setForm }) {
+  const [isSubmit, setIsSubmit] = React.useState(false);
   const [state, setState] = React.useState({
     fields: {},
     errors: {},
@@ -86,20 +87,21 @@ export default function Form({ form, setForm }) {
     return formIsValid;
   };
 
-  const Load_API = async () => {
+  const LOAD_API_GET = async () => {
     await Axios.get(URL_PATH)
       .then((response) => {
         console.log(response);
         const data = response["data"]["data"];
-        dispatch(Actions.TablesAction.TablesUpdate(data));
+        dispatch(Actions.Tables.UPDATE(data));
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        dispatch(Actions.Services.popupNotification(`Tables : ${err}`));
       });
   };
 
   const onAdd = async () => {
+    setIsSubmit(true);
     const formData = new FormData();
     formData.append("name", state.fields["name"]);
 
@@ -110,32 +112,47 @@ export default function Form({ form, setForm }) {
     })
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Add table"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Add Tables"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification(`Add Tables :${err}`));
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const onDelete = async () => {
+    setIsSubmit(true);
     const _id = form.row._id;
     Axios.delete(`${URL_PATH}/${_id}`)
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Delete table"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Delete Tables"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification(`Delete Tables :${err}`));
+        }, 1500);
       });
     setForm({ ...form, open: false });
   };
 
   const onEdit = async () => {
+    setIsSubmit(true);
     const _id = form.row._id;
     const formData = new FormData();
     formData.append("name", state.fields["name"]);
@@ -147,12 +164,19 @@ export default function Form({ form, setForm }) {
     })
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Edit table"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Edit Tables"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification(`Edit Tables :${err}`));
+        }, 1500);
       });
     setForm({ ...form, open: false });
   };
@@ -180,11 +204,27 @@ export default function Form({ form, setForm }) {
         >
           <DialogTitle id="responsive-dialog-title">{`Really delete ${form.row.name} !!!`}</DialogTitle>
           <DialogActions>
-            <Button onClick={() => _onClose()} color="primary" autoFocus>
+            <Button
+              variant="contained"
+              onClick={() => _onClose()}
+              color="primary"
+              style={{ width: "5.25rem", height: "2.25rem" }}
+            >
               Cancel
             </Button>
-            <Button onClick={() => onDelete()} color="primary" autoFocus>
-              Submit
+            <Button
+              disabled={isSubmit}
+              variant="contained"
+              onClick={() => onDelete()}
+              color="primary"
+              autoFocus
+              style={{ width: "5.25rem", height: "2.25rem" }}
+            >
+              {isSubmit ? (
+                <CircularProgress color="secondary" size={"1.4rem"} />
+              ) : (
+                "Submit"
+              )}
             </Button>
           </DialogActions>
         </Dialog>
@@ -227,11 +267,27 @@ export default function Form({ form, setForm }) {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => _onClose()} color="primary" autoFocus>
+        <Button
+          style={{ width: "5.25rem", height: "2.25rem" }}
+          variant="contained"
+          onClick={() => _onClose()}
+          color="primary"
+        >
           Cancel
         </Button>
-        <Button onClick={() => _onSubmit()} color="primary" autoFocus>
-          Submit
+        <Button
+          disabled={isSubmit}
+          variant="contained"
+          onClick={() => _onSubmit()}
+          color="primary"
+          autoFocus
+          style={{ width: "5.25rem", height: "2.25rem" }}
+        >
+          {isSubmit ? (
+            <CircularProgress color="secondary" size={"1.4rem"} />
+          ) : (
+            "Submit"
+          )}
         </Button>
       </DialogActions>
     </Dialog>

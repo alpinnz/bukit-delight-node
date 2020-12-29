@@ -13,15 +13,17 @@ import {
   FormHelperText,
   Select,
   MenuItem,
+  CircularProgress,
 } from "@material-ui/core";
 import Actions from "./../../../redux/actions";
 import { useDispatch, useSelector } from "react-redux";
 import Axios from "./../../../helpers/axios";
 
-const URL_PATH = "api/v1/menus";
+const URL_PATH = "api/v1/accounts";
 
 export default function Form({ form, setForm }) {
   const Roles = useSelector((state) => state.Roles.data);
+  const [isSubmit, setIsSubmit] = React.useState(false);
   const [state, setState] = React.useState({
     fields: {},
     errors: {},
@@ -97,11 +99,42 @@ export default function Form({ form, setForm }) {
       errors["roles"] = "Cannot be empty";
     }
 
+    if (typeof fields["email"] !== "undefined") {
+      var pattern = new RegExp(
+        /^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i
+      );
+      if (!pattern.test(fields["email"])) {
+        formIsValid = false;
+        errors["email"] = "Email not valid";
+      }
+    }
+
+    if (!fields["password"]) {
+      formIsValid = false;
+      errors["password"] = "Cannot be empty";
+    }
+
+    if (!fields["repeat_password"]) {
+      formIsValid = false;
+      errors["repeat_password"] = "Cannot be empty";
+    }
+
+    if (
+      typeof fields["password"] !== "undefined" &&
+      typeof fields["repeat_password"] !== "undefined"
+    ) {
+      if (fields["password"] !== fields["repeat_password"]) {
+        formIsValid = false;
+        errors["password"] = "Password not match";
+        errors["repeat_password"] = "Password not match";
+      }
+    }
+
     setState({ ...state, errors: errors });
     return formIsValid;
   };
 
-  const Load_API = async () => {
+  const LOAD_API_GET = async () => {
     await Axios.get(URL_PATH)
       .then((response) => {
         console.log(response);
@@ -109,18 +142,19 @@ export default function Form({ form, setForm }) {
         dispatch(Actions.Accounts.UPDATE(data));
       })
       .catch((err) => {
-        dispatch(Actions.Services.popupNotification(err.toString()));
         console.log(err);
+        dispatch(Actions.Services.popupNotification(err.toString()));
       });
   };
 
   const onAdd = async () => {
+    setIsSubmit(true);
     const formData = new FormData();
-    formData.append("name", state.fields["name"]);
-    formData.append("desc", state.fields["desc"]);
-    formData.append("price", state.fields["price"]);
-    formData.append("id_category", state.fields["categories"]);
-    formData.append("image", state.fields["image"]);
+    formData.append("username", state.fields["username"]);
+    formData.append("email", state.fields["email"]);
+    formData.append("id_role", state.fields["roles"]);
+    formData.append("password", state.fields["password"]);
+    formData.append("repeat_password", state.fields["repeat_password"]);
 
     await Axios.post(URL_PATH, formData, {
       headers: {
@@ -129,39 +163,55 @@ export default function Form({ form, setForm }) {
     })
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.Services.popupNotification("Add"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Add Accounts"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.Services.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification(`Add Accounts :${err}`));
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const onDelete = async () => {
+    setIsSubmit(true);
     const _id = form.row._id;
     await Axios.delete(`${URL_PATH}/${_id}`)
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.Services.popupNotification("Delete"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Delete Accounts"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.Services.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(
+            Actions.Services.popupNotification(`Delete Accounts :${err}`)
+          );
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const onEdit = async () => {
+    setIsSubmit(true);
     const _id = form.row._id;
     const formData = new FormData();
-    formData.append("name", state.fields["name"]);
-    formData.append("desc", state.fields["desc"]);
-    if (state.fields["image"]) {
-      formData.append("image", state.fields["image"]);
-    }
+    formData.append("username", state.fields["username"]);
+    formData.append("email", state.fields["email"]);
+    formData.append("id_role", state.fields["roles"]);
+    formData.append("password", state.fields["password"]);
+    formData.append("repeat_password", state.fields["repeat_password"]);
 
     await Axios.put(`${URL_PATH}/${_id}`, formData, {
       headers: {
@@ -170,14 +220,20 @@ export default function Form({ form, setForm }) {
     })
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.Services.popupNotification("Edit"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Edit Accounts"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.Services.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification(`Edit Accounts :${err}`));
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const _onSubmit = () => {
@@ -204,11 +260,27 @@ export default function Form({ form, setForm }) {
         >
           <DialogTitle id="responsive-dialog-title">{`Really delete ${form.row.name} !!!`}</DialogTitle>
           <DialogActions>
-            <Button onClick={() => _onClose()} color="primary" autoFocus>
+            <Button
+              variant="contained"
+              onClick={() => _onClose()}
+              color="primary"
+              style={{ width: "5.25rem", height: "2.25rem" }}
+            >
               Cancel
             </Button>
-            <Button onClick={() => onDelete()} color="primary" autoFocus>
-              Submit
+            <Button
+              disabled={isSubmit}
+              variant="contained"
+              onClick={() => onDelete()}
+              color="primary"
+              autoFocus
+              style={{ width: "5.25rem", height: "2.25rem" }}
+            >
+              {isSubmit ? (
+                <CircularProgress color="secondary" size={"1.4rem"} />
+              ) : (
+                "Submit"
+              )}
             </Button>
           </DialogActions>
         </Dialog>
@@ -263,6 +335,7 @@ export default function Form({ form, setForm }) {
                 {Roles.map((e) => {
                   return (
                     <MenuItem
+                      key={e}
                       selected={
                         state.fields["roles"] === e["_id"] ? true : false
                       }
@@ -309,13 +382,13 @@ export default function Form({ form, setForm }) {
             >
               <InputLabel htmlFor="label-email">Password</InputLabel>
               <OutlinedInput
-                type="email"
                 labelId="label-password"
                 value={state.fields["password"] || ""}
                 onChange={(e) => handleChange("password", e.target.value)}
                 label="Password"
                 fullWidth
                 required
+                type="password"
               />
               <FormHelperText id="help-password">
                 {state.errors["password"] || ""}
@@ -335,7 +408,6 @@ export default function Form({ form, setForm }) {
                 Repeat Password
               </InputLabel>
               <OutlinedInput
-                type="email"
                 labelId="label-repeat_password"
                 value={state.fields["repeat_password"] || ""}
                 onChange={(e) =>
@@ -344,6 +416,7 @@ export default function Form({ form, setForm }) {
                 label="Repeat Password"
                 fullWidth
                 required
+                type="password"
               />
               <FormHelperText id="help-repeat_password">
                 {state.errors["repeat_password"] || ""}
@@ -353,11 +426,27 @@ export default function Form({ form, setForm }) {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => _onClose()} color="primary" autoFocus>
+        <Button
+          style={{ width: "5.25rem", height: "2.25rem" }}
+          variant="contained"
+          onClick={() => _onClose()}
+          color="primary"
+        >
           Cancel
         </Button>
-        <Button onClick={() => _onSubmit()} color="primary" autoFocus>
-          Submit
+        <Button
+          disabled={isSubmit}
+          variant="contained"
+          onClick={() => _onSubmit()}
+          color="primary"
+          autoFocus
+          style={{ width: "5.25rem", height: "2.25rem" }}
+        >
+          {isSubmit ? (
+            <CircularProgress color="secondary" size={"1.4rem"} />
+          ) : (
+            "Submit"
+          )}
         </Button>
       </DialogActions>
     </Dialog>

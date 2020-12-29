@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
 import { Router, Switch, Route, Redirect } from "react-router-dom";
 import PrivateRoute from "./private.route";
@@ -7,21 +8,35 @@ import AdminCategoriesView from "./../views/admin/categories.view";
 import AdminTablesView from "./../views/admin/tables.view";
 import AdminMenusView from "./../views/admin/menus.view";
 import AdminAccountsView from "./../views/admin/accounts.view";
+import HomeView from "./../views/home.view";
+import BookView from "./../views/book.view";
+import MenuView from "./../views/menu.view";
+import CartView from "./../views/cart.view";
 import history from "./../helpers/history";
+import Actions from "./../redux/actions";
+import { useDispatch } from "react-redux";
 
 const Routes = () => {
+  const dispatch = useDispatch();
+
   React.useEffect(() => {
-    history.listen((location, action) => {
-      // clear alert on location change
-      // dispatch(alertActions.clear());
-      console.log(location, action);
-    });
+    const account = localStorage.getItem("account");
+    if (account) {
+      dispatch(Actions.Authentication.LOGIN(account));
+    }
   }, []);
+
   return (
     <Router history={history}>
       <Switch>
-        <Route exact path="/" component={Home} />
-        <Route path="/login" component={AdminLoginView} />
+        <Route exact path="/" component={HomeView} />
+        <Route path="/home" component={HomeView} />
+
+        <Route path="/book/:_id" component={MenuView} />
+        <Route path="/book" component={BookView} />
+        <Route path="/cart" component={CartView} />
+
+        {/*  */}
         <Route path="/admin/login" component={AdminLoginView} />
         <PrivateRoute
           role="admin"
@@ -48,7 +63,7 @@ const Routes = () => {
           path="/admin/accounts"
           component={AdminAccountsView}
         />
-        <Redirect from="/admin/*" to="/admin/dashboard" />
+        <Redirect from="/admin*" to="/admin/dashboard" />
         <Redirect from="/*" to="/" />
       </Switch>
     </Router>
@@ -56,11 +71,3 @@ const Routes = () => {
 };
 
 export default Routes;
-
-function Home() {
-  return (
-    <div>
-      <h2>Home</h2>
-    </div>
-  );
-}

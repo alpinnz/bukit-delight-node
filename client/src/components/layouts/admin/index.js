@@ -1,9 +1,10 @@
 import * as React from "react";
-import { CssBaseline, makeStyles, Typography } from "@material-ui/core";
+import { makeStyles, Typography } from "@material-ui/core";
 import AppBarBasic from "./appBar";
 import DrawerBasic from "./drawer";
 import Copyright from "./../copyright";
 import useWindowDimensions from "./../../hooks/useWindowDimensions";
+import Snackbar from "./../../snackbar";
 
 function AdminIndex({ title, children }) {
   const [openMobileDrawer, setOpenMobileDrawer] = React.useState(false);
@@ -33,7 +34,6 @@ function AdminIndex({ title, children }) {
 
   return (
     <div className={classes.root}>
-      <CssBaseline />
       <AppBarBasic
         openMobileDrawer={openMobileDrawer}
         setOpenMobileDrawer={setOpenMobileDrawer}
@@ -86,6 +86,7 @@ function AdminIndex({ title, children }) {
         <footer className={classes.footer}>
           <Copyright />
         </footer>
+        <Snackbar />
       </main>
     </div>
   );

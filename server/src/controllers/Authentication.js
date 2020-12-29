@@ -15,6 +15,7 @@ const {
   JwtResetPasswordToken,
   VerifyResetPasswordToken,
 } = require("./../services/Authentication");
+const { json } = require("express");
 
 const err = (message, status) => {
   const error = new Error(`${message}`);
@@ -140,32 +141,37 @@ exports.RefreshToken = async (req, res, next) => {
   try {
     const ipAddress = req.ip;
 
-    let refreshToken;
-    if (req.headers["x-refresh-token"]) {
-      await RefreshTokens.findOne({
-        token: req.headers["x-refresh-token"],
-      })
-        .then((data) => {
-          refreshToken = data;
-        })
-        .catch((err) => {});
-    }
+    // let refreshToken = req.headers["x-refresh-token"];
+    // if (req.headers["x-refresh-token"]) {
+    //   await RefreshTokens.findOne({
+    //     token: req.headers["x-refresh-token"],
+    //   })
+    //     .then((data) => {
+    //       refreshToken = data;
+    //     })
+    //     .catch((err) => {});
+    // }
 
-    if (!refreshToken || !refreshToken.isActive) {
-    } else {
-      if (req.cookies["x-refresh-token"]) {
-        await RefreshTokens.findOne({
-          token: req.cookies["x-refresh-token"],
-        })
-          .then((data) => {
-            refreshToken = data;
-          })
-          .catch((err) => {});
-        if (!refreshToken || !refreshToken.isActive) {
-          return next(err("Invalid token", 401));
-        }
-      }
-    }
+    // if (!refreshToken || !refreshToken.isActive) {
+    // } else {
+    //   if (req.cookies["x-refresh-token"]) {
+    //     await RefreshTokens.findOne({
+    //       token: req.cookies["x-refresh-token"],
+    //     })
+    //       .then((data) => {
+    //         refreshToken = data;
+    //       })
+    //       .catch((err) => {});
+    //     if (!refreshToken || !refreshToken.isActive) {
+    //       return next(err("Invalid token", 401));
+    //     }
+    //   }
+    // }
+
+    let refreshToken = await RefreshTokens.findOne({
+      token: req.headers["x-refresh-token"],
+    });
+    if (!refreshToken) return next(err("Invalid token", 401));
 
     const decode = await VerifyRefreshToken(refreshToken.token);
     if (!decode) return next(err("Invalid token", 401));

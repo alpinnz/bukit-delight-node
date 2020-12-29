@@ -5,8 +5,6 @@ import Table from "./../../components/table";
 import { useSelector, useDispatch } from "react-redux";
 import Actions from "./../../redux/actions";
 import Axios from "./../../helpers/axios";
-import Backdrop from "./../../components/backdrop";
-import Snackbar from "./../../components/snackbar";
 import Form from "./../../components/admin/categories/form";
 
 const CategoriesView = () => {
@@ -16,28 +14,20 @@ const CategoriesView = () => {
     type: null,
     row: {},
   });
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  console.log(form);
-
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    Load_API();
+    LOAD_API_GET();
   }, []);
 
-  const Load_API = async () => {
-    setIsLoading(true);
+  const LOAD_API_GET = async () => {
     await Axios.get("api/v1/categories")
       .then((response) => {
-        console.log(response);
         const data = response["data"]["data"];
         dispatch(Actions.Categories.UPDATE(data));
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
       })
       .catch((err) => {
+        dispatch(Actions.Services.popupNotification(`Categories :${err}`));
         console.log(err);
       });
   };
@@ -66,8 +56,6 @@ const CategoriesView = () => {
   return (
     <AdminLayout title="Categories">
       <Form form={form} setForm={setForm} />
-      <Snackbar />
-      <Backdrop onOpen={isLoading} />
       <Table
         title="Data Categories"
         columns={columns}

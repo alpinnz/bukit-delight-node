@@ -62,8 +62,8 @@ const ListMenu = ({ row, onDeleteRow, onEditRow, size }) => {
         onClose={handleClose}
       >
         <MenuItem onClick={editRow}>
-          <ListItemIcon>
-            <EditIcon fontSize="small" color="secondary" />
+          <ListItemIcon style={{ minWidth: "2rem" }}>
+            <EditIcon fontSize="small" color="primary" />
           </ListItemIcon>
           <Typography variant="inherit">Edit</Typography>
         </MenuItem>
@@ -71,8 +71,8 @@ const ListMenu = ({ row, onDeleteRow, onEditRow, size }) => {
         <Divider />
 
         <MenuItem onClick={deleteRow}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" color="secondary" />
+          <ListItemIcon style={{ minWidth: "2rem" }}>
+            <DeleteIcon fontSize="small" color="primary" />
           </ListItemIcon>
           <Typography variant="inherit">Delete</Typography>
         </MenuItem>

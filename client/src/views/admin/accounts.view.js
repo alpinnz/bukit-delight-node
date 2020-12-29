@@ -5,31 +5,24 @@ import Table from "./../../components/table";
 import { useSelector, useDispatch } from "react-redux";
 import Actions from "./../../redux/actions";
 import Axios from "./../../helpers/axios";
-import Backdrop from "./../../components/backdrop";
-import Snackbar from "./../../components/snackbar";
 import Form from "./../../components/admin/accounts/form";
 
 const AccountsView = () => {
   const Accounts = useSelector((state) => state.Accounts);
-  console.log(Accounts["data"]);
+
   const [form, setForm] = React.useState({
     open: false,
     type: null,
     row: {},
   });
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  console.log(form);
-
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    Load_API();
+    LOAD_API_GET();
   }, []);
 
-  const Load_API = async () => {
-    setIsLoading(true);
-    await Axios.get("api/v1/roles")
+  const LOAD_API_GET = () => {
+    Axios.get("api/v1/roles")
       .then((response) => {
         console.log(response);
         const data = response["data"]["data"];
@@ -37,18 +30,17 @@ const AccountsView = () => {
       })
       .catch((err) => {
         console.log(err);
+        dispatch(Actions.Services.popupNotification(`Roles :${err}`));
       });
-    await Axios.get("api/v1/accounts")
+    Axios.get("api/v1/accounts")
       .then((response) => {
         console.log(response);
         const data = response["data"]["data"];
         dispatch(Actions.Accounts.UPDATE(data));
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
       })
       .catch((err) => {
         console.log(err);
+        dispatch(Actions.Services.popupNotification(`Accounts :${err}`));
       });
   };
 
@@ -78,8 +70,7 @@ const AccountsView = () => {
   return (
     <AdminLayout title="Accounts">
       <Form form={form} setForm={setForm} />
-      <Snackbar />
-      <Backdrop onOpen={isLoading} />
+
       <Table
         title="Data Accounts"
         columns={columns}

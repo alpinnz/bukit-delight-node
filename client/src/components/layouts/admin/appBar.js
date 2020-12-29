@@ -17,6 +17,8 @@ import AccountCircle from "@material-ui/icons/AccountCircle";
 import MailIcon from "@material-ui/icons/Mail";
 import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
+import Actions from "./../../../redux/actions";
+import { useDispatch } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -59,6 +61,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
   const classes = useStyles();
+  const dispatch = useDispatch();
+
+  const onLogout = () => {
+    dispatch(Actions.Services.popupNotification("Logout"));
+    dispatch(Actions.Authentication.LOGOUT());
+    localStorage.removeItem("account");
+  };
 
   function handleDrawerToggle() {
     setOpenMobileDrawer(!openMobileDrawer);
@@ -100,7 +109,7 @@ function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
     >
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <Divider />
-      <MenuItem onClick={handleMenuClose}>Logout</MenuItem>
+      <MenuItem onClick={onLogout}>Logout</MenuItem>
     </Menu>
   );
 
@@ -137,10 +146,11 @@ function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
           aria-controls="primary-search-account-menu"
           aria-haspopup="true"
           color="inherit"
+          onClick={onLogout}
         >
           <AccountCircle />
         </IconButton>
-        <p>Profile</p>
+        <p>Logout</p>
       </MenuItem>
     </Menu>
   );

@@ -13,6 +13,7 @@ import {
   FormHelperText,
   Select,
   MenuItem,
+  CircularProgress,
 } from "@material-ui/core";
 import Actions from "./../../../redux/actions";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +23,7 @@ const URL_PATH = "api/v1/menus";
 
 export default function Form({ form, setForm }) {
   const Categories = useSelector((state) => state.Categories.data);
+  const [isSubmit, setIsSubmit] = React.useState(false);
   const [state, setState] = React.useState({
     fields: {},
     errors: {},
@@ -34,6 +36,7 @@ export default function Form({ form, setForm }) {
         const row = {
           name: form.row.name,
           desc: form.row.desc,
+          promo: form.row.promo,
           price: form.row.price,
           categories: form.row._id_categories,
         };
@@ -98,10 +101,22 @@ export default function Form({ form, setForm }) {
       errors["price"] = "Cannot be empty";
     }
 
+    if (!fields["promo"]) {
+      formIsValid = false;
+      errors["promo"] = "Cannot be empty";
+    }
+
     if (typeof fields["price"] !== "undefined") {
-      if (!fields["price"].match(/^[0-9]+$/)) {
+      if (!`${fields["price"]}`.match(/^[0-9]+$/)) {
         formIsValid = false;
         errors["price"] = "Only numbers";
+      }
+    }
+
+    if (typeof fields["promo"] !== "undefined") {
+      if (!`${fields["promo"]}`.match(/^[0-9]+$/)) {
+        formIsValid = false;
+        errors["promo"] = "Only numbers";
       }
     }
 
@@ -121,24 +136,26 @@ export default function Form({ form, setForm }) {
     return formIsValid;
   };
 
-  const Load_API = async () => {
+  const LOAD_API_GET = async () => {
     await Axios.get(URL_PATH)
       .then((response) => {
         console.log(response);
         const data = response["data"]["data"];
-        dispatch(Actions.MenusAction.MenusUpdate(data));
+        dispatch(Actions.Menus.UPDATE(data));
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        dispatch(Actions.Services.popupNotification(`Menus : ${err}`));
       });
   };
 
   const onAdd = async () => {
+    setIsSubmit(true);
     const formData = new FormData();
     formData.append("name", state.fields["name"]);
     formData.append("desc", state.fields["desc"]);
     formData.append("price", state.fields["price"]);
+    formData.append("promo", state.fields["promo"]);
     formData.append("id_category", state.fields["categories"]);
     formData.append("image", state.fields["image"]);
 
@@ -149,35 +166,52 @@ export default function Form({ form, setForm }) {
     })
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Add"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Add Menus"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification(`Add Menus :${err}`));
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const onDelete = async () => {
+    setIsSubmit(true);
     const _id = form.row._id;
     await Axios.delete(`${URL_PATH}/${_id}`)
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Delete"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Delete Menus"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
         console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification(`Delete Menus :${err}`));
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const onEdit = async () => {
+    setIsSubmit(true);
     const _id = form.row._id;
     const formData = new FormData();
     formData.append("name", state.fields["name"]);
+    formData.append("price", state.fields["price"]);
+    formData.append("promo", state.fields["promo"]);
+    formData.append("id_category", state.fields["categories"]);
     formData.append("desc", state.fields["desc"]);
     if (state.fields["image"]) {
       formData.append("image", state.fields["image"]);
@@ -190,14 +224,20 @@ export default function Form({ form, setForm }) {
     })
       .then((response) => {
         console.log(response);
-        Load_API();
-        dispatch(Actions.ServicesAction.popupNotification("Edit"));
+        LOAD_API_GET();
+        setTimeout(() => {
+          setForm({ ...form, open: false });
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification("Edit Menus"));
+        }, 1500);
       })
       .catch((err) => {
-        dispatch(Actions.ServicesAction.popupNotification(err.toString()));
-        console.log(err);
+        setTimeout(() => {
+          setIsSubmit(false);
+          dispatch(Actions.Services.popupNotification(`Edit Menus :${err}`));
+          console.log(err);
+        }, 1500);
       });
-    setForm({ ...form, open: false });
   };
 
   const _onSubmit = () => {
@@ -207,10 +247,6 @@ export default function Form({ form, setForm }) {
       } else if (form.type === "edit") {
         onEdit();
       }
-
-      // setForm({ ...form, open: false });
-    } else {
-      // dispatch(Actions.ServicesAction.popupNotification("Failed form"));
     }
   };
 
@@ -226,17 +262,28 @@ export default function Form({ form, setForm }) {
           aria-describedby="alert-dialog-description"
         >
           <DialogTitle id="responsive-dialog-title">{`Really delete ${form.row.name} !!!`}</DialogTitle>
-          {/* <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {`Really delete ${form.row.name} !!!`}
-            </DialogContentText>
-          </DialogContent> */}
           <DialogActions>
-            <Button onClick={() => _onClose()} color="primary" autoFocus>
+            <Button
+              variant="contained"
+              onClick={() => _onClose()}
+              color="primary"
+              style={{ width: "5.25rem", height: "2.25rem" }}
+            >
               Cancel
             </Button>
-            <Button onClick={() => onDelete()} color="primary" autoFocus>
-              Submit
+            <Button
+              disabled={isSubmit}
+              variant="contained"
+              onClick={() => onDelete()}
+              color="primary"
+              autoFocus
+              style={{ width: "5.25rem", height: "2.25rem" }}
+            >
+              {isSubmit ? (
+                <CircularProgress color="secondary" size={"1.4rem"} />
+              ) : (
+                "Submit"
+              )}
             </Button>
           </DialogActions>
         </Dialog>
@@ -348,6 +395,7 @@ export default function Form({ form, setForm }) {
                 {Categories.map((e) => {
                   return (
                     <MenuItem
+                      key={e}
                       selected={
                         state.fields["categories"] === e["_id"] ? true : false
                       }
@@ -363,7 +411,34 @@ export default function Form({ form, setForm }) {
               </FormHelperText>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={12}>
+
+          <Grid item xs={12} sm={6}>
+            <FormControl
+              error={
+                state.errors["promo"] || state.errors["promo"] === ""
+                  ? true
+                  : false
+              }
+              fullWidth
+              variant="outlined"
+            >
+              <InputLabel htmlFor="label-promo">Promo</InputLabel>
+              <OutlinedInput
+                labelId="label-promo"
+                type="number"
+                value={state.fields["promo"] || ""}
+                onChange={(e) => handleChange("promo", e.target.value)}
+                label="Promo"
+                fullWidth
+                required
+              />
+              <FormHelperText id="help-promo">
+                {state.errors["promo"] || ""}
+              </FormHelperText>
+            </FormControl>
+          </Grid>
+
+          <Grid item xs={12} sm={6}>
             <FormControl
               error={
                 state.errors["image"] || state.errors["image"] === ""
@@ -388,11 +463,27 @@ export default function Form({ form, setForm }) {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => _onClose()} color="primary" autoFocus>
+        <Button
+          style={{ width: "5.25rem", height: "2.25rem" }}
+          variant="contained"
+          onClick={() => _onClose()}
+          color="primary"
+        >
           Cancel
         </Button>
-        <Button onClick={() => _onSubmit()} color="primary" autoFocus>
-          Submit
+        <Button
+          disabled={isSubmit}
+          variant="contained"
+          onClick={() => _onSubmit()}
+          color="primary"
+          autoFocus
+          style={{ width: "5.25rem", height: "2.25rem" }}
+        >
+          {isSubmit ? (
+            <CircularProgress color="secondary" size={"1.4rem"} />
+          ) : (
+            "Submit"
+          )}
         </Button>
       </DialogActions>
     </Dialog>
