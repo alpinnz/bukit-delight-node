@@ -3,13 +3,7 @@ import BottomNavigationCustom from "./buttom.navigation.custom";
 import useWindowDimensions from "./../components/hooks/useWindowDimensions";
 import AppBarMenu from "./customer/menu/app.bar";
 
-const ContainerBase = ({
-  navigationActive,
-  type,
-  children,
-  title,
-  paddingTop,
-}) => {
+const ContainerBase = ({ navigationActive, type, children, title }) => {
   const { height } = useWindowDimensions();
   const AppBarHight = 60;
   return (

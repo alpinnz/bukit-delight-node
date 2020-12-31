@@ -17,39 +17,33 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function OrderDialog({ data, open, onClose }) {
+export default function EditDialog({ data, open, onClose, prevCount }) {
   const dispatch = useDispatch();
   const { width } = useWindowDimensions();
-  const [qty, setQty] = React.useState(0);
+  const [qty, setQty] = React.useState(prevCount ? prevCount : 0);
   const [note, setNote] = React.useState("");
 
   React.useEffect(() => {
-    if (data) {
-      setQty(data.qty || 0);
-      setNote(data.note || "");
-    }
+    setQty(0);
+    setNote("");
   }, [data]);
 
   const onAdd = () => setQty(qty + 1);
   const onRemove = () => {
     if (qty > 0) {
-      let val = qty - 1;
-      setQty(val);
+      setQty(qty - 1);
     }
   };
   const onSubmit = () => {
     if (qty > 0) {
       dispatch(
-        Actions.Cart.EDIT(data._id, {
-          _id: data._id,
-          id_menu: data.id_menu,
+        Actions.Cart.ADD({
+          _id: `${data._id}-${new Date().getTime()}`,
+          id_menu: data._id,
           note: note,
           qty: qty,
         })
       );
-      onClose();
-    } else {
-      dispatch(Actions.Cart.DELETE(data._id));
       onClose();
     }
   };

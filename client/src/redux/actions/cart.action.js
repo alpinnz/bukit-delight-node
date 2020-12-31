@@ -5,10 +5,10 @@ const ADD = (cart) => {
   };
 };
 
-const EDIT = (id, cart) => {
+const EDIT = (_id, { qty, note }) => {
   return {
     type: "Cart/EDIT_CART",
-    payload: { _id: id, cart: cart },
+    payload: { _id, qty, note },
   };
 };
 

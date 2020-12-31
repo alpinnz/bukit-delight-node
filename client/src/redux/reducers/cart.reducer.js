@@ -11,7 +11,11 @@ const CartReducer = (state = initialState, action) => {
   if (action.type === "Cart/EDIT_CART") {
     let temp = state.data;
     const i = temp.findIndex((e) => e._id === action.payload._id);
-    temp[i] = action.payload.cart;
+    temp[i] = {
+      ...temp[i],
+      note: action.payload.note,
+      qty: action.payload.qty,
+    };
     return { ...state, data: temp };
   }
   return state;

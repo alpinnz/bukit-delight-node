@@ -10,7 +10,7 @@ import {
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 import Actions from "./../../../redux/actions";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import useWindowDimensions from "./../../hooks/useWindowDimensions";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -18,7 +18,6 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function OrderDialog({ data, open, onClose, prevCount }) {
-  // const Categories = useSelector((state) => state.Categories);
   const dispatch = useDispatch();
   const { width } = useWindowDimensions();
   const [qty, setQty] = React.useState(prevCount ? prevCount : 0);
@@ -39,7 +38,7 @@ export default function OrderDialog({ data, open, onClose, prevCount }) {
     if (qty > 0) {
       dispatch(
         Actions.Cart.ADD({
-          _id: `cart-${data._id}-${new Date().getTime()}`,
+          _id: `${data._id}-${new Date().getTime()}`,
           id_menu: data._id,
           note: note,
           qty: qty,
