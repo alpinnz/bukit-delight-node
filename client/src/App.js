@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import useNetwork from "./components/hooks/use.network";
+import Routes from "./routes";
+import { Provider } from "react-redux";
+import Store from "./store";
 
-function App() {
+const NetworkStatusView = () => {
+  const isNetwork = useNetwork();
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {!isNetwork && (
+        <div className="internet-error">
+          <p>Internet connection lost</p>
+        </div>
+      )}
     </div>
   );
-}
+};
+
+const App = () => {
+  return (
+    <div>
+      <Provider store={Store}>
+        <NetworkStatusView />
+        <Routes />
+      </Provider>
+    </div>
+  );
+};
 
 export default App;
