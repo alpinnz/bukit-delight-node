@@ -15,11 +15,10 @@ const {
   JwtResetPasswordToken,
   VerifyResetPasswordToken,
 } = require("./../services/Authentication");
-const { json } = require("express");
 
 const err = (message, status) => {
   const error = new Error(`${message}`);
-  error.status = status || 300;
+  error.status = status || 200;
   return error;
 };
 
@@ -74,7 +73,7 @@ exports.Register = async (req, res, next) => {
     };
     return Response.Success(res, "Register", 0, 200, data);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -133,7 +132,7 @@ exports.Login = async (req, res, next) => {
     };
     return Response.Success(res, "Login", 0, 200, data);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -209,7 +208,7 @@ exports.RefreshToken = async (req, res, next) => {
     };
     return Response.Success(res, "Refresh Token", 0, 200, data);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -230,7 +229,7 @@ exports.Logout = async (req, res, next) => {
     if (!revokeToken) return next(err("Invalid revoke token", 401));
     return Response.Success(res, "Revoke token", 0, 200);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -265,7 +264,7 @@ exports.ForgotPassword = async (req, res, next) => {
       return next(err("Reset password link error", 300));
     }
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
   return Response.Success(res, "Email has been sent, follow the intructions");
 };

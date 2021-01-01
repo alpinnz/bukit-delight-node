@@ -4,7 +4,7 @@ const { Orders, ItemOrders, Menus, Transactions } = require("./../models");
 
 const err = (message, status) => {
   const error = new Error(`${message}`);
-  error.status = status || 300;
+  error.status = status || 200;
   return error;
 };
 
@@ -24,7 +24,7 @@ exports.ReadAll = async (req, res, next) => {
 
     return Response.Success(res, "ReadAll", 0, 200, itemOrders);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -44,7 +44,7 @@ exports.ReadOne = async (req, res, next) => {
 
     return Response.Success(res, "ReadOne", 0, 200, itemOrder);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -85,7 +85,7 @@ exports.Create = async (req, res, next) => {
 
     return Response.Success(res, "Create", 0, 200, itemOrder);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -134,7 +134,7 @@ exports.Update = async (req, res, next) => {
 
     return Response.Success(res, "Update", 0, 200, itemOrderCheck);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -146,6 +146,6 @@ exports.Delete = async (req, res, next) => {
     if (!itemOrders) return next(err("ItemOrder not found"));
     return Response.Success(res, "Delete", 0, 200, itemOrders);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };

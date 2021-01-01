@@ -3,7 +3,7 @@ const { Roles } = require("./../models");
 
 const err = (message, status) => {
   const error = new Error(`${message}`);
-  error.status = status || 300;
+  error.status = status || 200;
   return error;
 };
 
@@ -14,6 +14,6 @@ exports.ReadAll = async (req, res, next) => {
     if (!roles) return next(err("Roles not found"));
     return Response.Success(res, "Roles", 0, 200, roles);
   } catch (error) {
-    return next(err(error), 404);
+    return next(err(error), 200);
   }
 };
