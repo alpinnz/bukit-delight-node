@@ -1,5 +1,4 @@
 const Router = require("express").Router();
-
 // Router v1
 const v1 = require("./v1");
 Router.use("/api/v1", v1);

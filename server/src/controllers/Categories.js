@@ -4,7 +4,7 @@ const { Categories } = require("./../models");
 
 const err = (message, status) => {
   const error = new Error(`${message}`);
-  error.status = status || 300;
+  error.status = status || 200;
   return error;
 };
 
@@ -22,7 +22,7 @@ exports.ReadAll = async (req, res, next) => {
     });
     return Response.Success(res, "Categories", 0, 200, newCategories);
   } catch (error) {
-    return next(err(error), 404);
+    return next(err(error), 200);
   }
 };
 
@@ -37,11 +37,13 @@ exports.ReadOne = async (req, res, next) => {
         : null;
     return Response.Success(res, "Category", 0, 200, category);
   } catch (error) {
-    return next(err(error), 404);
+    return next(err(error), 200);
   }
 };
 
 exports.Create = async (req, res, next) => {
+  console.log(req.body);
+  console.log(req.file);
   const schema = Joi.object({
     name: Joi.string().required(),
     desc: Joi.string().required(),
@@ -80,7 +82,7 @@ exports.Create = async (req, res, next) => {
     };
     return Response.Success(res, "Create", 0, 200, data);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -135,7 +137,7 @@ exports.Update = async (req, res, next) => {
     };
     return Response.Success(res, "Update", 0, 200, data);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
 
@@ -144,9 +146,9 @@ exports.Delete = async (req, res, next) => {
     const {} = req.body;
     const category = await Categories.findByIdAndDelete(req.params._id);
 
-    if (!category) return next(err("Category not found", 404));
+    if (!category) return next(err("Category not found", 200));
     return Response.Success(res, "Delete", 0, 200, category);
   } catch (error) {
-    return next(err(error, 404));
+    return next(err(error, 200));
   }
 };
