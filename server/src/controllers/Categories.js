@@ -110,7 +110,7 @@ exports.Update = async (req, res, next) => {
 
     let image = category.image;
     if (req.file) {
-      if (req.file.fieldname !== "image") {
+      if (req.file.fieldname && req.file.fieldname === "image") {
         image = req.file.filename;
       }
     }

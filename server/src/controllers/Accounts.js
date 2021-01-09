@@ -98,8 +98,8 @@ exports.Update = async (req, res, next) => {
     username: Joi.string().required(),
     email: Joi.string().required().email(),
     id_role: Joi.string().required(),
-    password: Joi.string().required(),
-    repeat_password: Joi.string().valid(Joi.ref("password")).required(),
+    password: Joi.string(),
+    repeat_password: Joi.string().valid(Joi.ref("password")),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -136,18 +136,18 @@ exports.Update = async (req, res, next) => {
     if (!role) {
       return next(err("Role not found"));
     }
-    const hashPassword = await HashPassword(body.password);
 
-    const newAccount = {
-      username: body.username,
-      email: body.email.toLowerCase(),
-      password: hashPassword,
-      id_role: role._id,
-    };
+    account.username = body.username;
+    account.email = body.email.toLowerCase();
+    if (body.password) {
+      const hashPassword = await HashPassword(body.password);
+      account.password = hashPassword;
+    }
+    account.id_role = role._id;
 
     const accountUpdate = await Accounts.findByIdAndUpdate(
       req.params._id,
-      newAccount
+      account
     );
     if (!accountUpdate) {
       return next(err("Update failed"));

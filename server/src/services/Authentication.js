@@ -109,20 +109,26 @@ exports.RevokeToken = async (ipAddress, refreshToken) => {
   }
 };
 
-exports.SetRefreshTokenCookie = (res, token) => {
-  // create http only cookie with refresh token that expires in 7 days
-  const cookieOptions = {
-    httpOnly: true,
-    expires: new Date(Date.now() + parseInt(process.env.REFRESH_TOKEN_TIMEOUT)),
-  };
-  res.cookie("x-acceess-token", token, cookieOptions);
-};
-
 exports.SetAccessTokenCookie = (res, token) => {
-  // create http only cookie with refresh token that expires in 7 days
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + parseInt(process.env.ACCESS_TOKEN_TIMEOUT)),
   };
   res.cookie("x-refresh-token", token, cookieOptions);
+};
+
+exports.SetRefreshTokenCookie = (res, token) => {
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date(Date.now() + parseInt(process.env.REFRESH_TOKEN_TIMEOUT)),
+  };
+  res.cookie("x-action-token", token, cookieOptions);
+};
+
+exports.RemoveAccessTokenCookie = (res) => {
+  res.clearCookie("x-refresh-token");
+};
+
+exports.RemoveRefreshTokenCookie = (res) => {
+  res.clearCookie("x-action-token");
 };

@@ -8,12 +8,14 @@ const {
   JwtAccessToken,
   JwtRefreshTokenCreate,
   JwtRefreshTokenReplaced,
-  SetAccessTokenCookie,
-  SetRefreshTokenCookie,
+  // SetAccessTokenCookie,
+  // SetRefreshTokenCookie,
   VerifyRefreshToken,
   RevokeToken,
   JwtResetPasswordToken,
   VerifyResetPasswordToken,
+  // RemoveAccessTokenCookie,
+  // RemoveRefreshTokenCookie,
 } = require("./../services/Authentication");
 
 const err = (message, status) => {
@@ -116,15 +118,16 @@ exports.Login = async (req, res, next) => {
       return next(err("Token Error"));
     }
 
-    SetAccessTokenCookie(res, accessToken);
+    // SetAccessTokenCookie(res, accessToken);
 
     const refreshToken = await JwtRefreshTokenCreate(account, ipAddress);
     if (!refreshToken) {
       return next(err("Refresh Token Error"));
     }
 
-    SetRefreshTokenCookie(res, refreshToken);
+    // SetRefreshTokenCookie(res, refreshToken);
     const data = {
+      username: account.username,
       email: account.email,
       role: role.name,
       accessToken: accessToken,
@@ -140,47 +143,25 @@ exports.RefreshToken = async (req, res, next) => {
   try {
     const ipAddress = req.ip;
 
-    // let refreshToken = req.headers["x-refresh-token"];
-    // if (req.headers["x-refresh-token"]) {
-    //   await RefreshTokens.findOne({
-    //     token: req.headers["x-refresh-token"],
-    //   })
-    //     .then((data) => {
-    //       refreshToken = data;
-    //     })
-    //     .catch((err) => {});
-    // }
-
-    // if (!refreshToken || !refreshToken.isActive) {
-    // } else {
-    //   if (req.cookies["x-refresh-token"]) {
-    //     await RefreshTokens.findOne({
-    //       token: req.cookies["x-refresh-token"],
-    //     })
-    //       .then((data) => {
-    //         refreshToken = data;
-    //       })
-    //       .catch((err) => {});
-    //     if (!refreshToken || !refreshToken.isActive) {
-    //       return next(err("Invalid token", 401));
-    //     }
-    //   }
-    // }
-
     let refreshToken = await RefreshTokens.findOne({
       token: req.headers["x-refresh-token"],
     });
-    if (!refreshToken) return next(err("Invalid token", 401));
+    if (!refreshToken || refreshToken.revoked)
+      return next(err("Invalid token", 200));
 
     const decode = await VerifyRefreshToken(refreshToken.token);
-    if (!decode) return next(err("Invalid token", 401));
+    if (!decode) {
+      return next(err("Invalid token", 200));
+    }
 
     const account = await Accounts.findById(decode.id);
-    if (!account) return next(err("Failed account not found", 401));
+    if (!account) {
+      return next(err("Failed account not found", 200));
+    }
 
     const role = await Roles.findById(account.id_role);
     if (!role) {
-      return next(err("Role account not found", 401));
+      return next(err("Role account not found", 200));
     }
 
     const newRefreshToken = await JwtRefreshTokenReplaced(
@@ -189,18 +170,19 @@ exports.RefreshToken = async (req, res, next) => {
       refreshToken
     );
     if (!newRefreshToken) {
-      return next(err("Refresh Token Error", 401));
+      return next(err("Refresh Token Error", 200));
     }
 
     const newAccessToken = await JwtAccessToken(account);
     if (!newAccessToken) {
-      return next(err("Token Error", 401));
+      return next(err("Token Error", 200));
     }
-    const setAccessTokenCookie = SetAccessTokenCookie(res, newAccessToken);
+    // const setAccessTokenCookie = SetAccessTokenCookie(res, newAccessToken);
 
-    const setRefreshTokenCookie = SetRefreshTokenCookie(res, newRefreshToken);
+    // const setRefreshTokenCookie = SetRefreshTokenCookie(res, newRefreshToken);
 
     const data = {
+      username: account.username,
       email: account.email,
       role: role.name,
       accessToken: newAccessToken,
@@ -216,17 +198,21 @@ exports.Logout = async (req, res, next) => {
   try {
     const ipAddress = req.ip;
     const xrefreshToken = req.headers["x-refresh-token"];
-    if (!xrefreshToken) return next(err("Failed authorization", 401));
+    if (!xrefreshToken) {
+      return next(err("Failed authorization", 200));
+    }
 
     const refreshToken = await RefreshTokens.findOne({
       token: xrefreshToken,
     });
     if (!refreshToken || !refreshToken.isActive) {
-      return next(err("Invalid token", 401));
+      return next(err("Invalid token", 200));
     }
 
     const revokeToken = await RevokeToken(ipAddress, refreshToken);
-    if (!revokeToken) return next(err("Invalid revoke token", 401));
+    if (!revokeToken) {
+      return next(err("Invalid revoke token", 200));
+    }
     return Response.Success(res, "Revoke token", 0, 200);
   } catch (error) {
     return next(err(error, 200));

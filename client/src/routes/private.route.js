@@ -1,13 +1,19 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const PrivateRoute = ({ role, component: Component, ...rest }) => {
-  const isAuth = true;
+  const Authentication = useSelector((state) => state.Authentication);
+  const isAuth = Authentication.account.username;
+  const isRole =
+    `${Authentication.account.role}`.toLowerCase() === `${role}`.toLowerCase()
+      ? true
+      : false;
   let pathname;
 
   switch (`${role}`.toLowerCase()) {
     case "admin":
-      pathname = "/admin";
+      pathname = "/admin/login";
       break;
     case "customer":
       pathname = "/customer";
@@ -24,7 +30,7 @@ const PrivateRoute = ({ role, component: Component, ...rest }) => {
     <Route
       {...rest}
       render={(props) => {
-        if (isAuth) {
+        if (isAuth && isRole) {
           return <Component />;
         } else {
           return (
