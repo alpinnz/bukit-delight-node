@@ -258,6 +258,9 @@ const ContentRight = () => {
         overflow: "scroll",
       }}
     >
+      <div
+        style={{ backgroundColor: "#FFA472", height: "0.5rem", width: "100%" }}
+      />
       <Overview />
       {Cart.data.length > 0 && (
         <>
