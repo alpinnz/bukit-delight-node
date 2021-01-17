@@ -127,6 +127,7 @@ exports.Login = async (req, res, next) => {
 
     // SetRefreshTokenCookie(res, refreshToken);
     const data = {
+      _id: account._id,
       username: account.username,
       email: account.email,
       role: role.name,
@@ -182,6 +183,7 @@ exports.RefreshToken = async (req, res, next) => {
     // const setRefreshTokenCookie = SetRefreshTokenCookie(res, newRefreshToken);
 
     const data = {
+      _id: account._id,
       username: account.username,
       email: account.email,
       role: role.name,

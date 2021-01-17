@@ -2,40 +2,30 @@ import React from "react";
 import { Route, Redirect } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const PrivateRoute = ({ role, component: Component, ...rest }) => {
-  const Authentication = useSelector((state) => state.Authentication);
-  const isAuth = Authentication.account.username;
-  const isRole =
-    `${Authentication.account.role}`.toLowerCase() === `${role}`.toLowerCase()
-      ? true
-      : false;
-  let pathname;
-
-  switch (`${role}`.toLowerCase()) {
-    case "admin":
-      pathname = "/admin/login";
-      break;
-    case "customer":
-      pathname = "/customer";
-      break;
-    case "kasir":
-      pathname = "/kasir";
-      break;
-    default:
-      pathname = "/";
-      break;
-  }
+const PrivateRoute = (props) => {
+  const { role, component: Component, ...rest } = props;
+  const account = useSelector((state) => state.Authentication.account);
+  console.log("account", account);
 
   return (
     <Route
       {...rest}
       render={(props) => {
-        if (isAuth && isRole) {
-          return <Component />;
+        if (account) {
+          const roleName = `${role}`.toLowerCase();
+          const roleAuth = `${account.role}`.toLowerCase();
+          const isRole = roleName === roleAuth ? true : false;
+          if (isRole) {
+            return <Component />;
+          } else {
+            <Redirect
+              to={{ pathname: `/${roleName}`, state: { from: props.location } }}
+            />;
+          }
         } else {
           return (
             <Redirect
-              to={{ pathname: pathname, state: { from: props.location } }}
+              to={{ pathname: "/login", state: { from: props.location } }}
             />
           );
         }

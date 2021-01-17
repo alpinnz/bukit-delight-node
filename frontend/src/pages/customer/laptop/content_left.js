@@ -192,6 +192,7 @@ const ListProducts = () => {
 const ListFavorit = () => {
   const dispatch = useDispatch();
   const Menus = useSelector((state) => state.Menus);
+
   const Cart = useSelector((state) => state.Cart);
   const selected = Cart.selected.menu;
 
@@ -215,7 +216,7 @@ const ListFavorit = () => {
     let index = 0;
     let temp = [[]];
 
-    const data = await Menus.data;
+    const data = Menus.data.filter((e) => e.promo > 0);
 
     for (let i = 0; i < data.length; i++) {
       if (i % 5 === 0 && i !== 0) {

@@ -1,11 +1,15 @@
-import { LOADING, SET_CATEGORIES } from "./../actions/categories.action";
+import { MOUNT, LOADING, SET_CATEGORIES } from "./../actions/categories.action";
 
 const initialState = {
+  mount: false,
   loading: false,
   data: [],
 };
 
-const AccountsReducer = (state = initialState, action) => {
+const CategoriesReducer = (state = initialState, action) => {
+  if (action.type === MOUNT) {
+    return { ...state, mount: true };
+  }
   if (action.type === LOADING) {
     return { ...state, loading: action.payload };
   }
@@ -19,4 +23,4 @@ const AccountsReducer = (state = initialState, action) => {
 
   return state;
 };
-export default AccountsReducer;
+export default CategoriesReducer;

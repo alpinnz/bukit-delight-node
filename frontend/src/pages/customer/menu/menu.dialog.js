@@ -12,12 +12,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 export default function MenuDialog() {
   const dispatch = useDispatch();
-  const Cart = useSelector((state) => state.Cart);
+  const open = useSelector((state) => state.Cart.dialog_menu.open);
+  const loading = useSelector((state) => state.Cart.loading);
+  const selected = useSelector((state) => state.Cart.selected);
 
-  const quality = Cart.selected.quality;
-  const note = Cart.selected.note;
-  const menu = Cart.selected.menu;
-  const open = Cart.dialog_menu.open;
+  const quality = selected.quality;
+  const note = selected.note;
+  const menu = selected.menu;
 
   function convertPrice(num) {
     return Math.abs(num) > 999
@@ -39,9 +40,9 @@ export default function MenuDialog() {
 
   const onSubmit = () => {
     if (quality <= 0) {
-      if (Cart.selected.id_cart) {
+      if (selected.id_cart) {
         // Remove
-        const id_cart = Cart.selected.id_cart;
+        const id_cart = selected.id_cart;
         onDelete(id_cart);
         onClean();
         onClose();
@@ -51,9 +52,9 @@ export default function MenuDialog() {
         onClose();
       }
     } else {
-      if (Cart.selected.id_cart) {
+      if (selected.id_cart) {
         // Edit
-        const id_cart = Cart.selected.id_cart;
+        const id_cart = selected.id_cart;
         dispatch(Actions.Cart.onUpdate(menu, id_cart, quality, note));
         onClean();
         onClose();
@@ -102,9 +103,27 @@ export default function MenuDialog() {
             </div>
             <Grid container>
               <Grid item xs={2} sm={2}>
-                <Typography variant="h6" style={{ color: "#37929E" }}>
-                  {convertPrice(menu.price)}
-                </Typography>
+                {menu.promo > 0 ? (
+                  <div style={{ display: "flex" }}>
+                    <Typography
+                      variant="h6"
+                      style={{
+                        color: "#37929E",
+                        textDecorationLine: "line-through",
+                        marginRight: "0.5rem",
+                      }}
+                    >
+                      {convertPrice(menu.price)}
+                    </Typography>
+                    <Typography variant="h6" style={{ color: "#37929E" }}>
+                      {convertPrice(menu.price - menu.promo)}
+                    </Typography>
+                  </div>
+                ) : (
+                  <Typography variant="h6" style={{ color: "#37929E" }}>
+                    {convertPrice(menu.price)}
+                  </Typography>
+                )}
               </Grid>
               <Grid item xs={1} sm={1}></Grid>
               <Grid item xs={9} sm={9}>
@@ -164,10 +183,10 @@ export default function MenuDialog() {
               <ButtonCustom
                 label={
                   quality > 0
-                    ? Cart.selected.id_cart
+                    ? selected.id_cart
                       ? "Edit"
                       : "Add"
-                    : Cart.selected.id_cart
+                    : selected.id_cart
                     ? "Remove"
                     : "Cancel"
                 }
@@ -177,8 +196,8 @@ export default function MenuDialog() {
                   color: "#FFFFFF",
                 }}
                 variant="contained"
-                disabled={Cart.loading}
-                loading={Cart.loading}
+                disabled={loading}
+                loading={loading}
                 onClick={() => onSubmit()}
                 fullWidth
               />

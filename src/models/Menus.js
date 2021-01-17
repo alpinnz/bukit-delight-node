@@ -28,6 +28,14 @@ const schema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    duration: {
+      type: Number,
+      required: true,
+    },
+    isAvailable: {
+      type: Boolean,
+      required: true,
+    },
   },
   {
     timestamps: true,

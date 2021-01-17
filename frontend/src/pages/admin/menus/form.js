@@ -25,8 +25,10 @@ const Form = () => {
           name: row.name,
           desc: row.desc,
           price: row.price,
+          duration: row.duration,
           promo: row.promo,
           id_category: row.id_category ? row.id_category._id : "",
+          isAvailable: row.isAvailable,
         };
         setState({
           fields: fields,
@@ -74,12 +76,20 @@ const Form = () => {
             validate: ["required", "number"],
           },
           {
+            key: "duration",
+            validate: ["required", "number"],
+          },
+          {
             key: "id_category",
             validate: ["required"],
           },
           {
             key: "promo",
-            validate: ["required", "number"],
+            validate: ["number"],
+          },
+          {
+            key: "isAvailable",
+            validate: ["required"],
           },
         ];
         const validate = await Validate(state, setState, formSet);
@@ -106,8 +116,16 @@ const Form = () => {
             validate: ["required"],
           },
           {
-            key: "promo",
+            key: "duration",
             validate: ["required", "number"],
+          },
+          {
+            key: "promo",
+            validate: ["number"],
+          },
+          {
+            key: "isAvailable",
+            validate: ["required"],
           },
         ];
         const validate = await Validate(state, setState, formSet);
@@ -178,6 +196,17 @@ const Form = () => {
 
             <Grid item xs={12} sm={6}>
               <FormControlCustom
+                error={state.errors["duration"]}
+                label="Duration"
+                value={state.fields["duration"]}
+                onChange={(e) => handleChange("duration", e.target.value)}
+                type="duration"
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <FormControlCustom
                 data={Categories.data}
                 error={state.errors["id_category"]}
                 label="Categories"
@@ -194,6 +223,17 @@ const Form = () => {
                 value={state.fields["image"]}
                 onChange={(e) => handleChange("image", e.target.files[0])}
                 type="file"
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <FormControlCustom
+                error={state.errors["isAvailable"]}
+                label="Available"
+                value={state.fields["isAvailable"]}
+                onChange={(e) => handleChange("isAvailable", e.target.checked)}
+                type="switch"
                 required
               />
             </Grid>
@@ -256,6 +296,17 @@ const Form = () => {
 
             <Grid item xs={12} sm={6}>
               <FormControlCustom
+                error={state.errors["duration"]}
+                label="Duration"
+                value={state.fields["duration"]}
+                onChange={(e) => handleChange("duration", e.target.value)}
+                type="duration"
+                required
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <FormControlCustom
                 data={Categories.data}
                 error={state.errors["id_category"]}
                 label="Categories"
@@ -272,6 +323,16 @@ const Form = () => {
                 value={state.fields["image"]}
                 onChange={(e) => handleChange("image", e.target.files[0])}
                 type="file"
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControlCustom
+                error={state.errors["isAvailable"]}
+                label="Available"
+                value={state.fields["isAvailable"]}
+                onChange={(e) => handleChange("isAvailable", e.target.checked)}
+                type="switch"
                 required
               />
             </Grid>

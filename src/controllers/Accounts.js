@@ -87,6 +87,9 @@ exports.Create = async (req, res, next) => {
       email: account.email,
       role: role.name,
     };
+
+    // socket io
+    req.app.io.emit("AccountsUpdate", "AccountsUpdate");
     return Response.Success(res, "Register", 0, 200, data);
   } catch (error) {
     return next(err(error), 200);
@@ -116,8 +119,7 @@ exports.Update = async (req, res, next) => {
 
     const regexUsername = new RegExp(["^", body.username, "$"].join(""), "i");
     const validUseranme = await Accounts.findOne({ username: regexUsername });
-    console.log({ valid: validUseranme._id });
-    console.log({ _id: req.params._id });
+
     if (validUseranme) {
       if (validUseranme._id.toString() !== req.params._id.toString()) {
         return next(err("Username is already"));
@@ -161,6 +163,9 @@ exports.Update = async (req, res, next) => {
       email: accountCheck.email,
       id_role: role.name,
     };
+
+    // socket io
+    req.app.io.emit("AccountsUpdate", "AccountsUpdate");
     return Response.Success(res, "Update", 0, 200, data);
   } catch (error) {
     return next(err(error), 200);
@@ -172,6 +177,8 @@ exports.Delete = async (req, res, next) => {
     const {} = req.body;
     const accounts = await Accounts.findByIdAndDelete(req.params._id);
     if (!accounts) return next(err("Accounts not found"));
+    // socket io
+    req.app.io.emit("AccountsUpdate", "AccountsUpdate");
     return Response.Success(res, "Delete", 0, 200, accounts);
   } catch (error) {
     return next(err(error), 200);

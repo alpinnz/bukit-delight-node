@@ -2,9 +2,9 @@ import React, { useEffect } from "react";
 import ContainerBase from "./../../../components/common/container.customer.base";
 import BannerImage from "./banner.image";
 import ListCardVertical from "./list.card.vertical";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import Actions from "./../../../actions";
+// import Actions from "./../../../actions";
 import MenuDialog from "./menu.dialog";
 
 const MobilePage = () => {
@@ -15,12 +15,12 @@ const MobilePage = () => {
   const Categories = useSelector((state) =>
     state.Categories.data.find((e) => e._id === _id)
   );
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(Actions.Menus.onLoad());
-    dispatch(Actions.Categories.onLoad());
-  }, [_id, dispatch]);
+    // dispatch(Actions.Menus.onLoad());
+    // dispatch(Actions.Categories.onLoad());
+  }, [_id]);
 
   return (
     <ContainerBase

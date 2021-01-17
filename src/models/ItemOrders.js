@@ -17,13 +17,24 @@ const schema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    duration: {
+      type: Number,
+      required: true,
+    },
+    promo: {
+      type: Number,
+      required: true,
+    },
     price: {
+      type: Number,
+      required: true,
+    },
+    total_price: {
       type: Number,
       required: true,
     },
     note: {
       type: String,
-      required: true,
     },
   },
 
@@ -33,6 +44,5 @@ const schema = new mongoose.Schema(
 );
 
 schema.plugin(uniqueValidator, { type: "mongoose-unique-validator" });
-
 
 module.exports = mongoose.model("ItemOrders", schema);

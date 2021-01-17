@@ -4,22 +4,22 @@ import { Typography } from "@material-ui/core";
 import { useSelector } from "react-redux";
 
 const Recipe = () => {
-  const Cart = useSelector((state) => state.Cart);
+  const data = useSelector((state) => state.Cart.data);
   const [state, setState] = useState({ promo: 0, total: 0 });
 
   const onLoad = async () => {
-    const total_promo = await Cart.data.reduce((val, element) => {
-      return val + element.total_promo;
+    const total_promo = await data.reduce((val, element) => {
+      return val + Number(element.total_promo);
     }, 0);
-    const total_price = await Cart.data.reduce((val, element) => {
-      return val + element.total_price;
+    const total_price = await data.reduce((val, element) => {
+      return val + Number(element.total_price);
     }, 0);
     setState({ promo: total_promo, total: total_price });
   };
 
   useEffect(() => {
     onLoad();
-  }, [Cart]);
+  }, [data]);
 
   return (
     <div

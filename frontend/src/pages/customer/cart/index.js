@@ -5,6 +5,7 @@ import { Hidden } from "@material-ui/core";
 import Laptop from "./../laptop";
 
 const CartPage = () => {
+  document.title = "Cart";
   return (
     <div>
       <Hidden smUp>

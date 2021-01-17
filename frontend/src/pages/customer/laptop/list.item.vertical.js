@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
-import convertPrice from "./../../../helpers/convertPrice";
+import convert from "./../../../helpers/convert";
 import { Typography, Button } from "@material-ui/core";
 import Actions from "./../../../actions";
 import { useSelector, useDispatch } from "react-redux";
@@ -118,7 +118,7 @@ const ListItemVertical = () => {
                   textDecorationLine: "line-through",
                 }}
               >
-                {`${convertPrice(data.total_promo)}`}
+                {`${convert.Rp(data.total_promo)}`}
               </Typography>
             </div>
           ) : (
@@ -134,7 +134,7 @@ const ListItemVertical = () => {
           >
             <Typography style={{ color: "#AEA2A2" }}>Total</Typography>
             <Typography style={{ color: "#000000", marginLeft: "1rem" }}>
-              {`${convertPrice(data.total_price) || convertPrice(0)}`}
+              {`${convert.Rp(data.total_price) || convert.Rp(0)}`}
             </Typography>
           </div>
         </div>

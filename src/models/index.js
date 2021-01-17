@@ -7,3 +7,4 @@ exports.Menus = require("./Menus");
 exports.Orders = require("./Orders");
 exports.ItemOrders = require("./ItemOrders");
 exports.Transactions = require("./Transactions");
+exports.Customers = require("./Customers");

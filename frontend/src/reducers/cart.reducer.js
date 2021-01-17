@@ -1,4 +1,8 @@
 import {
+  CLEAN_ORDER,
+  CLEAN_TRANSACTION,
+  SET_ORDER,
+  SET_TRANSACTION,
   LOADING,
   CREATE,
   DELETE,
@@ -20,6 +24,8 @@ import {
 const initialState = {
   loading: false,
   selected: { bool: false, menu: {}, id_cart: null, quality: 0, note: "" },
+  order: null,
+  transaction: null,
   dialog_menu: {
     open: false,
   },
@@ -30,6 +36,18 @@ const initialState = {
 };
 
 const CartReducer = (state = initialState, action) => {
+  if (action.type === SET_TRANSACTION) {
+    return { ...state, transaction: action.payload };
+  }
+  if (action.type === CLEAN_TRANSACTION) {
+    return { ...state, transaction: null };
+  }
+  if (action.type === SET_ORDER) {
+    return { ...state, order: action.payload };
+  }
+  if (action.type === CLEAN_ORDER) {
+    return { ...state, order: null };
+  }
   if (action.type === LOADING) {
     return { ...state, loading: action.payload };
   }

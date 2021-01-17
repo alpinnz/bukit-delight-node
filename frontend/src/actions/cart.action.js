@@ -6,6 +6,12 @@ export const UPDATE = "CART/UPDATE";
 export const DELETE = "CART/DELETE";
 export const CLEAN = "CART/CLEAN";
 
+export const SET_ORDER = "CART/SET_ORDER";
+export const CLEAN_ORDER = "CART/CLEAN_ORDER";
+
+export const SET_TRANSACTION = "CART/SET_TRANSACTION";
+export const CLEAN_TRANSACTION = "CART/CLEAN_TRANSACTION";
+
 export const DIALOG_MENU_OPEN = "CART/DIALOG_MENU_OPEN";
 export const DIALOG_MENU_HIDE = "CART/DIALOG_MENU_HIDE";
 
@@ -30,7 +36,7 @@ const onMount = () => {
 
     await Cart.data.forEach(async (e) => {
       let menu = await Menus.data.find((x) => `${x._id}` === `${e.id_menu}`);
-      console.log("menu", menu);
+
       if (menu) {
         let cart = {
           _id: e["_id"],
@@ -56,9 +62,35 @@ const onMount = () => {
         data.push(cart);
       }
     });
-    console.log(data);
+
     dispatch(setData(data));
     dispatch(onLoading(false));
+  };
+};
+
+const setOrder = (order) => {
+  return {
+    type: SET_ORDER,
+    payload: order,
+  };
+};
+
+const cleanOrder = () => {
+  return {
+    type: CLEAN_ORDER,
+  };
+};
+
+const setTransaction = (transaction) => {
+  return {
+    type: SET_TRANSACTION,
+    payload: transaction,
+  };
+};
+
+const cleanTransaction = () => {
+  return {
+    type: CLEAN_TRANSACTION,
   };
 };
 
@@ -181,6 +213,10 @@ const AccountsAction = {
   selectedIncrementQuality,
   selectedDescrementQuality,
   selectedChangeNote,
+  setOrder,
+  cleanOrder,
+  setTransaction,
+  cleanTransaction,
 };
 
 export default AccountsAction;

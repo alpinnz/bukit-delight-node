@@ -10,15 +10,10 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 
 const PaymentDialog = () => {
   const dispatch = useDispatch();
-  const Cart = useSelector((state) => state.Cart);
-  const open = Cart.dialog_payment.open;
+  const open = useSelector((state) => state.Cart.dialog_payment.open);
+  const loading = useSelector((state) => state.Orders.loading);
   const onClose = () => dispatch(Actions.Cart.dialogPaymentHide());
-  const data = {
-    customer: "test",
-    id_table: "5fd46ce76a91b32810ef1080",
-    note: "Cash",
-  };
-  const onOrderCash = () => dispatch(Actions.Orders.onCreate(data));
+  const onOrderCash = () => dispatch(Actions.Orders.onCreate({}));
   const onOrderE_Money = () => alert("onOrderE_Money");
   return (
     <div>
@@ -63,6 +58,7 @@ const PaymentDialog = () => {
                 padding: "0.25rem",
                 display: "block",
               }}
+              disabled={loading}
             >
               <div
                 style={{
@@ -108,6 +104,7 @@ const PaymentDialog = () => {
                 padding: "0.25rem",
                 display: "block",
               }}
+              disabled={loading}
             >
               <div
                 style={{

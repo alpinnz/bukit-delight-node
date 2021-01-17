@@ -1,12 +1,15 @@
-import { LOADING, SET_MENUS } from "./../actions/menus.action";
+import { MOUNT, LOADING, SET_MENUS } from "./../actions/menus.action";
 
 const initialState = {
+  mount: false,
   loading: false,
   data: [],
-  dataByCategory: {},
 };
 
 const MenusReducer = (state = initialState, action) => {
+  if (action.type === MOUNT) {
+    return { ...state, mount: true };
+  }
   if (action.type === LOADING) {
     return { ...state, loading: action.payload };
   }

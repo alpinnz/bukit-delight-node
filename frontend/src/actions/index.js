@@ -1,4 +1,3 @@
-import Users from "./users.action";
 import Authentication from "./authentication.action";
 import Service from "./service.action";
 import Accounts from "./accounts.action";
@@ -8,10 +7,12 @@ import Roles from "./roles.action";
 import Menus from "./menus.action";
 import Cart from "./cart.action";
 import Orders from "./orders.action";
+import Transactions from "./transactions.action";
+import Customers from "./customers.action";
 
 const Actions = {
   Authentication,
-  Users,
+
   Service,
   Accounts,
   Tables,
@@ -20,5 +21,7 @@ const Actions = {
   Menus,
   Orders,
   Cart,
+  Transactions,
+  Customers,
 };
 export default Actions;

@@ -1,18 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from "react";
+import React from "react";
 import TableCustom from "./../../../components/common/table.custom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import Form from "./form";
-import Actions from "./../../../actions";
-
 const Table = () => {
   const Menus = useSelector((state) => state.Menus);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(Actions.Menus.onLoad());
-    dispatch(Actions.Categories.onLoad());
-  }, []);
 
   const columns = [
     {
@@ -49,10 +41,28 @@ const Table = () => {
       label: "Promo",
     },
     {
+      id: "duration",
+      numeric: false,
+      disablePadding: false,
+      label: "Duration",
+      cell: (row) => (
+        <div>{row.duration ? `${row.duration} Minute` : `0 Minute`}</div>
+      ),
+    },
+    {
       id: "category_name",
       numeric: false,
       disablePadding: false,
       label: "Categories",
+    },
+    {
+      id: "isAvailable",
+      numeric: false,
+      disablePadding: false,
+      label: "Available",
+      cell: (row) => (
+        <div>{row.isAvailable ? "Tersedia" : "Tidak Tersedia"}</div>
+      ),
     },
   ];
 
@@ -63,6 +73,9 @@ const Table = () => {
         columns={columns}
         rows={Menus["data"]}
         loading={Menus.loading}
+        add
+        update
+        remove
       />
       <Form />
     </div>

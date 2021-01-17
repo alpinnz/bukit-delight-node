@@ -53,7 +53,9 @@ exports.Create = async (req, res, next) => {
     desc: Joi.string().required(),
     price: Joi.number().required(),
     promo: Joi.number().required(),
+    duration: Joi.number().required(),
     id_category: Joi.string().required(),
+    isAvailable: Joi.boolean().required(),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -76,8 +78,10 @@ exports.Create = async (req, res, next) => {
       desc: body.desc,
       image: req.file.filename,
       price: body.price,
+      duration: body.duration,
       promo: body.promo,
       id_category: category._id,
+      isAvailable: body.isAvailable,
     };
 
     const menu = await Menus.create(newMenu);
@@ -89,8 +93,12 @@ exports.Create = async (req, res, next) => {
       image: menu.image,
       price: menu.price,
       promo: menu.promo,
+      duration: menu.duration,
       category: category.name,
+      isAvailable: menu.isAvailable,
     };
+    // socket io
+    req.app.io.emit("MenusUpdate", "MenusUpdate");
     return Response.Success(res, "Create", 0, 200, data);
   } catch (error) {
     return next(err(error, 200));
@@ -103,7 +111,9 @@ exports.Update = async (req, res, next) => {
     desc: Joi.string().required(),
     price: Joi.number().required(),
     promo: Joi.number().required(),
+    duration: Joi.number().required(),
     id_category: Joi.string().required(),
+    isAvailable: Joi.boolean().required(),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -136,7 +146,9 @@ exports.Update = async (req, res, next) => {
       image: image,
       price: body.price,
       promo: body.promo,
+      duration: body.duration,
       id_category: category._id,
+      isAvailable: body.isAvailable,
     };
 
     const menusUpdate = await Menus.findByIdAndUpdate(req.params._id, newMenu);
@@ -151,8 +163,60 @@ exports.Update = async (req, res, next) => {
       image: menuCheck.image,
       price: menuCheck.price,
       promo: menuCheck.promo,
+      duration: menuCheck.duration,
       category: category.name,
+      isAvailable: menuCheck.isAvailable,
     };
+    // socket io
+    req.app.io.emit("MenusUpdate", "MenusUpdate");
+    return Response.Success(res, "Update", 0, 200, data);
+  } catch (error) {
+    return next(err(error, 200));
+  }
+};
+
+exports.UpdateisAvailable = async (req, res, next) => {
+  const schema = Joi.object({
+    isAvailable: Joi.boolean().required(),
+  });
+
+  const { error, value } = schema.validate(req.body);
+  if (error) return next(err(error.details[0].message));
+
+  const body = value;
+  try {
+    const menu = await Menus.findById(req.params._id);
+    if (!menu) return next(err("Menu not found"));
+
+    const newMenu = {
+      name: menu.name,
+      desc: menu.desc,
+      image: menu.image,
+      price: menu.price,
+      promo: menu.promo,
+      id_category: menu.id_category,
+      isAvailable: body.isAvailable,
+    };
+
+    const menusUpdate = await Menus.findByIdAndUpdate(req.params._id, newMenu);
+    if (!menusUpdate) return next(err("Update failed"));
+
+    const menuCheck = await Menus.findById(req.params._id).populate(
+      "id_category"
+    );
+    if (!menuCheck) return next(err("Update failed"));
+
+    const data = {
+      name: menuCheck.name,
+      desc: menuCheck.desc,
+      image: menuCheck.image,
+      price: menuCheck.price,
+      promo: menuCheck.promo,
+      category: menuCheck.id_category.name,
+      isAvailable: menuCheck.isAvailable,
+    };
+    // socket io
+    req.app.io.emit("MenusUpdate", "MenusUpdate");
     return Response.Success(res, "Update", 0, 200, data);
   } catch (error) {
     return next(err(error, 200));
@@ -165,6 +229,8 @@ exports.Delete = async (req, res, next) => {
     const menu = await Menus.findByIdAndDelete(req.params._id);
 
     if (!menu) return next(err("Menu not found"));
+    // socket io
+    req.app.io.emit("MenusUpdate", "MenusUpdate");
     return Response.Success(res, "Delete", 0, 200, menu);
   } catch (error) {
     return next(err(error, 200));

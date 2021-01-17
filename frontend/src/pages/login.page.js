@@ -26,12 +26,18 @@ const LoginPage = () => {
     fields: {},
     errors: {},
   });
-  const Authentication = useSelector((state) => state.Authentication);
+  const account = useSelector((state) => state.Authentication.account);
+  const loading = useSelector((state) => state.Authentication.loading);
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  if (Authentication.account.username) {
-    return <Redirect to={{ pathname: "/admin" }} />;
+  if (account) {
+    const role = `${account.role}`.toLocaleLowerCase();
+    if (role === "admin") {
+      return <Redirect to={{ pathname: "/admin" }} />;
+    } else if (role === "kasir") {
+      return <Redirect to={{ pathname: "/kasir" }} />;
+    }
   }
 
   const handleChange = (field, value) => {
@@ -94,8 +100,8 @@ const LoginPage = () => {
 
               <ButtonCustom
                 label="Login"
-                disabled={Authentication.loading}
-                loading={Authentication.loading}
+                disabled={loading}
+                loading={loading}
                 onClick={() => onSubmit()}
                 fullWidth
               />

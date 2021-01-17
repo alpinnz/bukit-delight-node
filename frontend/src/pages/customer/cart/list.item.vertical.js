@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import * as React from "react";
-import convertPrice from "./../../../helpers/convertPrice";
+import convert from "./../../../helpers/convert";
 import { Typography, Button } from "@material-ui/core";
 import Actions from "./../../../actions";
 import { useSelector, useDispatch } from "react-redux";
@@ -17,7 +17,8 @@ const ListItemVertical = () => {
       dispatch(Actions.Cart.dialogMenuOpen());
     };
 
-    const { data } = props;
+    const { item } = props;
+
     return (
       <div
         style={{
@@ -52,7 +53,7 @@ const ListItemVertical = () => {
             }}
           >
             <Typography style={{ color: "#FFFFFF" }} align="center">
-              {`${data.quality || 0}x`}
+              {`${item.quality || 0}x`}
             </Typography>
           </div>
 
@@ -64,7 +65,7 @@ const ListItemVertical = () => {
               width: 40,
               height: 40,
             }}
-            onClick={() => onOpen(data)}
+            onClick={() => onOpen(item)}
           >
             <Typography
               variant="h6"
@@ -85,9 +86,9 @@ const ListItemVertical = () => {
           }}
         >
           <Typography variant="h6" style={{ color: "#00000" }}>
-            {`${data.menu.name || "name"}`}
+            {`${item.menu.name || "name"}`}
           </Typography>
-          {data.note ? (
+          {item.note ? (
             <div
               style={{
                 display: "flex",
@@ -97,13 +98,13 @@ const ListItemVertical = () => {
             >
               <Typography style={{ color: "#AEA2A2" }}>Note</Typography>
               <Typography style={{ color: "#000000", marginLeft: "1rem" }}>
-                {`${data.note}`}
+                {`${item.note}`}
               </Typography>
             </div>
           ) : (
             <div />
           )}
-          {data.menu.promo ? (
+          {item.menu.promo ? (
             <div
               style={{
                 display: "flex",
@@ -119,7 +120,7 @@ const ListItemVertical = () => {
                   textDecorationLine: "line-through",
                 }}
               >
-                {`${convertPrice(data.total_promo)}`}
+                {`${convert.Rp(item.total_promo)}`}
               </Typography>
             </div>
           ) : (
@@ -135,7 +136,7 @@ const ListItemVertical = () => {
           >
             <Typography style={{ color: "#AEA2A2" }}>Total</Typography>
             <Typography style={{ color: "#000000", marginLeft: "1rem" }}>
-              {`${convertPrice(data.total_price) || convertPrice(0)}`}
+              {`${convert.Rp(item.total_price) || convert.Rp(0)}`}
             </Typography>
           </div>
         </div>
@@ -146,7 +147,7 @@ const ListItemVertical = () => {
   return (
     <>
       {Cart.data.map((e, i) => {
-        return <ItemCard key={i} data={e} />;
+        return <ItemCard key={i} item={e} />;
       })}
     </>
   );

@@ -2,16 +2,64 @@ import axios from "axios";
 import Const from "./../constant/const";
 import Actions from "./";
 
-export const LOADING = "CATEGORIES_LOADING";
-export const SET_CATEGORIES = "CATEGORIES_SET_CATEGORIES";
+export const MOUNT = "CATEGORIES/MOUNT";
+export const LOADING = "CATEGORIES/LOADING";
+export const SET_CATEGORIES = "CATEGORIES/SET_CATEGORIES";
 
 const localGetAccount = async () => {
   const account = await JSON.parse(localStorage.getItem("account"));
   return account;
 };
 
+const mount = () => {
+  return {
+    type: MOUNT,
+  };
+};
+
+const onMount = () => {
+  const URL_PATH = `api/v1/categories`;
+  return async (dispatch) => {
+    const account = await localGetAccount();
+    const HEADERS = {
+      "x-api-key": Const.X_API_KEY,
+      "x-app-key": Const.X_APP_KEY,
+      "x-access-token": account ? account.accessToken : "",
+      "x-refresh-token": account ? account.refreshToken : "",
+    };
+
+    axios({
+      method: "GET",
+      url: URL_PATH,
+      baseURL: Const.BASE_URL,
+      headers: HEADERS,
+    })
+      .then((res) => {
+        if (res["data"]["name"]) {
+          const name = `${res["data"]["name"]}`.toLowerCase();
+          if (name === "success") {
+            const categories = res["data"]["data"];
+
+            dispatch(setCategories(categories));
+            setTimeout(() => {
+              dispatch(mount());
+            }, 1000);
+          } else {
+            const err = res["data"]["message"];
+            dispatch(Actions.Service.pushInfoNotification(err));
+          }
+        } else {
+          dispatch(Actions.Service.pushErrorNotification("error"));
+        }
+      })
+      .catch((err) => {
+        dispatch(Actions.Service.pushErrorNotification(err.message));
+      });
+  };
+};
+
 const onLoad = () => {
-  const URL_PATH = `api/v1/categories/`;
+  const URL_PATH = `api/v1/categories`;
   return async (dispatch) => {
     dispatch(loading(true));
 
@@ -222,6 +270,7 @@ const loading = (bool) => {
 };
 
 const AccountsAction = {
+  onMount,
   onLoad,
   onCreate,
   onUpdate,

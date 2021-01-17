@@ -72,7 +72,7 @@ const useToolbarStyles = makeStyles((theme) => ({
 
 const EnhancedTableToolbar = (props) => {
   const classes = useToolbarStyles();
-  const { title, search, setSearch, setPage, loading } = props;
+  const { title, search, setSearch, setPage, loading, add } = props;
   const dispatch = useDispatch();
   const dialog = (type) => dispatch(Actions.Service.openFormDialog(type, {}));
   const onCreate = () => dialog("create");
@@ -101,15 +101,16 @@ const EnhancedTableToolbar = (props) => {
           setSearch(e.target.value);
         }}
       />
-
-      <IconButton
-        aria-controls="simple-menu"
-        aria-haspopup="true"
-        disabled={loading}
-        onClick={onCreate}
-      >
-        <AddIcon />
-      </IconButton>
+      {add && (
+        <IconButton
+          aria-controls="simple-menu"
+          aria-haspopup="true"
+          disabled={loading}
+          onClick={onCreate}
+        >
+          <AddIcon />
+        </IconButton>
+      )}
     </Toolbar>
   );
 };
@@ -119,7 +120,15 @@ const EnhancedTableToolbar = (props) => {
 // };
 
 function EnhancedTableHead(props) {
-  const { classes, order, orderBy, onRequestSort, columns } = props;
+  const {
+    classes,
+    order,
+    orderBy,
+    onRequestSort,
+    columns,
+    update,
+    remove,
+  } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
   };
@@ -151,7 +160,9 @@ function EnhancedTableHead(props) {
             </TableSortLabel>
           </TableCell>
         ))}
-        <TableCell align="center" padding="checkbox"></TableCell>
+        {(update || remove) && (
+          <TableCell align="center" padding="checkbox"></TableCell>
+        )}
       </TableRow>
     </TableHead>
   );
@@ -195,7 +206,7 @@ const useStyles = makeStyles((theme) => ({
 function ActionMenu(props) {
   const dispatch = useDispatch();
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const { row, loading } = props;
+  const { row, loading, update, remove } = props;
 
   const dialog = (type) => dispatch(Actions.Service.openFormDialog(type, row));
   const onUpdate = () => dialog("update");
@@ -234,19 +245,23 @@ function ActionMenu(props) {
         open={Boolean(anchorEl)}
         onClose={handleClose}
       >
-        <MenuItem onClick={handleUpdate} disabled={loading}>
-          Update
-        </MenuItem>
-        <MenuItem onClick={handleDelete} disabled={loading}>
-          Delete
-        </MenuItem>
+        {update && (
+          <MenuItem onClick={handleUpdate} disabled={loading}>
+            Update
+          </MenuItem>
+        )}
+        {remove && (
+          <MenuItem onClick={handleDelete} disabled={loading}>
+            Delete
+          </MenuItem>
+        )}
       </Menu>
     </div>
   );
 }
 
 export default function EnhancedTable(props) {
-  const { title, rows, columns, loading } = props;
+  const { title, rows, columns, loading, update, add, remove } = props;
   const classes = useStyles();
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -296,6 +311,7 @@ export default function EnhancedTable(props) {
           setSearch={setSearch}
           setPage={setPage}
           loading={loading}
+          add={add}
         />
         <TableContainer>
           <Table
@@ -311,6 +327,8 @@ export default function EnhancedTable(props) {
               onRequestSort={handleRequestSort}
               rowCount={rows.length}
               columns={columns}
+              update={update}
+              remove={remove}
             />
 
             <TableBody>
@@ -334,9 +352,16 @@ export default function EnhancedTable(props) {
                           return null;
                         }
                       })}
-                      <TableCell align="center" padding="checkbox">
-                        <ActionMenu row={row} loading={loading} />
-                      </TableCell>
+                      {(update || remove) && (
+                        <TableCell align="center" padding="checkbox">
+                          <ActionMenu
+                            update={update}
+                            remove={remove}
+                            row={row}
+                            loading={loading}
+                          />
+                        </TableCell>
+                      )}
                     </TableRow>
                   );
                 })}

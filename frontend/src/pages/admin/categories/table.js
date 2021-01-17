@@ -1,17 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect } from "react";
+import React from "react";
 import TableCustom from "./../../../components/common/table.custom";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import Form from "./form";
-import Actions from "./../../../actions";
 
 const Table = () => {
   const Categories = useSelector((state) => state.Categories);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(Actions.Categories.onLoad());
-  }, []);
 
   const columns = [
     {
@@ -44,6 +38,9 @@ const Table = () => {
         columns={columns}
         rows={Categories["data"]}
         loading={Categories.loading}
+        add
+        update
+        remove
       />
       <Form />
     </div>

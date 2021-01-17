@@ -1,11 +1,15 @@
-import { LOADING, SET_ACCOUNTS } from "./../actions/accounts.action";
+import { MOUNT, LOADING, SET_ACCOUNTS } from "./../actions/accounts.action";
 
 const initialState = {
+  mount: false,
   loading: false,
   data: [],
 };
 
 const AccountsReducer = (state = initialState, action) => {
+  if (action.type === MOUNT) {
+    return { ...state, mount: true };
+  }
   if (action.type === LOADING) {
     return { ...state, loading: action.payload };
   }
@@ -20,6 +24,7 @@ const AccountsReducer = (state = initialState, action) => {
     });
     return {
       ...state,
+
       loading: false,
       data: data,
     };

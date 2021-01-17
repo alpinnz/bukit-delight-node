@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const { Roles } = require("./../models");
 
-const roles = ["user", "customer", "kasir", "admin"];
+const roles = ["user", "kasir", "admin"];
 
 exports.roles = roles;
 const initial = () => {

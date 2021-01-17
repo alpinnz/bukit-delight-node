@@ -1,15 +1,16 @@
 import * as React from "react";
-import { Typography, IconButton, Button } from "@material-ui/core";
+import { Typography, IconButton } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import RemoveIcon from "@material-ui/icons/Remove";
 import Actions from "./../../../actions";
 import { useDispatch, useSelector } from "react-redux";
 import ButtonCustom from "./../../../components/common/button.custom";
 import Icons from "./../../../assets/icons";
-import ListItemVertical from "./../cart/list.item.vertical";
-import Recipe from "./../cart/recipe";
-import PaymentDialog from "./../cart/payment.dialog";
+
 import Overview from "./../cart/overview";
+import CartOrders from "./cart.orders";
+import InvoiceOrder from "./../cart/invoice.order";
+import InvoiceTransaction from "./../cart/invoice.transaction";
 
 const Selected = () => {
   const dispatch = useDispatch();
@@ -238,8 +239,25 @@ const Selected = () => {
   );
 };
 
+const Content = () => {
+  const Cart = useSelector((state) => state.Cart);
+
+  if (Cart.order) {
+    return <InvoiceOrder />;
+  }
+
+  if (Cart.transaction) {
+    return <InvoiceTransaction />;
+  }
+
+  if (Cart.data.length > 0 && !Cart.transaction && !Cart.order) {
+    return <CartOrders />;
+  }
+  return <div />;
+};
+
 const ContentRight = () => {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const Cart = useSelector((state) => state.Cart);
 
   if (Cart.selected.bool) {
@@ -259,9 +277,25 @@ const ContentRight = () => {
       }}
     >
       <div
-        style={{ backgroundColor: "#FFA472", height: "0.5rem", width: "100%" }}
+        style={{
+          backgroundColor: "#FFA472",
+          height: "0.5rem",
+          width: "100%",
+        }}
       />
-      <Overview />
+      <div
+        style={{
+          width: "100%",
+          paddingLeft: "1rem",
+          paddingRight: "1rem",
+          paddingBottom: "1rem",
+        }}
+      >
+        <Overview />
+        <Content />
+      </div>
+
+      {/* 
       {Cart.data.length > 0 && (
         <>
           <Typography
@@ -297,9 +331,9 @@ const ContentRight = () => {
             </Button>
           </div>
         </>
-      )}
+      )} */}
 
-      <PaymentDialog />
+      {/* <PaymentDialog /> */}
     </div>
   );
 };

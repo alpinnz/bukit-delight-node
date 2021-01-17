@@ -4,6 +4,7 @@ import { Grid, Typography } from "@material-ui/core";
 import { useDispatch } from "react-redux";
 import Actions from "./../../../actions";
 import Icons from "./../../../assets/icons";
+import convert from "./../../../helpers/convert";
 
 const ListCardVertical = ({ data = [] }) => {
   // const Cart = useSelector((state) => state.Cart);
@@ -12,12 +13,6 @@ const ListCardVertical = ({ data = [] }) => {
     dispatch(Actions.Cart.selectedAdd(menu));
     dispatch(Actions.Cart.dialogMenuOpen());
   };
-
-  function convertPrice(num) {
-    return Math.abs(num) > 999
-      ? Math.sign(num) * (Math.abs(num) / 1000).toFixed(1) + "k"
-      : Math.sign(num) * Math.abs(num);
-  }
 
   return (
     <div style={{ margin: "0.25rem" }}>
@@ -104,14 +99,14 @@ const ListCardVertical = ({ data = [] }) => {
                               align="left"
                               variant="h5"
                             >
-                              {convertPrice(e.price)}
+                              {convert.Price(e.price)}
                             </Typography>
                             <Typography
                               style={{ color: "#408A1D" }}
                               align="left"
                               variant="h5"
                             >
-                              {convertPrice(e.price - e.promo)}
+                              {convert.Price(e.price - e.promo)}
                             </Typography>
                           </div>
                         ) : (
@@ -127,7 +122,7 @@ const ListCardVertical = ({ data = [] }) => {
                               align="left"
                               variant="h5"
                             >
-                              {convertPrice(e.price)}
+                              {convert.Price(e.price)}
                             </Typography>
                           </div>
                         )}

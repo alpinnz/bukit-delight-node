@@ -20,6 +20,14 @@ Router.put(
   Menus.Update
 );
 
+/* PUT Account page. */
+Router.put(
+  "/isAvailable/:_id",
+  Mongoose.CheckObjectId,
+  uploadImage.none(),
+  Menus.UpdateisAvailable
+);
+
 /* DELETE Account page. */
 Router.delete("/:_id", Mongoose.CheckObjectId, Menus.Delete);
 

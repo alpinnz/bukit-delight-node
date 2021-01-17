@@ -42,8 +42,6 @@ exports.ReadOne = async (req, res, next) => {
 };
 
 exports.Create = async (req, res, next) => {
-  console.log(req.body);
-  console.log(req.file);
   const schema = Joi.object({
     name: Joi.string().required(),
     desc: Joi.string().required(),
@@ -80,6 +78,8 @@ exports.Create = async (req, res, next) => {
       desc: category.desc,
       image: category.image,
     };
+    // socket io
+    req.app.io.emit("CategoriesUpdate", "CategoriesUpdate");
     return Response.Success(res, "Create", 0, 200, data);
   } catch (error) {
     return next(err(error, 200));
@@ -135,6 +135,8 @@ exports.Update = async (req, res, next) => {
       desc: categoryCheck.desc,
       image: categoryCheck.image,
     };
+    // socket io
+    req.app.io.emit("CategoriesUpdate", "CategoriesUpdate");
     return Response.Success(res, "Update", 0, 200, data);
   } catch (error) {
     return next(err(error, 200));
@@ -147,6 +149,8 @@ exports.Delete = async (req, res, next) => {
     const category = await Categories.findByIdAndDelete(req.params._id);
 
     if (!category) return next(err("Category not found", 200));
+    // socket io
+    req.app.io.emit("CategoriesUpdate", "CategoriesUpdate");
     return Response.Success(res, "Delete", 0, 200, category);
   } catch (error) {
     return next(err(error, 200));

@@ -2,10 +2,10 @@ import axios from "axios";
 import Const from "./../constant/const";
 import Actions from "./";
 
-export const MOUNT = "AUTHENTICATION_MOUNT";
-export const LOADING = "AUTHENTICATION_LOADING";
-export const SET_ACCOUNT = "AUTHENTICATION_SET_ACCOUNT";
-export const REMOVE_ACCOUNT = "AUTHENTICATION_REMOVE_ACCOUNT";
+export const MOUNT = "AUTHENTICATION/MOUNT";
+export const LOADING = "AUTHENTICATION/LOADING";
+export const SET_ACCOUNT = "AUTHENTICATION/SET_ACCOUNT";
+export const REMOVE_ACCOUNT = "AUTHENTICATION/REMOVE_ACCOUNT";
 
 const localGetAccount = async () => {
   const account = await JSON.parse(localStorage.getItem("account"));
@@ -21,11 +21,15 @@ const localSetAccount = async (account) => {
   localStorage.setItem("account", JSON.stringify(account));
 };
 
+const mount = () => {
+  return {
+    type: MOUNT,
+  };
+};
+
 const onMount = () => {
   const URL_PATH = "api/v1/authentication/refresh-token";
   return async (dispatch) => {
-    dispatch(mount());
-
     const account = await localGetAccount();
     const headers = {
       "x-api-key": Const.X_API_KEY,
@@ -47,6 +51,10 @@ const onMount = () => {
             const newAccount = res["data"]["data"];
             localSetAccount(newAccount);
             dispatch(setAccount(newAccount));
+            setTimeout(() => {
+              dispatch(mount());
+            }, 1000);
+
             localStorage.setItem("account", JSON.stringify(newAccount));
             // dispatch(Actions.Service.pushSuccessNotification("Login"));
           } else {
@@ -165,12 +173,6 @@ const setAccount = (account) => {
   return {
     type: SET_ACCOUNT,
     payload: account,
-  };
-};
-
-const mount = () => {
-  return {
-    type: MOUNT,
   };
 };
 

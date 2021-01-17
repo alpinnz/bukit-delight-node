@@ -7,18 +7,19 @@ import {
   makeStyles,
   Menu,
   MenuItem,
-  // Badge,
+  Button,
   Hidden,
+  Badge,
   Divider,
 } from "@material-ui/core";
 
 import MenuIcon from "@material-ui/icons/Menu";
-import AccountCircle from "@material-ui/icons/AccountCircle";
-// import MailIcon from "@material-ui/icons/Mail";
-// import NotificationsIcon from "@material-ui/icons/Notifications";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
+
+import NotificationsIcon from "@material-ui/icons/Notifications";
 import MoreIcon from "@material-ui/icons/MoreVert";
 import Actions from "./../../../actions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,6 +27,9 @@ const useStyles = makeStyles((theme) => ({
   },
   grow: {
     flexGrow: 1,
+  },
+  button: {
+    marginRight: theme.spacing(2),
   },
 
   appBar: {
@@ -59,7 +63,155 @@ const useStyles = makeStyles((theme) => ({
     },
   },
 }));
-function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
+
+const MenuAccount = () => {
+  const account = useSelector((state) => state.Authentication.account);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const dispatch = useDispatch();
+  const onLogout = () => {
+    dispatch(Actions.Authentication.onLogout());
+  };
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <Button
+        aria-label="account of current user"
+        aria-controls="menu-appbar"
+        variant="text"
+        aria-haspopup="true"
+        onClick={handleMenu}
+        color="inherit"
+      >
+        {account.username}
+      </Button>
+      <Menu
+        id="menu-appbar"
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        keepMounted
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        open={open}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={onLogout}>Logout</MenuItem>
+      </Menu>
+    </div>
+  );
+};
+
+const MenuNotifications = () => {
+  // const account = useSelector((state) => state.Authentication.account);
+  const classes = useStyles();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <IconButton
+        className={classes.button}
+        onClick={handleMenu}
+        color="inherit"
+      >
+        <Badge badgeContent={17} color="secondary">
+          <NotificationsIcon />
+        </Badge>
+      </IconButton>
+      <Menu
+        id="menu-appbar"
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        keepMounted
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        open={open}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={handleClose}>Notifications</MenuItem>
+        <Divider />
+        <MenuItem onClick={handleClose}>1</MenuItem>
+      </Menu>
+    </div>
+  );
+};
+
+const MenuItemNotifications = (props) => {
+  const { onClose } = props;
+  // const account = useSelector((state) => state.Authentication.account);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleMenu = (event) => {
+    onClose(null);
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <div>
+      <MenuItem onClick={handleMenu}>
+        <IconButton color="inherit">
+          <Badge badgeContent={11} color="secondary">
+            <NotificationsIcon />
+          </Badge>
+        </IconButton>
+        <p>Notifications</p>
+      </MenuItem>
+      <Menu
+        id="menu-appbar"
+        anchorEl={anchorEl}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        keepMounted
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+        open={open}
+        onClose={handleClose}
+      >
+        <MenuItem onClick={handleClose}>Notifications</MenuItem>
+        <Divider />
+        <MenuItem onClick={handleClose}>1</MenuItem>
+      </Menu>
+    </div>
+  );
+};
+
+const AppBarAdmin = (props) => {
+  const { openMobileDrawer, setOpenMobileDrawer } = props;
   const classes = useStyles();
   const dispatch = useDispatch();
 
@@ -76,10 +228,6 @@ function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleMobileMenuClose = () => {
     setMobileMoreAnchorEl(null);
@@ -105,8 +253,6 @@ function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <Divider />
       <MenuItem onClick={onLogout}>Logout</MenuItem>
     </Menu>
   );
@@ -122,31 +268,11 @@ function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      {/* <MenuItem>
-        <IconButton aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <MailIcon />
-          </Badge>
-        </IconButton>
-        <p>Messages</p>
-      </MenuItem>
-      <MenuItem>
-        <IconButton aria-label="show 11 new notifications" color="inherit">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem> */}
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton
-          aria-label="account of current user"
-          aria-controls="primary-search-account-menu"
-          aria-haspopup="true"
-          color="inherit"
-          onClick={onLogout}
-        >
-          <AccountCircle />
+      <MenuItemNotifications onClose={setMobileMoreAnchorEl} />
+
+      <MenuItem onClick={onLogout}>
+        <IconButton color="inherit">
+          <ExitToAppIcon />
         </IconButton>
         <p>Logout</p>
       </MenuItem>
@@ -170,27 +296,12 @@ function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
             Bukit Delight
           </Typography>
           <div className={classes.grow} />
-          <div className={classes.sectionDesktop}>
-            {/* <IconButton aria-label="show 4 new mails" color="inherit">
-              <Badge badgeContent={4} color="secondary">
-                <MailIcon />
-              </Badge>
-            </IconButton>
-            <IconButton aria-label="show 17 new notifications" color="inherit">
-              <Badge badgeContent={17} color="secondary">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton> */}
-            <IconButton
-              edge="end"
-              aria-label="account of current user"
-              aria-controls={menuId}
-              aria-haspopup="true"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
+          <div
+            style={{ alignItems: "center" }}
+            className={classes.sectionDesktop}
+          >
+            <MenuNotifications />
+            <MenuAccount />
           </div>
           <div className={classes.sectionMobile}>
             <IconButton
@@ -211,6 +322,6 @@ function AppBarBasic({ openMobileDrawer, setOpenMobileDrawer }) {
       {renderMenu}
     </>
   );
-}
+};
 
-export default AppBarBasic;
+export default AppBarAdmin;

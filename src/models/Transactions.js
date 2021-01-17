@@ -14,35 +14,19 @@ const schema = new mongoose.Schema(
       ref: "Orders",
       required: true,
     },
-    // itemOrders: [
-    //   {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "ItemOrders",
-    //   }
-    // ],
-    quality: {
-      type: Number,
-      required: true,
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
     note: {
       type: String,
-      required: true,
     },
     status: {
       type: String,
       required: true,
-      enum: ['pending', 'proses', 'done']
+      enum: ["pending", "proses", "done"],
     },
   },
   {
     timestamps: true,
   }
 );
-
 
 schema.plugin(uniqueValidator, { type: "mongoose-unique-validator" });
 

@@ -1,12 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { makeStyles, Button } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import Sidebar from "./sidebar";
 import ContentLeft from "./content_left";
 import Banner from "./banner";
 import ContentRight from "./content_right";
-import Actions from "./../../../actions";
-import { useDispatch } from "react-redux";
 import Icons from "./../../../assets/icons";
 
 const useStyles = makeStyles({
@@ -17,12 +15,6 @@ const useStyles = makeStyles({
 
 const LaptopPage = () => {
   const classes = useStyles();
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(Actions.Categories.onLoad());
-    dispatch(Actions.Menus.onLoad());
-  }, [dispatch]);
 
   return (
     <div className={classes.root}>

@@ -53,6 +53,8 @@ exports.Create = async (req, res, next) => {
     const data = {
       name: table.name,
     };
+    // socket io
+    req.app.io.emit("TablesUpdate", "TablesUpdate");
     return Response.Success(res, "Create", 0, 200, data);
   } catch (error) {
     return next(err(error), 200);
@@ -94,6 +96,8 @@ exports.Update = async (req, res, next) => {
     const data = {
       name: tableCheck.name,
     };
+    // socket io
+    req.app.io.emit("TablesUpdate", "TablesUpdate");
     return Response.Success(res, "Update", 0, 200, data);
   } catch (error) {
     return next(err(error), 200);
@@ -105,6 +109,8 @@ exports.Delete = async (req, res, next) => {
     const {} = req.body;
     const table = await Tables.findByIdAndDelete(req.params._id);
     if (!table) return next(err("Table not found"));
+    // socket io
+    req.app.io.emit("TablesUpdate", "TablesUpdate");
     return Response.Success(res, "Delete", 0, 200, table);
   } catch (error) {
     return next(err(error), 200);

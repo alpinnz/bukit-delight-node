@@ -11,6 +11,8 @@ import {
 const initialState = {
   notification: { open: false, message: "", type: "" },
   form_dialog: { open: false, type: "", row: {} },
+  dialog_payment: { open: false },
+  dialog_review: { open: false },
 };
 
 const ServiceReducer = (state = initialState, action) => {
@@ -57,7 +59,6 @@ const ServiceReducer = (state = initialState, action) => {
   if (action.type === SERVICE_HIDE_NOTIFICATION) {
     return { ...state, notification: { open: false, message: "", type: "" } };
   }
-
   if (action.type === SERVICE_OPEN_FORM_DIALOG) {
     const { type, row } = action.payload;
     return {
@@ -65,7 +66,6 @@ const ServiceReducer = (state = initialState, action) => {
       form_dialog: { ...state.form_dialog, open: true, type, row },
     };
   }
-
   if (action.type === SERVICE_HIDE_FORM_DIALOG) {
     return {
       ...state,

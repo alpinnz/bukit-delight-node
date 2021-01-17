@@ -36,4 +36,10 @@ Router.use("/item-orders", ItemOrders);
 const Roles = require("./Roles");
 Router.use("/roles", Roles);
 
+const Customers = require("./Customers");
+Router.use("/customers", Customers);
+
+const Machine = require("./Machine");
+Router.use("/machine", Machine);
+
 module.exports = Router;

@@ -1,8 +1,8 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
+import ContainerBase from "./../components/templates/index/container.base";
 
 const LandingPage = () => {
-  return <div>LandingPage</div>;
+  return <ContainerBase>LandingPage</ContainerBase>;
 };
 
-export default withRouter(LandingPage);
+export default LandingPage;

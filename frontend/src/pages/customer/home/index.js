@@ -5,6 +5,7 @@ import { Hidden } from "@material-ui/core";
 import Laptop from "./../laptop";
 
 const BookPage = () => {
+  document.title = "Home";
   return (
     <div>
       <Hidden smUp>

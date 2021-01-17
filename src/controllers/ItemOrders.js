@@ -83,6 +83,8 @@ exports.Create = async (req, res, next) => {
     const itemOrder = await ItemOrders.create(newItemOrder);
     if (!itemOrder) return next(err("Create failed"));
 
+    // socket io
+    req.app.io.emit("ItemOrdersUpdate", "ItemOrdersUpdate");
     return Response.Success(res, "Create", 0, 200, itemOrder);
   } catch (error) {
     return next(err(error, 200));
@@ -132,6 +134,8 @@ exports.Update = async (req, res, next) => {
     const itemOrderCheck = await ItemOrders.findById(req.params._id);
     if (!itemOrderCheck) return next(err("failed update"));
 
+    // socket io
+    req.app.io.emit("ItemOrdersUpdate", "ItemOrdersUpdate");
     return Response.Success(res, "Update", 0, 200, itemOrderCheck);
   } catch (error) {
     return next(err(error, 200));
@@ -144,6 +148,8 @@ exports.Delete = async (req, res, next) => {
     const itemOrders = await ItemOrders.findByIdAndDelete(req.params._id);
 
     if (!itemOrders) return next(err("ItemOrder not found"));
+    // socket io
+    req.app.io.emit("ItemOrdersUpdate", "ItemOrdersUpdate");
     return Response.Success(res, "Delete", 0, 200, itemOrders);
   } catch (error) {
     return next(err(error, 200));

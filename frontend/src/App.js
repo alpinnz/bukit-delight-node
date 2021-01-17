@@ -14,6 +14,10 @@ import {
   responsiveFontSizes,
 } from "@material-ui/core";
 import Actions from "./actions";
+import { io } from "socket.io-client";
+
+const ENDPOINT = "http://127.0.0.1:5000";
+const socket = io(ENDPOINT);
 
 const NetworkStatusView = () => {
   const isNetwork = useNetwork();
@@ -49,14 +53,40 @@ let theme = createMuiTheme({
 theme = responsiveFontSizes(theme);
 
 const InitCheck = ({ children }) => {
-  const Authentication = useSelector((state) => state.Authentication);
+  const Authentication = useSelector((state) => state.Authentication.mount);
+  const Menus = useSelector((state) => state.Menus.mount);
+  const Categories = useSelector((state) => state.Categories.mount);
+  const Accounts = useSelector((state) => state.Accounts.mount);
+  const Orders = useSelector((state) => state.Orders.mount);
+  const Tables = useSelector((state) => state.Tables.mount);
+  const Roles = useSelector((state) => state.Roles.mount);
+  const Transactions = useSelector((state) => state.Transactions.mount);
+  const Customers = useSelector((state) => state.Customers.mount);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(Actions.Authentication.onMount());
+    dispatch(Actions.Menus.onMount());
+    dispatch(Actions.Categories.onMount());
+    dispatch(Actions.Accounts.onMount());
+    dispatch(Actions.Orders.onMount());
+    dispatch(Actions.Tables.onMount());
+    dispatch(Actions.Roles.onMount());
+    dispatch(Actions.Transactions.onMount());
+    dispatch(Actions.Customers.onMount());
   }, []);
 
-  if (Authentication.mount) {
+  if (
+    !Authentication &&
+    !Menus &&
+    !Categories &&
+    !Accounts &&
+    !Orders &&
+    !Tables &&
+    !Roles &&
+    !Transactions &&
+    !Customers
+  ) {
     return (
       <Grid
         container
@@ -74,6 +104,56 @@ const InitCheck = ({ children }) => {
   }
 };
 
+const Logic = ({ children }) => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    socket.on("AccountsUpdate", (socket) => {
+      console.log(socket);
+      dispatch(Actions.Accounts.onLoad());
+    });
+
+    socket.on("MenusUpdate", (socket) => {
+      console.log(socket);
+      dispatch(Actions.Menus.onLoad());
+    });
+
+    socket.on("CategoriesUpdate", (socket) => {
+      console.log(socket);
+      dispatch(Actions.Categories.onLoad());
+    });
+
+    socket.on("OrdersUpdate", (socket) => {
+      console.log(socket);
+      dispatch(Actions.Transactions.onLoad());
+      dispatch(Actions.Orders.onLoad());
+    });
+
+    socket.on("TablesUpdate", (socket) => {
+      console.log(socket);
+      dispatch(Actions.Tables.onLoad());
+    });
+
+    socket.on("RolesUpdate", (socket) => {
+      console.log(socket);
+      dispatch(Actions.Roles.onLoad());
+    });
+
+    socket.on("TransactionsUpdate", (socket) => {
+      console.log(socket);
+      dispatch(Actions.Orders.onLoad());
+      dispatch(Actions.Transactions.onLoad());
+    });
+
+    socket.on("CustomersUpdate", (socket) => {
+      console.log(socket);
+      dispatch(Actions.Customers.onLoad());
+    });
+  }, []);
+
+  return <div>{children}</div>;
+};
+
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
@@ -83,7 +163,9 @@ const App = () => {
           <InitCheck>
             <NetworkStatusView />
             <NotificationCustom />
-            <Routes />
+            <Logic>
+              <Routes />
+            </Logic>
           </InitCheck>
         </Provider>
       </div>
