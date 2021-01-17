@@ -15,9 +15,9 @@ import {
 } from "@material-ui/core";
 import Actions from "./actions";
 import { io } from "socket.io-client";
+import Const from "./constant/const";
 
-const ENDPOINT = "http://127.0.0.1:5000";
-const socket = io(ENDPOINT);
+const socket = io(Const.BASE_URL);
 
 const NetworkStatusView = () => {
   const isNetwork = useNetwork();
