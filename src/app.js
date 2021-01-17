@@ -38,7 +38,7 @@ const server = http.createServer(app);
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://139.180.154.222:80",
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
