@@ -65,33 +65,6 @@ const onMount = () => {
   };
 };
 
-// const onCartOrder = () => {
-//   return async (dispatch, getState) => {
-//     const state = await getState();
-//     const Customers = state.Customers;
-//     const Orders = state.Orders;
-
-//     if (Customers.customer) {
-//       const order = await Orders.data.find(
-//         (e) =>
-//           e.isExpired === false && e.id_customer._id === Customers.customer._id
-//       );
-//       if (order) {
-//         dispatch(Actions.Tables.setTable(order.id_table));
-//         dispatch(Actions.Cart.setOrder(order));
-//       } else {
-//         dispatch(Actions.Tables.cleanTable());
-//         dispatch(Actions.Cart.cleanOrder());
-//       }
-//     }
-
-//     setTimeout(() => {
-//       dispatch(loading(false));
-//       dispatch(mount());
-//     }, 1000);
-//   };
-// };
-
 const onLoad = () => {
   const URL_PATH = `api/v1/orders`;
   return async (dispatch) => {
@@ -151,7 +124,7 @@ const onLoadSelectors = () => {
       let _id = Orders.order._id;
       const order = Orders.data.find((e) => e._id === _id);
       if (order) {
-        dispatch(Actions.Orders.setOrder(order));
+        await dispatch(Actions.Orders.setOrder(order));
       }
     }
     // Customer Cart
@@ -161,10 +134,10 @@ const onLoadSelectors = () => {
           e.isExpired === false && e.id_customer._id === Customers.customer._id
       );
       if (order) {
-        dispatch(Actions.Tables.setTable(order.id_table));
-        dispatch(Actions.Cart.setOrder(order));
+        await dispatch(Actions.Tables.setTable(order.id_table));
+        await dispatch(Actions.Cart.setOrder(order));
       } else {
-        dispatch(Actions.Cart.cleanOrder());
+        await dispatch(Actions.Cart.cleanOrder());
       }
     }
     setTimeout(() => {

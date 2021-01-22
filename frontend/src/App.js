@@ -17,8 +17,6 @@ import Actions from "./actions";
 import { io } from "socket.io-client";
 import Const from "./constant/const";
 
-const socket = io(Const.BASE_URL);
-
 const NetworkStatusView = () => {
   const isNetwork = useNetwork();
 
@@ -62,18 +60,25 @@ const InitCheck = ({ children }) => {
   const Roles = useSelector((state) => state.Roles.mount);
   const Transactions = useSelector((state) => state.Transactions.mount);
   const Customers = useSelector((state) => state.Customers.mount);
+  // const Favorites = useSelector((state) => state.Favorites.mount);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    dispatch(Actions.Authentication.onMount());
+  const InitRedux = async () => {
+    await dispatch(Actions.Authentication.onMount());
+    await dispatch(Actions.Tables.onMount());
+    await dispatch(Actions.Accounts.onMount());
+    await dispatch(Actions.Customers.onMount());
+    await dispatch(Actions.Transactions.onMount());
+    await dispatch(Actions.Orders.onMount());
     dispatch(Actions.Menus.onMount());
     dispatch(Actions.Categories.onMount());
-    dispatch(Actions.Accounts.onMount());
-    dispatch(Actions.Orders.onMount());
-    dispatch(Actions.Tables.onMount());
     dispatch(Actions.Roles.onMount());
-    dispatch(Actions.Transactions.onMount());
-    dispatch(Actions.Customers.onMount());
+
+    dispatch(Actions.Favorites.onMount());
+  };
+
+  useEffect(() => {
+    InitRedux();
   }, []);
 
   if (
@@ -106,6 +111,7 @@ const InitCheck = ({ children }) => {
 
 const Logic = ({ children }) => {
   const dispatch = useDispatch();
+  const socket = io(Const.BASE_URL);
 
   useEffect(() => {
     socket.on("AccountsUpdate", (socket) => {

@@ -66,7 +66,7 @@ const onMount = () => {
 
             setTimeout(() => {
               dispatch(mount());
-            }, 1000);
+            }, 2000);
           } else {
             dispatch(Actions.Service.pushErrorNotification("error"));
           }
@@ -105,7 +105,9 @@ const onLoad = () => {
           if (name === "success") {
             const customers = res["data"]["data"];
             dispatch(setCustomers(customers));
-            dispatch(onLoadSelectors());
+            setTimeout(() => {
+              dispatch(onLoadSelectors());
+            }, 1000);
           } else {
             const err = res["data"]["message"];
             dispatch(Actions.Service.pushInfoNotification(err));

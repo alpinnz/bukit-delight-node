@@ -52,7 +52,7 @@ exports.Create = async (req, res, next) => {
     name: Joi.string().required(),
     desc: Joi.string().required(),
     price: Joi.number().required(),
-    promo: Joi.number().required(),
+    promo: Joi.number(),
     duration: Joi.number().required(),
     id_category: Joi.string().required(),
     isAvailable: Joi.boolean().required(),
@@ -79,7 +79,7 @@ exports.Create = async (req, res, next) => {
       image: req.file.filename,
       price: body.price,
       duration: body.duration,
-      promo: body.promo,
+      promo: body.promo || 0,
       id_category: category._id,
       isAvailable: body.isAvailable,
     };

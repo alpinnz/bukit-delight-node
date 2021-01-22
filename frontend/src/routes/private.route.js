@@ -4,23 +4,27 @@ import { useSelector } from "react-redux";
 
 const PrivateRoute = (props) => {
   const { role, component: Component, ...rest } = props;
-  const account = useSelector((state) => state.Authentication.account);
-  console.log("account", account);
+  const Authentication = useSelector((state) => state.Authentication);
 
   return (
     <Route
       {...rest}
       render={(props) => {
-        if (account) {
+        if (Authentication.account) {
           const roleName = `${role}`.toLowerCase();
-          const roleAuth = `${account.role}`.toLowerCase();
+          const roleAuth = `${Authentication.account.role}`.toLowerCase();
           const isRole = roleName === roleAuth ? true : false;
           if (isRole) {
             return <Component />;
           } else {
-            <Redirect
-              to={{ pathname: `/${roleName}`, state: { from: props.location } }}
-            />;
+            return (
+              <Redirect
+                to={{
+                  pathname: `/${roleAuth}`,
+                  state: { from: props.location },
+                }}
+              />
+            );
           }
         } else {
           return (

@@ -5,14 +5,11 @@ import {
   GridListTile,
   GridListTileBar,
   Typography,
-  Button,
-  IconButton,
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import Icons from "./../../../assets/icons";
 import { useDispatch } from "react-redux";
 import Actions from "./../../../actions";
-import { DriveEtaSharp } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -85,7 +82,7 @@ const ListCardHorizontal = (props) => {
       >
         <GridList className={classes.gridList} cols={2.5}>
           {data.map((e) => (
-            <GridListTile key={`${title}-${e.name}`}>
+            <GridListTile style={{ width: 171 }} key={`${title}-${e.name}`}>
               <Link
                 // component={Button}
                 // type="button"
@@ -104,6 +101,7 @@ const ListCardHorizontal = (props) => {
                     borderRadius: 8,
                     width: "100%",
                     height: "62%",
+                    // objectFit: "contain",
                   }}
                   src={e.image}
                   alt={e.title}
@@ -113,21 +111,22 @@ const ListCardHorizontal = (props) => {
                   title={e.name || ""}
                   subtitle={
                     <div>
-                      <spam
+                      <br />
+                      {/* <spam
                         variant="subtitle1"
                         style={{
                           color: "gray",
                         }}
                       >
                         {e.desc || ""}
-                      </spam>
+                      </spam> */}
                       {e.promo > 0 ? (
                         <div style={{ display: "flex" }}>
                           <Typography
                             style={{
                               textDecorationLine: "line-through",
                               color: "#37929E",
-                              minWidth: "2.5rem",
+                              marginRight: "0.5rem",
                             }}
                           >
                             {convertPrice(e.price) || 0}

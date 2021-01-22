@@ -10,6 +10,7 @@ import Cart from "./cart.reducer";
 import Orders from "./orders.reducer";
 import Transactions from "./transactions.reducer";
 import Customers from "./customers.reducer";
+import Favorites from "./favorites.reducer";
 
 const RootReducer = combineReducers({
   Authentication,
@@ -23,6 +24,7 @@ const RootReducer = combineReducers({
   Cart,
   Transactions,
   Customers,
+  Favorites,
 });
 
 export default RootReducer;

@@ -41,7 +41,7 @@ const onMount = () => {
             const menus = res["data"]["data"];
             dispatch(setMenus(menus));
             setTimeout(() => {
-              dispatch(mount());
+              dispatch(onLoadSelectors());
             }, 1000);
           } else {
             const err = res["data"]["message"];
@@ -82,7 +82,9 @@ const onLoad = () => {
           if (name === "success") {
             const menus = res["data"]["data"];
             dispatch(setMenus(menus));
-            dispatch(onLoadSelectors());
+            setTimeout(() => {
+              dispatch(onLoadSelectors());
+            }, 1000);
           } else {
             const err = res["data"]["message"];
             dispatch(Actions.Service.pushInfoNotification(err));
@@ -105,17 +107,39 @@ const onLoadSelectors = () => {
     const state = await getState();
     const Menus = state.Menus;
     const Cart = state.Cart;
+    const Favorites = state.Favorites;
     if (Cart.selected && Cart.selected.menu && Cart.selected.menu._id) {
       let _id = Cart.selected.menu._id;
       const menus = Menus.data.find((e) => e._id === _id);
       if (menus) {
         if (Cart.selected.id_cart) {
-          dispatch(Actions.Cart.selectedEdit(menus));
+          await dispatch(Actions.Cart.selectedEdit(menus));
         } else {
-          dispatch(Actions.Cart.selectedAdd(menus));
+          await dispatch(Actions.Cart.selectedAdd(menus));
         }
       }
     }
+
+    if (Favorites.data) {
+      const new_Menus = await Menus.data.map((e) => {
+        const favorite = Favorites.data.find(
+          (x) => x._id.toString() === e._id.toString()
+        );
+        if (favorite) {
+          e["favorite"] = true;
+          return e;
+        } else {
+          e["favorite"] = false;
+          return e;
+        }
+      });
+
+      await dispatch(Actions.Menus.setMenus(new_Menus));
+    }
+
+    setTimeout(() => {
+      dispatch(mount());
+    }, 1000);
   };
 };
 
@@ -141,7 +165,10 @@ const onCreate = (props) => {
     formData.append("image", image);
     formData.append("price", price);
     formData.append("duration", duration);
-    formData.append("promo", promo);
+    if (promo) {
+      formData.append("promo", promo);
+    }
+
     formData.append("id_category", id_category);
     formData.append("isAvailable", isAvailable);
 
@@ -316,6 +343,7 @@ const AccountsAction = {
   onCreate,
   onUpdate,
   onDelete,
+  setMenus,
 };
 
 export default AccountsAction;

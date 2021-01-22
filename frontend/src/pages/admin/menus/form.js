@@ -84,10 +84,6 @@ const Form = () => {
             validate: ["required"],
           },
           {
-            key: "promo",
-            validate: ["number"],
-          },
-          {
             key: "isAvailable",
             validate: ["required"],
           },
@@ -190,7 +186,7 @@ const Form = () => {
                 value={state.fields["promo"]}
                 onChange={(e) => handleChange("promo", e.target.value)}
                 type="number"
-                required
+                // required
               />
             </Grid>
 

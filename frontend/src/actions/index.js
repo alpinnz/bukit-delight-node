@@ -9,6 +9,7 @@ import Cart from "./cart.action";
 import Orders from "./orders.action";
 import Transactions from "./transactions.action";
 import Customers from "./customers.action";
+import Favorites from "./favorites.action";
 
 const Actions = {
   Authentication,
@@ -23,5 +24,6 @@ const Actions = {
   Cart,
   Transactions,
   Customers,
+  Favorites,
 };
 export default Actions;

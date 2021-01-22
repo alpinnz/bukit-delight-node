@@ -27,7 +27,7 @@ const ListCardVertical = ({ data = [] }) => {
                     padding: "0.50rem",
                     backgroundColor: "#FFFFFF9E",
                     borderRadius: 9,
-                    height: 254,
+                    height: 259,
                     position: "relative",
                   }}
                 >
@@ -44,7 +44,7 @@ const ListCardVertical = ({ data = [] }) => {
                       position: "relative",
                     }}
                   >
-                    {e.promo > 0 ? (
+                    {e.favorite > 0 ? (
                       <div
                         style={{
                           position: "absolute",
@@ -66,11 +66,11 @@ const ListCardVertical = ({ data = [] }) => {
                         {`${e.name}`}
                       </Typography>
                     </div>
-                    <div>
+                    {/* <div>
                       <Typography style={{ color: "#000000" }}>
                         {`${e.desc}`}
                       </Typography>
-                    </div>
+                    </div> */}
 
                     <div
                       style={{
@@ -80,21 +80,21 @@ const ListCardVertical = ({ data = [] }) => {
                         right: 0,
                         paddingLeft: "0.5rem",
                         paddingRight: "0.5rem",
+                        paddingBottom: "0.25rem",
                       }}
                     >
                       <div style={{ display: "flex" }}>
                         {e.promo > 0 ? (
                           <div
                             style={{
-                              width: "40%",
                               display: "flex",
-                              justifyContent: "space-around",
                             }}
                           >
                             <Typography
                               style={{
                                 color: "#37929E",
                                 textDecorationLine: "line-through",
+                                marginRight: "0.5rem",
                               }}
                               align="left"
                               variant="h5"

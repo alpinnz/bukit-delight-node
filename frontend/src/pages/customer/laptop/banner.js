@@ -17,13 +17,15 @@ const Banner = () => {
         height: "20vh",
         position: "relative",
         backgroundColor: "#FFA472",
-        paddingTop: "2vh",
-        paddingLeft: "5vw",
-        paddingRight: "5vw",
-        paddingBottom: "5vh",
+        paddingTop: "1vh",
+        paddingLeft: "1vw",
+        paddingRight: "1vw",
+        paddingBottom: "1vh",
+        alignItems: "center",
+        justifyContent: "center",
       }}
     >
-      <SlideCustom height={"13vh"} data={banner} />
+      <SlideCustom height={"15vh"} data={banner} />
     </div>
   );
 };
