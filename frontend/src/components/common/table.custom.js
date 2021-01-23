@@ -128,6 +128,7 @@ function EnhancedTableHead(props) {
     columns,
     update,
     remove,
+    no,
   } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -136,9 +137,11 @@ function EnhancedTableHead(props) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell align="center" padding="checkbox">
-          No
-        </TableCell>
+        {no && (
+          <TableCell align="center" padding="checkbox">
+            No
+          </TableCell>
+        )}
         {columns.map((col) => (
           <TableCell
             key={col.id}
@@ -261,7 +264,7 @@ function ActionMenu(props) {
 }
 
 export default function EnhancedTable(props) {
-  const { title, rows, columns, loading, update, add, remove } = props;
+  const { title, rows = [], columns, loading, update, add, remove, no } = props;
   const classes = useStyles();
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("calories");
@@ -273,7 +276,8 @@ export default function EnhancedTable(props) {
   const filter = columns[0].id;
   const filteredRows = rows.filter(
     (item) =>
-      item[filter] && item[filter].toLowerCase().includes(search.toLowerCase())
+      item[filter] &&
+      `${item[filter]}`.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleRequestSort = (event, property) => {
@@ -329,6 +333,7 @@ export default function EnhancedTable(props) {
               columns={columns}
               update={update}
               remove={remove}
+              no={no}
             />
 
             <TableBody>
@@ -337,9 +342,11 @@ export default function EnhancedTable(props) {
                 .map((row, index) => {
                   return (
                     <TableRow hover tabIndex={-1} key={index}>
-                      <TableCell align="center" padding="checkbox">
-                        {handleNoRowsPage(index + 1, page, rowsPerPage)}
-                      </TableCell>
+                      {no && (
+                        <TableCell align="center" padding="checkbox">
+                          {handleNoRowsPage(index + 1, page, rowsPerPage)}
+                        </TableCell>
+                      )}
 
                       {columns.map((e, i) => {
                         if (row[e.id] || row[e.id] === 0) {

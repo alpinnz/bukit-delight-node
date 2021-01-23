@@ -120,9 +120,9 @@ const onLoadSelectors = () => {
       }
     }
 
-    if (Favorites.data) {
+    if (Favorites.data && Favorites.data.menu_favorit) {
       const new_Menus = await Menus.data.map((e) => {
-        const favorite = Favorites.data.find(
+        const favorite = Favorites.data.menu_favorit.find(
           (x) => x._id.toString() === e._id.toString()
         );
         if (favorite) {

@@ -6,6 +6,10 @@ import Form from "./form";
 const Table = () => {
   const Tables = useSelector((state) => state.Tables);
 
+  if (!Tables.data) {
+    return <div />;
+  }
+
   const columns = [
     {
       id: "name",
@@ -25,6 +29,7 @@ const Table = () => {
         add
         update
         remove
+        no
       />
       <Form />
     </div>

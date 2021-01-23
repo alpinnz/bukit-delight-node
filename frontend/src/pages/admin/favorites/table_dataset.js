@@ -2,52 +2,49 @@
 import React from "react";
 import TableCustom from "./../../../components/common/table.custom";
 import { useSelector } from "react-redux";
-import Form from "./form";
 
 const Table = () => {
-  const Categories = useSelector((state) => state.Categories);
-
-  if (!Categories.data) {
-    return <div />;
-  }
+  const Favorites = useSelector((state) => state.Favorites);
 
   const columns = [
     {
-      id: "name",
+      id: "no",
       numeric: false,
       disablePadding: true,
-      label: "Name",
+      label: "No",
     },
     {
-      id: "desc",
+      id: "name_menu",
       numeric: false,
       disablePadding: false,
-      label: "Description",
+      label: "Name Menu",
     },
     {
-      id: "image",
+      id: "x",
       numeric: false,
       disablePadding: false,
-      label: "Image",
-      cell: (row) => (
-        <img height="56px" width="76px" alt={row.name} src={row.image} />
-      ),
+      label: "X",
+    },
+    {
+      id: "y",
+      numeric: false,
+      disablePadding: false,
+      label: "Y",
     },
   ];
+
+  if (!Favorites.data && !Favorites.data.DataSet) {
+    return <div />;
+  }
 
   return (
     <div>
       <TableCustom
-        title="Categories"
+        title="DataSet"
         columns={columns}
-        rows={Categories["data"]}
-        loading={Categories.loading}
-        add
-        update
-        remove
-        no
+        rows={Favorites["data"]["DataSet"]}
+        loading={Favorites.loading}
       />
-      <Form />
     </div>
   );
 };

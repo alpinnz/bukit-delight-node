@@ -7,6 +7,10 @@ import convert from "./../../../helpers/convert";
 const Table = () => {
   const Transactions = useSelector((state) => state.Transactions);
 
+  if (!Transactions.data) {
+    return <div />;
+  }
+
   const columns = [
     {
       id: "account_username",
@@ -85,6 +89,7 @@ const Table = () => {
         columns={columns}
         rows={Transactions["data"]}
         loading={Transactions.loading}
+        no
       />
     </div>
   );

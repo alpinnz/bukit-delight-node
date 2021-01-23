@@ -2,55 +2,54 @@
 import React from "react";
 import TableCustom from "./../../../components/common/table.custom";
 import { useSelector } from "react-redux";
-import Form from "./form";
 
 const Table = () => {
-  const Accounts = useSelector((state) => state.Accounts);
-
-  if (!Accounts.data) {
-    return <div />;
-  }
+  const Favorites = useSelector((state) => state.Favorites);
 
   const columns = [
     {
-      id: "username",
+      id: "no",
       numeric: false,
       disablePadding: true,
-      label: "Username",
+      label: "No",
     },
     {
-      id: "email",
+      id: "c",
       numeric: false,
       disablePadding: false,
-      label: "Email",
+      label: "C",
     },
     {
-      id: "role_name",
+      id: "name_menu",
       numeric: false,
       disablePadding: false,
-      label: "Role",
+      label: "Name Menu",
     },
     {
-      id: "password",
+      id: "x",
       numeric: false,
       disablePadding: false,
-      label: "Password",
+      label: "X",
+    },
+    {
+      id: "y",
+      numeric: false,
+      disablePadding: false,
+      label: "Y",
     },
   ];
+  if (!Favorites.data && !Favorites.data.c_awal) {
+    return <div />;
+  }
 
   return (
     <div>
       <TableCustom
-        title="Accounts"
+        title="C Awal"
         columns={columns}
-        rows={Accounts["data"]}
-        loading={Accounts.loading}
-        add
-        update
-        remove
-        no
+        rows={Favorites["data"]["c_awal"]}
+        loading={Favorites.loading}
       />
-      <Form />
     </div>
   );
 };

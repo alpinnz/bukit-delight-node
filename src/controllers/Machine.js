@@ -77,7 +77,12 @@ exports.Favorite = async (req, res, next) => {
     });
 
     let DataSet = menus_count_transactions.map((e) => {
-      return { no: e.no, x: e.total_transactions, y: e.price };
+      return {
+        no: e.no,
+        name_menu: e.name,
+        x: e.total_transactions,
+        y: e.price,
+      };
     });
 
     const getMax = async (array) => {
@@ -108,7 +113,12 @@ exports.Favorite = async (req, res, next) => {
       let get = await menus_count_transactions.find(
         (e) => e._id.toString() === "6008e355385199132c6cd468"
       );
-      return { no: get.no, x: get.total_transactions, y: get.price };
+      return {
+        no: get.no,
+        name_menu: get.name,
+        x: get.total_transactions,
+        y: get.price,
+      };
     };
 
     const getMin = async (array) => {
@@ -166,6 +176,7 @@ exports.Favorite = async (req, res, next) => {
     };
 
     const validate_centroid = (_data, _iterasi) => {
+      console.log("iterasi : ", iterasi);
       let validate = false;
       if (_iterasi > 1) {
         const previous = _data.find((e) => e.iterasi === _iterasi - 1);
@@ -175,6 +186,7 @@ exports.Favorite = async (req, res, next) => {
           const previous_cluster = e.cluster;
           const current_cluster = current.data[i].cluster;
           if (previous_cluster !== current_cluster) {
+            console.log({ previous: e, current: current.data[i] });
             validate = true;
           }
         });
@@ -307,7 +319,7 @@ exports.Favorite = async (req, res, next) => {
     }
 
     // get last value
-    let last_kmeans = data_kmeans.pop();
+    let last_kmeans = data_kmeans[data_kmeans.length - 1];
 
     let result_kmeans = {
       c1: last_kmeans.data
@@ -341,8 +353,19 @@ exports.Favorite = async (req, res, next) => {
     let c3_favorit = result_kmeans.c3.slice(0, 2);
 
     let menu_favorit = c1_favorit.concat(c2_favorit, c3_favorit);
+    //
+    c1["c"] = "c1";
+    c2["c"] = "c2";
+    c3["c"] = "c3";
+    const output = {
+      c_awal: [c1, c2, c3],
+      DataSet,
+      data_kmeans,
+      menu_cluster_akhir: result_kmeans,
+      menu_favorit: menu_favorit,
+    };
 
-    return Response.Success(res, "Menu Favorite", 0, 200, menu_favorit);
+    return Response.Success(res, "Menu Favorite", 0, 200, output);
   } catch (error) {
     return next(err(error, 200));
   }

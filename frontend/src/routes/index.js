@@ -25,6 +25,7 @@ import KasirTransactionsPage from "./../pages/kasir/transactions";
 // admins page
 
 import AdminDashboardPage from "./../pages/admin/dashboard.page";
+import AdminFavoritesPage from "./../pages/admin/favorites";
 import AdminMenusPage from "./../pages/admin/menus";
 import AdminCategoriesPage from "./../pages/admin/categories";
 import AdminTablesPage from "./../pages/admin/tables";
@@ -109,6 +110,11 @@ const Routes = () => {
           role="admin"
           path="/admin/transactions"
           component={AdminTransactionsPage}
+        />
+        <PrivateRoute
+          role="admin"
+          path="/admin/favorites"
+          component={AdminFavoritesPage}
         />
 
         {/* Redirect */}

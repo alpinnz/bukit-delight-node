@@ -57,6 +57,7 @@ function DrawerBasic({ openMobileDrawer, setOpenMobileDrawer }) {
     "Menus",
     "Tables",
     "Accounts",
+    "Favorites",
   ];
   const path_url = window.location.pathname.toLowerCase();
   const path_array = path_url.substring(1).split("/");

@@ -2,13 +2,9 @@
 import React from "react";
 import TableCustom from "./../../../components/common/table.custom";
 import { useSelector } from "react-redux";
-import Form from "./form";
-const Table = () => {
-  const Menus = useSelector((state) => state.Menus);
 
-  if (!Menus.data) {
-    return <div />;
-  }
+const Table = () => {
+  const Favorites = useSelector((state) => state.Favorites);
 
   const columns = [
     {
@@ -53,12 +49,7 @@ const Table = () => {
         <div>{row.duration ? `${row.duration} Minute` : `0 Minute`}</div>
       ),
     },
-    {
-      id: "category_name",
-      numeric: false,
-      disablePadding: false,
-      label: "Categories",
-    },
+
     {
       id: "isAvailable",
       numeric: false,
@@ -69,20 +60,19 @@ const Table = () => {
       ),
     },
   ];
+  if (!Favorites.data && !Favorites.data.menu_favorit) {
+    return <div />;
+  }
 
   return (
     <div>
       <TableCustom
-        title="Menus"
+        title="Result Menu Favorit"
         columns={columns}
-        rows={Menus["data"]}
-        loading={Menus.loading}
-        add
-        update
-        remove
+        rows={Favorites["data"]["menu_favorit"]}
+        loading={Favorites.loading}
         no
       />
-      <Form />
     </div>
   );
 };

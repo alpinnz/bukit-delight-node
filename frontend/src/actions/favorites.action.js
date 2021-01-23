@@ -62,9 +62,9 @@ const onLoadSelectors = () => {
     const state = await getState();
     const Menus = state.Menus;
     const Favorites = state.Favorites;
-    if (Menus) {
+    if (Menus && Favorites.data && Favorites.data.menu_favorit) {
       const new_Menus = await Menus.data.map((e) => {
-        const favorite = Favorites.data.find(
+        const favorite = Favorites.data.menu_favorit.find(
           (x) => x._id.toString() === e._id.toString()
         );
         if (favorite) {
