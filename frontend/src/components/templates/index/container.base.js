@@ -9,7 +9,7 @@ const ContainerBase = (props) => {
   }, [title]);
   return (
     <div style={{ minHeight: "100vh", position: "relative" }}>
-      <AppBar title="Kasir" />
+      <AppBar title={title} />
       {children}
     </div>
   );
