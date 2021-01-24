@@ -33,7 +33,7 @@ const ListItemCustom = () => {
     return (
       <div
         style={{
-          height: "85vh",
+          height: "90vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -118,7 +118,7 @@ const Sidebar = () => {
       <div
         style={{
           display: "flex",
-          height: "15vh",
+          height: "10vh",
           justifyContent: "center",
           alignItems: "center",
           //   backgroundColor: "red",

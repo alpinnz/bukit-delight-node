@@ -153,12 +153,8 @@ exports.Favorite = async (req, res, next) => {
     var iterasi = 0;
 
     const euclidean_distance = (e, c) => {
-      let data_dimensi_1 = e.x;
-      let data_dimensi_2 = e.y;
-      let c_dimensi_1 = c.x;
-      let c_dimensi_2 = c.y;
-      let dimensi_1 = Math.pow(data_dimensi_1 - c_dimensi_1, 2);
-      let dimensi_2 = Math.pow(data_dimensi_2 - c_dimensi_2, 2);
+      let dimensi_1 = Math.pow(e.x - c.x, 2);
+      let dimensi_2 = Math.pow(e.y - c.y, 2);
       return Math.sqrt(dimensi_1 + dimensi_2);
     };
 
