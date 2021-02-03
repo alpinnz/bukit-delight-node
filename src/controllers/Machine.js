@@ -7,76 +7,89 @@ const err = (message, status) => {
   return error;
 };
 
+const TransactionByItemOrder = async () => {
+  const transactions = await Transactions.find();
+  if (!transactions) return resError(res, "Transactions not found", 400);
+
+  const menus = await Menus.find();
+  if (!menus) return next(err("load menus failed"));
+
+  const data_menus = menus.map((e) => {
+    if (!`${e["image"]}`.includes("http")) {
+      e["image"] = e["image"]
+        ? `${process.env.CLIENT_URL}/${process.env.PATH_UPLOADS}/${e["image"]}`
+        : null;
+    }
+    return e;
+  });
+  if (!data_menus) return next(err("load data_menus failed"));
+
+  const itemOrders = await ItemOrders.find();
+  if (!itemOrders) return next(err("load item orders failed"));
+
+  let menus_transactions = [];
+
+  transactions.forEach((e) => {
+    const id_order = itemOrders.filter(
+      (x) => x["id_order"].toString() === e["id_order"].toString()
+    );
+
+    id_order.forEach((j) => {
+      const id_menu = data_menus.find(
+        (x) => x["_id"].toString() === j["id_menu"].toString()
+      );
+      // if (j["quality"] > 0) {
+      //   for (let i = 0; i < j["quality"]; i++) {
+      //     menus_transactions.push(id_menu);
+      //   }
+      // }
+      if (j["quality"] > 0 && id_menu["isFavorite"]) {
+        for (let i = 0; i < j["quality"]; i++) {
+          menus_transactions.push(id_menu);
+        }
+      }
+    });
+  });
+
+  let menus_count_transactions = [];
+  let no = 0;
+  data_menus.forEach((e) => {
+    const menus_filter = menus_transactions.filter(
+      (x) => x["_id"].toString() === e["_id"].toString()
+    );
+
+    if (menus_filter.length > 0) {
+      no++;
+      menus_count_transactions.push({
+        _id: e["id"],
+        no: no,
+        name: e["name"],
+        desc: e["desc"],
+        image: e["image"],
+        price: e["price"],
+        id_category: e["id_category"],
+        createdAt: e["createdAt"],
+        updatedAt: e["updatedAt"],
+        __v: e["__v"],
+        promo: e["promo"],
+        isAvailable: e["isAvailable"],
+        isFavorite: e["isFavorite"],
+        duration: e["duration"],
+        total_transactions: menus_filter.length,
+      });
+    }
+  });
+
+  return menus_count_transactions;
+};
+
 exports.Favorite = async (req, res, next) => {
   try {
     const {} = req.body;
-    const transactions = await Transactions.find();
-    if (!transactions) return resError(res, "Transactions not found", 400);
 
-    const menus = await Menus.find();
-    if (!menus) return next(err("load menus failed"));
+    const transactionByItemOrder = await TransactionByItemOrder();
 
-    const data_menus = menus.map((e) => {
-      if (!`${e["image"]}`.includes("http")) {
-        e["image"] = e["image"]
-          ? `${process.env.CLIENT_URL}/${process.env.PATH_UPLOADS}/${e["image"]}`
-          : null;
-      }
-      return e;
-    });
-    if (!data_menus) return next(err("load data_menus failed"));
-
-    const itemOrders = await ItemOrders.find();
-    if (!itemOrders) return next(err("load item orders failed"));
-
-    let menus_transactions = [];
-
-    transactions.forEach((e) => {
-      const id_order = itemOrders.filter(
-        (x) => x["id_order"].toString() === e["id_order"].toString()
-      );
-
-      id_order.forEach((j) => {
-        const id_menu = data_menus.find(
-          (x) => x["_id"].toString() === j["id_menu"].toString()
-        );
-        if (j["quality"] > 0) {
-          for (let i = 0; i < j["quality"]; i++) {
-            menus_transactions.push(id_menu);
-          }
-        }
-      });
-    });
-
-    let menus_count_transactions = [];
-    let no = 0;
-    data_menus.forEach((e) => {
-      const menus_filter = menus_transactions.filter(
-        (x) => x["_id"].toString() === e["_id"].toString()
-      );
-
-      if (menus_filter.length > 0) {
-        no++;
-        menus_count_transactions.push({
-          _id: e["id"],
-          no: no,
-          name: e["name"],
-          desc: e["desc"],
-          image: e["image"],
-          price: e["price"],
-          id_category: e["id_category"],
-          createdAt: e["createdAt"],
-          updatedAt: e["updatedAt"],
-          __v: e["__v"],
-          promo: e["promo"],
-          isAvailable: e["isAvailable"],
-          duration: e["duration"],
-          total_transactions: menus_filter.length,
-        });
-      }
-    });
-
-    let DataSet = menus_count_transactions.map((e) => {
+    let DataSet = transactionByItemOrder.map((e) => {
       return {
         no: e.no,
         name_menu: e.name,
@@ -110,15 +123,10 @@ exports.Favorite = async (req, res, next) => {
     };
 
     const getMiddle = async (array) => {
-      let get = await menus_count_transactions.find(
-        (e) => e._id.toString() === "6008e355385199132c6cd468"
-      );
-      return {
-        no: get.no,
-        name_menu: get.name,
-        x: get.total_transactions,
-        y: get.price,
-      };
+      let sorting_array = await array.sort((a, b) => b.x - a.x);
+      let positionMiddleArray = Math.trunc(sorting_array.length / 2);
+
+      return sorting_array[positionMiddleArray];
     };
 
     const getMin = async (array) => {
@@ -172,7 +180,6 @@ exports.Favorite = async (req, res, next) => {
     };
 
     const validate_centroid = (_data, _iterasi) => {
-      console.log("iterasi : ", iterasi);
       let validate = false;
       if (_iterasi > 1) {
         const previous = _data.find((e) => e.iterasi === _iterasi - 1);
@@ -182,7 +189,6 @@ exports.Favorite = async (req, res, next) => {
           const previous_cluster = e.cluster;
           const current_cluster = current.data[i].cluster;
           if (previous_cluster !== current_cluster) {
-            console.log({ previous: e, current: current.data[i] });
             validate = true;
           }
         });
@@ -197,6 +203,10 @@ exports.Favorite = async (req, res, next) => {
     // K-MEANS
     while (run) {
       var data = [];
+
+      console.log(
+        `-> ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`
+      );
 
       for (let i = 0; i < DataSet.length; i++) {
         var temp = {};
@@ -322,7 +332,7 @@ exports.Favorite = async (req, res, next) => {
         .filter((e) => e.cluster === 1)
         .map((x) => {
           // get menu
-          const menu = menus_count_transactions.find((z) => z.no === x.no);
+          const menu = transactionByItemOrder.find((z) => z.no === x.no);
           return menu;
         })
         .sort((a, b) => b.total_transactions - a.total_transactions),
@@ -330,7 +340,7 @@ exports.Favorite = async (req, res, next) => {
         .filter((e) => e.cluster === 2)
         .map((x) => {
           // get menu
-          const menu = menus_count_transactions.find((z) => z.no === x.no);
+          const menu = transactionByItemOrder.find((z) => z.no === x.no);
           return menu;
         })
         .sort((a, b) => b.total_transactions - a.total_transactions),
@@ -338,7 +348,7 @@ exports.Favorite = async (req, res, next) => {
         .filter((e) => e.cluster === 3)
         .map((x) => {
           // get menu
-          const menu = menus_count_transactions.find((z) => z.no === x.no);
+          const menu = transactionByItemOrder.find((z) => z.no === x.no);
           return menu;
         })
         .sort((a, b) => b.total_transactions - a.total_transactions),

@@ -36,6 +36,10 @@ const schema = new mongoose.Schema(
       type: Boolean,
       required: true,
     },
+    isFavorite: {
+      type: Boolean,
+      required: true,
+    },
   },
   {
     timestamps: true,

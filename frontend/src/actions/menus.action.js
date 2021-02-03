@@ -153,6 +153,7 @@ const onCreate = (props) => {
     duration,
     promo,
     isAvailable,
+    isFavorite,
   } = props;
   const URL_PATH = `api/v1/menus`;
 
@@ -170,7 +171,9 @@ const onCreate = (props) => {
     }
 
     formData.append("id_category", id_category);
-    formData.append("isAvailable", isAvailable);
+
+    formData.append("isAvailable", isAvailable ? true : false);
+    formData.append("isFavorite", isFavorite ? true : false);
 
     const account = await localGetAccount();
     const HEADERS = {
@@ -222,6 +225,7 @@ const onUpdate = (_id, props) => {
     duration,
     promo,
     isAvailable,
+    isFavorite,
   } = props;
   const URL_PATH = `api/v1/menus/${_id}`;
   return async (dispatch) => {
@@ -237,7 +241,9 @@ const onUpdate = (_id, props) => {
       formData.append("image", image);
     }
     formData.append("id_category", id_category);
-    formData.append("isAvailable", isAvailable);
+
+    formData.append("isAvailable", isAvailable ? true : false);
+    formData.append("isFavorite", isFavorite ? true : false);
 
     const account = await localGetAccount();
     const HEADERS = {

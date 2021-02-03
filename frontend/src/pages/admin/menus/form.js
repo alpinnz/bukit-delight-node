@@ -29,6 +29,7 @@ const Form = () => {
           promo: row.promo,
           id_category: row.id_category ? row.id_category._id : "",
           isAvailable: row.isAvailable,
+          isFavorite: row.isFavorite,
         };
         setState({
           fields: fields,
@@ -83,10 +84,14 @@ const Form = () => {
             key: "id_category",
             validate: ["required"],
           },
-          {
-            key: "isAvailable",
-            validate: ["required"],
-          },
+          // {
+          //   key: "isAvailable",
+          //   validate: ["required"],
+          // },
+          // {
+          //   key: "isFavorite",
+          //   validate: ["required"],
+          // },
         ];
         const validate = await Validate(state, setState, formSet);
         if (validate) {
@@ -119,10 +124,14 @@ const Form = () => {
             key: "promo",
             validate: ["number"],
           },
-          {
-            key: "isAvailable",
-            validate: ["required"],
-          },
+          // {
+          //   key: "isAvailable",
+          //   validate: ["required"],
+          // },
+          // {
+          //   key: "isFavorite",
+          //   validate: ["required"],
+          // },
         ];
         const validate = await Validate(state, setState, formSet);
         if (validate) {
@@ -233,6 +242,17 @@ const Form = () => {
                 required
               />
             </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <FormControlCustom
+                error={state.errors["isFavorite"]}
+                label="Favorite"
+                value={state.fields["isFavorite"]}
+                onChange={(e) => handleChange("isFavorite", e.target.checked)}
+                type="switch"
+                required
+              />
+            </Grid>
           </Grid>
         </DialogCustom>
       );
@@ -328,6 +348,16 @@ const Form = () => {
                 label="Available"
                 value={state.fields["isAvailable"]}
                 onChange={(e) => handleChange("isAvailable", e.target.checked)}
+                type="switch"
+                required
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControlCustom
+                error={state.errors["isFavorite"]}
+                label="Favorite"
+                value={state.fields["isFavorite"]}
+                onChange={(e) => handleChange("isFavorite", e.target.checked)}
                 type="switch"
                 required
               />

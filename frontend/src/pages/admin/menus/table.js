@@ -68,6 +68,13 @@ const Table = () => {
         <div>{row.isAvailable ? "Tersedia" : "Tidak Tersedia"}</div>
       ),
     },
+    {
+      id: "isFavorite",
+      numeric: false,
+      disablePadding: false,
+      label: "Favorite",
+      cell: (row) => <div>{row.isFavorite ? "Dataset" : "Tidak Dataset"}</div>,
+    },
   ];
 
   return (

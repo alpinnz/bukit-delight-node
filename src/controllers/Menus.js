@@ -56,6 +56,7 @@ exports.Create = async (req, res, next) => {
     duration: Joi.number().required(),
     id_category: Joi.string().required(),
     isAvailable: Joi.boolean().required(),
+    isFavorite: Joi.boolean().required(),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -82,6 +83,7 @@ exports.Create = async (req, res, next) => {
       promo: body.promo || 0,
       id_category: category._id,
       isAvailable: body.isAvailable,
+      isFavorite: body.isFavorite,
     };
 
     const menu = await Menus.create(newMenu);
@@ -96,6 +98,7 @@ exports.Create = async (req, res, next) => {
       duration: menu.duration,
       category: category.name,
       isAvailable: menu.isAvailable,
+      isFavorite: menu.isFavorite,
     };
     // socket io
     req.app.io.emit("MenusUpdate", "MenusUpdate");
@@ -114,6 +117,7 @@ exports.Update = async (req, res, next) => {
     duration: Joi.number().required(),
     id_category: Joi.string().required(),
     isAvailable: Joi.boolean().required(),
+    isFavorite: Joi.boolean().required(),
   });
 
   const { error, value } = schema.validate(req.body);
@@ -149,6 +153,7 @@ exports.Update = async (req, res, next) => {
       duration: body.duration,
       id_category: category._id,
       isAvailable: body.isAvailable,
+      isFavorite: body.isFavorite,
     };
 
     const menusUpdate = await Menus.findByIdAndUpdate(req.params._id, newMenu);
@@ -166,6 +171,7 @@ exports.Update = async (req, res, next) => {
       duration: menuCheck.duration,
       category: category.name,
       isAvailable: menuCheck.isAvailable,
+      isFavorite: menuCheck.isFavorite,
     };
     // socket io
     req.app.io.emit("MenusUpdate", "MenusUpdate");
@@ -196,6 +202,7 @@ exports.UpdateisAvailable = async (req, res, next) => {
       promo: menu.promo,
       id_category: menu.id_category,
       isAvailable: body.isAvailable,
+      isFavorite: menu.isFavorite,
     };
 
     const menusUpdate = await Menus.findByIdAndUpdate(req.params._id, newMenu);
@@ -214,6 +221,7 @@ exports.UpdateisAvailable = async (req, res, next) => {
       promo: menuCheck.promo,
       category: menuCheck.id_category.name,
       isAvailable: menuCheck.isAvailable,
+      isFavorite: menuCheck.isFavorite,
     };
     // socket io
     req.app.io.emit("MenusUpdate", "MenusUpdate");
