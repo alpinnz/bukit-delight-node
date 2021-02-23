@@ -38,16 +38,16 @@ const TransactionByItemOrder = async () => {
       const id_menu = data_menus.find(
         (x) => x["_id"].toString() === j["id_menu"].toString()
       );
-      // if (j["quality"] > 0) {
-      //   for (let i = 0; i < j["quality"]; i++) {
-      //     menus_transactions.push(id_menu);
-      //   }
-      // }
-      if (j["quality"] > 0 && id_menu["isFavorite"]) {
+      if (j["quality"] > 0) {
         for (let i = 0; i < j["quality"]; i++) {
           menus_transactions.push(id_menu);
         }
       }
+      // if (j["quality"] > 0 && id_menu["isFavorite"]) {
+      //   for (let i = 0; i < j["quality"]; i++) {
+      //     menus_transactions.push(id_menu);
+      //   }
+      // }
     });
   });
 
@@ -123,10 +123,18 @@ exports.Favorite = async (req, res, next) => {
     };
 
     const getMiddle = async (array) => {
-      let sorting_array = await array.sort((a, b) => b.x - a.x);
-      let positionMiddleArray = Math.trunc(sorting_array.length / 2);
+      const random = Math.floor(Math.random() * array.length) + 1;
+      // 1 - 70
+      if (random === array.length || random === array.length - 1) {
+        return array[random - 2];
+      } else {
+        return array[random];
+      }
 
-      return sorting_array[positionMiddleArray];
+      // let sorting_array = await array.sort((a, b) => b.x - a.x);
+      // let positionMiddleArray = Math.trunc(sorting_array.length / 2);
+
+      // return sorting_array[positionMiddleArray];
     };
 
     const getMin = async (array) => {
@@ -153,9 +161,17 @@ exports.Favorite = async (req, res, next) => {
       return get;
     };
 
+    // return res.json(DataSet);
+
     let c1 = await getMax(DataSet);
     let c2 = await getMiddle(DataSet);
     let c3 = await getMin(DataSet);
+
+    // return res.json(DataSet);
+
+    // let c1 = await DataSet.find((x) => x.no === 15);
+    // let c2 = await DataSet.find((x) => x.no === 23);
+    // let c3 = await DataSet.find((x) => x.no === 44);
     let centroid = [c1, c2, c3];
     var data_kmeans = [];
     var iterasi = 0;
@@ -370,6 +386,8 @@ exports.Favorite = async (req, res, next) => {
       menu_cluster_akhir: result_kmeans,
       menu_favorit: menu_favorit,
     };
+
+    // return Response.Success(res, "Menu Favorite", 0, 200, data_kmeans.length);
 
     return Response.Success(res, "Menu Favorite", 0, 200, output);
   } catch (error) {

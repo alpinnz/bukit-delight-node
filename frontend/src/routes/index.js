@@ -117,6 +117,12 @@ const Routes = () => {
           component={AdminFavoritesPage}
         />
 
+        <PrivateRoute
+          role="admin"
+          path="/admin/pemesanan"
+          component={AdminFavoritesPage}
+        />
+
         {/* Redirect */}
         <Redirect from="/admin*" to="/admin/dashboard" />
         <Redirect from="/*" to="/" />

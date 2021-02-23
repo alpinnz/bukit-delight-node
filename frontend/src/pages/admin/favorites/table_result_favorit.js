@@ -67,7 +67,7 @@ const Table = () => {
   return (
     <div>
       <TableCustom
-        title="Result Menu Favorit"
+        title="Result Pemesanan"
         columns={columns}
         rows={Favorites["data"]["menu_favorit"]}
         loading={Favorites.loading}

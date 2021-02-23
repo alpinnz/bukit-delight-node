@@ -10,7 +10,7 @@ import Grid from "@material-ui/core/Grid";
 
 const FavoritesPage = () => {
   return (
-    <Template title="Favorites">
+    <Template title="Pemesanan">
       <Grid container spacing={2}>
         <Grid item md={6} sm={12}>
           <TableDataSet />

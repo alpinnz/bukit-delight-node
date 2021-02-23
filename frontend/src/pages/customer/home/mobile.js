@@ -14,7 +14,7 @@ const MobilePage = () => {
     <ContainerBase navigationActive={2}>
       <Slide />
       <ListHorizontal title="Promo" data={menu_promo} />
-      <ListHorizontal title="Favorite" data={menu_favorite} />
+      <ListHorizontal title="Pemesanan" data={menu_favorite} />
       <MenuDialog />
     </ContainerBase>
   );
