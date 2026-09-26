@@ -4,7 +4,7 @@
 
 Tandai [x] setelah item selesai dan diverifikasi. Catat keputusan atau blocker pada bagian catatan tiap phase.
 
-**Status berjalan:** Phase 1–6 selesai. Phase 4 telah menghapus controller/model Mongoose dan dependensinya. Validasi lokal Phase 7 dan rehearsal backup/restore pada PostgreSQL disposable selesai; tersisa run CI remote serta rehearsal observability dan recovery pada production.
+**Status berjalan:** Phase 1–6 selesai. Phase 4 telah menghapus controller/model Mongoose dan dependensinya. Validasi lokal serta CI remote Phase 7 lulus; tersisa rehearsal observability dan recovery pada production sebelum cutover.
 
 **Checkpoint (2026-09-27):** Operator menetapkan PostgreSQL lokal `bukit-delight` (`localhost:5432`, user `postgres`) sebagai database aktif dan mengonfirmasi MongoDB sudah tidak tersedia. Target database kosong sebelum inisialisasi; initial migration dan seed role berhasil, tanpa impor data legacy. API langsung menggunakan Prisma tanpa `API_STORAGE`/`AUTH_STORAGE`; `/healthz`, `/readyz`, dan login admin/cashier lulus. Controller/model lama dihapus, test support tidak memakai Mongoose, dan package Mongoose dilepas.
 
@@ -497,7 +497,7 @@ Dokumentasi hasil: docs/architecture/overview.md dan docs/architecture/decisions
 - [x] Perbarui README dan dokumentasi arsitektur sesuai implementasi final.
 - [x] Pastikan checklist phase dan keputusan penting terdokumentasi.
 - [x] Jalankan ulang acceptance penuh auth, menu, pesanan, dan transaksi pada PostgreSQL test terisolasi setelah penghapusan scaffolding lama.
-- [ ] Tinjau run CI pada remote setelah workflow terbaru berjalan.
+- [x] Tinjau run CI pada remote setelah workflow terbaru berjalan.
 - [ ] Rehearse backup/restore dan observability pada deployment production sebelum cutover serta selama periode pemulihan.
 
 **Catatan / blocker:**
@@ -505,7 +505,7 @@ Dokumentasi hasil: docs/architecture/overview.md dan docs/architecture/decisions
 - Build root, typecheck, lint API, seluruh API tests (12 lulus tanpa skip di PostgreSQL disposable), web tests (178 lulus), Prettier pada seluruh file yang disentuh selain generated `pnpm-lock.yaml`, dan `git diff --check` lulus pada 2026-09-27. `/healthz=ok` dan `/readyz=ready`. Build web mempertahankan peringatan bundle JS 1,105.07 kB dan banner-2 874.51 kB.
 - Web tidak lagi memiliki skrip ESLint yang dapat dijalankan: skrip lama mencari JavaScript yang sudah dipindah ke TypeScript, dan parser CRA lama gagal dimuat dengan TypeScript 7. TypeScript web diverifikasi oleh `tsc --noEmit`; lint aktif tetap memeriksa JS/test API.
 - Full integration suite berjalan pada container PostgreSQL disposable port 5434; migrasi, seed, seluruh 12 tes API, lalu cleanup container berhasil. Rehearsal backup memakai format custom, `pg_restore --list`, restore ke database baru, verifikasi role `admin`/`cashier`/`customer` dan dua akun seed, lalu seluruh 12 tes API lulus terhadap hasil restore. Database aktif di port 5432 dan Compose di port 5433 tidak dipakai.
-- Pemeriksaan read-only GitHub menunjukkan nol workflow dan nol run; branch remote `develop` masih berada di commit `81a9cdc` (2021-03-30), sama dengan HEAD lokal sebelum perubahan workspace ini. Workflow dan implementasi saat ini belum dipublikasikan, jadi hasil CI remote memerlukan commit/push atau PR yang diotorisasi.
+- CI GitHub Actions pada draft PR #2 (`phase-7-ci-validation`, commit `39766f9`) sukses: install frozen, Prisma generate/migrate/seed, build, typecheck, lint, dan test. Workflow memberi annotation deprecation Node.js 20 dari action v4 dan pemberitahuan migrasi runner `ubuntu-latest`; tidak ada job yang gagal. PR belum di-merge.
 - Production cutover/restore belum dapat diverifikasi dari workspace lokal; dokumentasi kini berisi prosedur dan sinyal observability yang harus direhearse pada target deployment.
 - [x] Selaraskan `TableRecord` pada package shared, reducer/action web, dan controller MongoDB/Prisma; typecheck API/web serta Prettier lulus.
 - [x] Selaraskan `CategoryRecord` pada package shared, reducer/action web, dan controller MongoDB/Prisma; typecheck API/web serta Prettier lulus.
