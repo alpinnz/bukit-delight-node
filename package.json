@@ -1,28 +1,41 @@
 {
-  "name": "bukit-delight-server",
-  "version": "1.0.0",
+  "name": "bukit-delight-monorepo",
   "private": true,
-  "scripts": {
-    "start": "nodemon ./src/app"
+  "packageManager": "pnpm@10.15.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/engines",
+      "esbuild",
+      "prisma"
+    ]
   },
-  "dependencies": {
-    "bcrypt": "^5.0.0",
-    "bcryptjs": "^2.4.3",
-    "cookie-parser": "~1.4.4",
-    "cors": "^2.8.5",
-    "debug": "~2.6.9",
-    "dotenv": "^8.2.0",
-    "express": "^4.16.4",
-    "joi": "^17.3.0",
-    "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.10.13",
-    "mongoose-unique-validator": "^2.0.3",
-    "morgan": "~1.9.1",
-    "multer": "^1.4.2",
-    "nodemailer": "^6.4.15",
-    "socket.io": "^3.0.5"
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "corepack pnpm --parallel --filter @bukit-delight/web --filter @bukit-delight/api dev",
+    "dev:web": "corepack pnpm --filter @bukit-delight/web start",
+    "dev:api": "corepack pnpm --filter @bukit-delight/api dev",
+    "build": "corepack pnpm -r build",
+    "build:web": "corepack pnpm --filter @bukit-delight/web build",
+    "build:api": "corepack pnpm --filter @bukit-delight/api build",
+    "test": "corepack pnpm -r test",
+    "test:web": "corepack pnpm --filter @bukit-delight/web test",
+    "test:api": "corepack pnpm --filter @bukit-delight/api test",
+    "lint": "corepack pnpm -r lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "corepack pnpm -r typecheck",
+    "db:generate": "corepack pnpm --filter @bukit-delight/api db:generate",
+    "db:migrate": "corepack pnpm --filter @bukit-delight/api db:migrate",
+    "db:deploy": "corepack pnpm --filter @bukit-delight/api db:deploy",
+    "db:seed": "corepack pnpm --filter @bukit-delight/api db:seed",
+    "db:import": "corepack pnpm --filter @bukit-delight/api db:import"
   },
   "devDependencies": {
-    "nodemon": "^2.0.6"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.11.0",
+    "globals": "^17.12.0",
+    "prettier": "^3.0.0"
   }
 }

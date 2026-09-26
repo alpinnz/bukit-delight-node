@@ -1,0 +1,1 @@
+[{"_id":{"$oid":"000000000000000000000006"},"name":"Test menu","image":"test.jpg","id_category":{"$oid":"000000000000000000000005"},"price":10000,"promo":0,"duration":60,"isAvailable":true,"isFavorite":false,"createdAt":{"$date":"2026-01-01T00:00:00.000Z"},"updatedAt":{"$date":"2026-01-01T00:00:00.000Z"}}]

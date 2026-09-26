@@ -31,6 +31,7 @@ bower_components
 
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
+apps/web/dist/
 
 # Dependency directories
 node_modules/
@@ -55,7 +56,17 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-# .env
+.env
+.env.*
+!.env.example
 
 # next.js build output
 .next
+
+# Workspace build output
+apps/web/dist/
+apps/api/dist/
+apps/api/src/generated/prisma/
+
+# Private production data exports
+migration-export/

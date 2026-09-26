@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Account {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  email       String   @unique
+  password    String
+  activateLink Json?
+  resetLink    Json?
+  roleId      String?  @map("id_role")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  role        Role?    @relation(fields: [roleId], references: [id])
+  refreshTokens RefreshToken[]
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Role {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  accounts  Account[]
+
+  @@map("roles")
+}
+
+model Customer {
+  id            String         @id @default(cuid())
+  username      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  refreshTokens RefreshToken[]
+  orders        Order[]
+
+  @@map("customers")
+}
+
+model RefreshToken {
+  id             String    @id @default(cuid())
+  accountId      String?   @map("id_account")
+  customerId     String?   @map("id_customer")
+  token          String?
+  expires        DateTime?
+  created        DateTime  @default(now())
+  createdByIp    String?
+  revoked        DateTime?
+  revokedByIp    String?
+  replacedByToken String?
+  account        Account?  @relation(fields: [accountId], references: [id])
+  customer       Customer? @relation(fields: [customerId], references: [id])
+
+  @@index([accountId])
+  @@index([customerId])
+  @@map("refreshtokens")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  desc      String
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  menus     Menu[]
+
+  @@map("categories")
+}
+
+model Menu {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  desc        String?
+  image       String
+  categoryId  String      @map("id_category")
+  price       Float
+  promo       Float
+  duration    Float
+  isAvailable Boolean
+  isFavorite  Boolean
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  category    Category    @relation(fields: [categoryId], references: [id])
+  orderItems  OrderItem[]
+
+  @@index([categoryId])
+  @@map("menus")
+}
+
+model DiningTable {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  orders    Order[]
+
+  @@map("tables")
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  customerId  String?     @map("id_customer")
+  tableId     String?     @map("id_table")
+  quality     Float
+  duration    Float
+  promo       Float
+  price       Float
+  totalPrice  Float       @map("total_price")
+  note        String?
+  status      OrderStatus
+  estimasi    DateTime
+  expires     DateTime
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  customer    Customer?   @relation(fields: [customerId], references: [id])
+  table       DiningTable? @relation(fields: [tableId], references: [id])
+  items       OrderItem[]
+  transaction Transaction?
+
+  @@index([customerId])
+  @@index([tableId])
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String   @map("id_order")
+  menuId     String   @map("id_menu")
+  quality    Float
+  duration   Float
+  promo      Float
+  price      Float
+  totalPrice Float    @map("total_price")
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  order      Order    @relation(fields: [orderId], references: [id])
+  menu       Menu     @relation(fields: [menuId], references: [id])
+
+  @@index([orderId])
+  @@index([menuId])
+  @@map("itemorders")
+}
+
+model Transaction {
+  id        String            @id @default(cuid())
+  accountId String            @map("id_account")
+  orderId   String            @unique @map("id_order")
+  note      String?
+  status    TransactionStatus
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  account   Account           @relation(fields: [accountId], references: [id])
+  order     Order             @relation(fields: [orderId], references: [id])
+
+  @@index([accountId])
+  @@map("transactions")
+}
+
+enum OrderStatus {
+  PENDING @map("pending")
+  CASH    @map("cash")
+  VIRTUAL @map("virtual")
+}
+
+enum TransactionStatus {
+  PENDING @map("pending")
+  PROCESS @map("proses")
+  DONE    @map("done")
+}
