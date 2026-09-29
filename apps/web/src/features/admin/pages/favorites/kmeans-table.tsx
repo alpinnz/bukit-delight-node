@@ -1,10 +1,4 @@
-import { Grid, Paper, Typography } from "@material-ui/core";
 import { useSelector } from "react-redux";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
 
 type DistanceRow = {
   no: number;
@@ -36,60 +30,71 @@ type FavoritesState = {
   loading: boolean;
 };
 
+const tableClass = "min-w-full divide-y divide-slate-200 text-sm";
+const headerCellClass =
+  "bg-slate-50 px-3 py-2 text-center font-semibold text-slate-700";
+const cellClass = "whitespace-nowrap px-3 py-2 text-slate-700";
+
 const DataTable = ({ rows }: { rows: DistanceRow[] }) => (
-  <Table>
-    <TableHead>
-      <TableRow>
-        <TableCell align="center">No</TableCell>
-        <TableCell align="center">C1</TableCell>
-        <TableCell align="center">C2</TableCell>
-        <TableCell align="center">C3</TableCell>
-        <TableCell align="center">Cluster</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {rows.map((row) => (
-        <TableRow key={row.no}>
-          <TableCell align="center">{row.no}</TableCell>
-          <TableCell align="right">{row.c1.toFixed(3)}</TableCell>
-          <TableCell align="right">{row.c2.toFixed(3)}</TableCell>
-          <TableCell align="right">{row.c3.toFixed(3)}</TableCell>
-          <TableCell align="center">{row.cluster}</TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
+  <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <table className={tableClass}>
+      <thead>
+        <tr>
+          {["No", "C1", "C2", "C3", "Cluster"].map((heading) => (
+            <th key={heading} scope="col" className={headerCellClass}>
+              {heading}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-100">
+        {rows.map((row) => (
+          <tr key={row.no}>
+            <th scope="row" className={`${cellClass} text-center font-medium`}>
+              {row.no}
+            </th>
+            <td className={`${cellClass} text-right`}>{row.c1.toFixed(3)}</td>
+            <td className={`${cellClass} text-right`}>{row.c2.toFixed(3)}</td>
+            <td className={`${cellClass} text-right`}>{row.c3.toFixed(3)}</td>
+            <td className={`${cellClass} text-center`}>{row.cluster}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 );
 
 const NewDataTable = ({ rows }: { rows: NewDataRow[] }) => (
-  <Table>
-    <TableHead>
-      <TableRow>
-        <TableCell align="center">No</TableCell>
-        <TableCell align="center">C1 X</TableCell>
-        <TableCell align="center">C1 Y</TableCell>
-        <TableCell align="center">C2 X</TableCell>
-        <TableCell align="center">C2 Y</TableCell>
-        <TableCell align="center">C3 X</TableCell>
-        <TableCell align="center">C3 Y</TableCell>
-      </TableRow>
-    </TableHead>
-    <TableBody>
-      {rows.map((row, index) => (
-        <TableRow key={`${row.no}-${index}`}>
-          <TableCell scope="row" align="center">
-            {row.no}
-          </TableCell>
-          <TableCell align="center">{row.c1.x}</TableCell>
-          <TableCell align="center">{row.c1.y}</TableCell>
-          <TableCell align="center">{row.c2.x}</TableCell>
-          <TableCell align="center">{row.c2.y}</TableCell>
-          <TableCell align="center">{row.c3.x}</TableCell>
-          <TableCell align="center">{row.c3.y}</TableCell>
-        </TableRow>
-      ))}
-    </TableBody>
-  </Table>
+  <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <table className={tableClass}>
+      <thead>
+        <tr>
+          {["No", "C1 X", "C1 Y", "C2 X", "C2 Y", "C3 X", "C3 Y"].map(
+            (heading) => (
+              <th key={heading} scope="col" className={headerCellClass}>
+                {heading}
+              </th>
+            ),
+          )}
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-100">
+        {rows.map((row, index) => (
+          <tr key={`${row.no}-${index}`}>
+            <th scope="row" className={`${cellClass} text-center font-medium`}>
+              {row.no}
+            </th>
+            <td className={`${cellClass} text-center`}>{row.c1.x}</td>
+            <td className={`${cellClass} text-center`}>{row.c1.y}</td>
+            <td className={`${cellClass} text-center`}>{row.c2.x}</td>
+            <td className={`${cellClass} text-center`}>{row.c2.y}</td>
+            <td className={`${cellClass} text-center`}>{row.c3.x}</td>
+            <td className={`${cellClass} text-center`}>{row.c3.y}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 );
 
 const appendSummaryRows = (iteration: Iteration): NewDataRow[] => {
@@ -113,34 +118,27 @@ const KMeansTable = () => {
   if (!iterations) return null;
 
   return (
-    <div>
-      <Typography align="center" variant="h5">
-        Data K-Means
-      </Typography>
+    <section className="space-y-4">
+      <h2 className="text-center text-xl font-semibold">Data K-Means</h2>
       {iterations.map((iteration) => (
-        <div key={iteration.iterasi} style={{ marginTop: "1rem" }}>
-          <Typography variant="h5">{`Iterasi ${iteration.iterasi}`}</Typography>
-          <Grid container spacing={2}>
-            <Grid item sm={12} md={5}>
-              <Typography align="center" variant="h6">
-                Data
-              </Typography>
-              <Paper>
-                <DataTable rows={iteration.data} />
-              </Paper>
-            </Grid>
-            <Grid item sm={12} md={7}>
-              <Typography align="center" variant="h6">
-                New Data
-              </Typography>
-              <Paper>
-                <NewDataTable rows={appendSummaryRows(iteration)} />
-              </Paper>
-            </Grid>
-          </Grid>
-        </div>
+        <article
+          key={iteration.iterasi}
+          className="space-y-3 rounded-xl bg-slate-50 p-4"
+        >
+          <h3 className="text-lg font-semibold">{`Iterasi ${iteration.iterasi}`}</h3>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <section className="min-w-0 space-y-2">
+              <h4 className="text-center font-medium">Data</h4>
+              <DataTable rows={iteration.data} />
+            </section>
+            <section className="min-w-0 space-y-2">
+              <h4 className="text-center font-medium">New Data</h4>
+              <NewDataTable rows={appendSummaryRows(iteration)} />
+            </section>
+          </div>
+        </article>
       ))}
-    </div>
+    </section>
   );
 };
 

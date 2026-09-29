@@ -1,11 +1,3 @@
-import {
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-  makeStyles,
-} from "@material-ui/core";
 import { Link, useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import LoadingCustom from "../../../components/common/loading.custom";
@@ -15,115 +7,64 @@ type CustomerSidebarState = {
   Categories: { loading: boolean; data: Category[] };
 };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-    maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
-  },
-}));
-
 const CustomerCategoryNavigation = () => {
   const { _id: selectedCategoryId } = useParams<{ _id?: string }>();
-  const classes = useStyles();
   const categories = useSelector(
     (state: CustomerSidebarState) => state.Categories,
   );
 
   if (categories.loading) {
     return (
-      <div
-        style={{
-          height: "90vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <div className="flex h-[90vh] items-center justify-center">
         <LoadingCustom />
       </div>
     );
   }
 
   const isHome = window.location.pathname === "/customer/home";
+  const linkClass = (isSelected: boolean) =>
+    `block px-4 py-3 font-semibold ${isSelected ? "bg-brand-accent text-white" : "text-black/60 hover:bg-orange-50"}`;
 
   return (
-    <div className={classes.root}>
-      <List component="nav" aria-label="Kategori menu customer">
-        <Divider />
+    <nav aria-label="Kategori menu customer" className="w-full max-w-sm">
+      <ul className="divide-y divide-slate-200 border-y border-slate-200">
         {categories.data.map((category) => {
           const isSelected = category._id === selectedCategoryId;
-
           return (
-            <div key={category._id}>
-              <ListItem
-                button
-                component={Link}
-                selected={isSelected}
-                style={{
-                  backgroundColor: isSelected ? "#FFA472" : "transparent",
-                }}
+            <li key={category._id}>
+              <Link
                 to={`/customer/book/${category._id}`}
+                aria-current={isSelected ? "page" : undefined}
+                className={linkClass(isSelected)}
               >
-                <ListItemText
-                  style={{
-                    color: isSelected ? "#FFFFFF" : "#000000",
-                    opacity: isSelected ? 1 : 0.5,
-                    fontWeight: "bold",
-                  }}
-                  primary={category.name}
-                />
-              </ListItem>
-              <Divider />
-            </div>
+                {category.name}
+              </Link>
+            </li>
           );
         })}
-        <ListItem
-          button
-          selected={isHome}
-          component={Link}
-          to="/customer/home"
-          style={{
-            backgroundColor: isHome ? "#FFA472" : "transparent",
-          }}
-        >
-          <ListItemText
-            style={{ color: isHome ? "#FFFFFF" : "#FF0B63" }}
-            primary="PROMO & FAV."
-          />
-        </ListItem>
-        <Divider />
-      </List>
-    </div>
+        <li>
+          <Link
+            to="/customer/home"
+            aria-current={isHome ? "page" : undefined}
+            className={`${linkClass(isHome)} ${isHome ? "" : "text-pink-600"}`}
+          >
+            PROMO &amp; FAV.
+          </Link>
+        </li>
+      </ul>
+    </nav>
   );
 };
 
 const CustomerSidebar = () => (
-  <div
-    style={{
-      height: "100vh",
-      position: "relative",
-      backgroundColor: "#FFFFFF",
-    }}
-  >
-    <div
-      style={{
-        display: "flex",
-        height: "10vh",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Typography
-        style={{ color: "#11613F", fontWeight: "bolder" }}
-        align="center"
-        variant="h5"
-      >
+  <aside className="relative min-h-screen bg-white">
+    <div className="flex h-[10vh] items-center justify-center">
+      <h1 className="text-center text-xl font-extrabold text-[#11613F]">
         LOGO &amp; TEKS BUKIT DELIGHT
-      </Typography>
+      </h1>
     </div>
     <CustomerCategoryNavigation />
-  </div>
+  </aside>
 );
 
 export default CustomerSidebar;

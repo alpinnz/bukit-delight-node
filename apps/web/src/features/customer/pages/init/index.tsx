@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Actions from "../../../../actions";
 import LoadingCustom from "../../../../components/common/loading.custom";
 import Form from "./form";
@@ -25,7 +25,7 @@ type CustomerInitState = {
 };
 
 const CustomerInitPage = () => {
-  const { name_table: tableName } = useParams<{ name_table?: string }>();
+  const { tableName } = useParams<{ tableName?: string }>();
   const Customers = useSelector((state: CustomerInitState) => state.Customers);
   const Tables = useSelector((state: CustomerInitState) => state.Tables);
   const Orders = useSelector((state: CustomerInitState) => state.Orders);
@@ -33,7 +33,7 @@ const CustomerInitPage = () => {
     (state: CustomerInitState) => state.Transactions,
   );
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const table = Tables.data.find((entry) => entry.name === tableName);
   const existingTable = table ? null : Tables.table;
@@ -58,11 +58,11 @@ const CustomerInitPage = () => {
         dispatch(Actions.Tables.setTable(table));
       }, 1000);
       navigationTimeout = setTimeout(() => {
-        history.push("/customer/home");
+        navigate("/customer/home");
       }, 2000);
     } else if (Customers.customer && existingTable) {
       navigationTimeout = setTimeout(() => {
-        history.push("/customer/cart");
+        navigate("/customer/cart");
       }, 2000);
     }
 
@@ -70,19 +70,11 @@ const CustomerInitPage = () => {
       if (setTableTimeout) clearTimeout(setTableTimeout);
       if (navigationTimeout) clearTimeout(navigationTimeout);
     };
-  }, [Customers.customer, existingTable, dispatch, history, isLoading, table]);
+  }, [Customers.customer, existingTable, dispatch, isLoading, navigate, table]);
 
   if (isLoading || (Customers.customer && (table || existingTable))) {
     return (
-      <div
-        style={{
-          width: "100vw",
-          height: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <div className="flex h-screen w-screen items-center justify-center">
         <LoadingCustom />
       </div>
     );

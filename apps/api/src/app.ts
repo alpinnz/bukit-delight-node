@@ -21,6 +21,8 @@ const logger = require("./utils/logger");
 
 const port = process.env.API_PORT || process.env.PORT || 3000;
 const app = express();
+const trustedProxyHops = Number(process.env.TRUST_PROXY_HOPS || 0);
+if (trustedProxyHops > 0) app.set("trust proxy", trustedProxyHops);
 const server = http.createServer(app);
 const allowedOrigins = (process.env.CLIENT_URL || "")
   .split(",")
@@ -76,15 +78,18 @@ app.use(index);
 if (process.env.NODE_ENV === "production") {
   const frontendBuild = path.resolve(apiDirectory, "../web/dist");
   app.use(express.static(frontendBuild));
-  app.get("*", (request: Request, response: Response, next: NextFunction) => {
-    if (
-      request.path.startsWith("/api/") ||
-      request.path.startsWith("/public/")
-    ) {
-      return next();
-    }
-    return response.sendFile(path.join(frontendBuild, "index.html"));
-  });
+  app.get(
+    "/{*splat}",
+    (request: Request, response: Response, next: NextFunction) => {
+      if (
+        request.path.startsWith("/api/") ||
+        request.path.startsWith("/public/")
+      ) {
+        return next();
+      }
+      return response.sendFile(path.join(frontendBuild, "index.html"));
+    },
+  );
 }
 
 app.use((_request: Request, _response: Response, next: NextFunction) => {

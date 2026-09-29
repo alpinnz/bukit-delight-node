@@ -1,47 +1,27 @@
-import ArrowBackIcon from "@material-ui/icons/ArrowBackIos";
-import { Grid, Typography } from "@material-ui/core";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { Link } from "react-router-dom";
 
 type AppBarProps = {
-  hight?: number;
+  height?: 60 | 61;
   routeName?: string;
   title?: string;
 };
 
-const AppBar = ({ hight, routeName, title }: AppBarProps) => (
-  <div
-    style={{
-      position: "fixed",
-      backgroundColor: "#CCC1C1",
-      justifyContent: "center",
-      textAlign: "center",
-      alignItems: "center",
-      top: 0,
-      right: 0,
-      left: 0,
-    }}
-  >
-    <Grid
-      style={{
-        justifyContent: "center",
-        textAlign: "center",
-        alignItems: "center",
-        height: hight || 61,
-      }}
-      container
+const AppBar = ({ height = 61, routeName, title }: AppBarProps) => (
+  <div className="fixed inset-x-0 top-0 z-30 bg-surface-customer text-center">
+    <div
+      className={`grid grid-cols-[1fr_4fr_1fr] items-center justify-items-center ${height === 60 ? "h-[60px]" : "h-[61px]"}`}
     >
-      <Grid item xs={2} sm={2}>
-        <Link to={routeName || "/"} aria-label="Back">
-          <ArrowBackIcon style={{ color: "#000000" }} />
-        </Link>
-      </Grid>
-      <Grid item xs={8} sm={8}>
-        <Typography style={{ color: "#000000" }} align="center">
-          {`${title}`}
-        </Typography>
-      </Grid>
-      <Grid item xs={2} sm={2} />
-    </Grid>
+      <Link
+        to={routeName || "/"}
+        aria-label="Back"
+        className="rounded p-2 text-black"
+      >
+        <ArrowLeftIcon aria-hidden="true" className="size-5" />
+      </Link>
+      <h1 className="text-base font-medium text-black">{`${title}`}</h1>
+      <span />
+    </div>
   </div>
 );
 

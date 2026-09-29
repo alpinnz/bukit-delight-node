@@ -20,7 +20,7 @@ describe("LandingContainerBase", () => {
 
     expect(document.title).toBe("LandingPage");
     expect(screen.getByText("Landing content")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Customer" })).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Login" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Customer" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Login" })).toBeTruthy();
   });
 });

@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import TextCustom from "../../../../components/common/text.custom";
 import { useSelector } from "react-redux";
 
 type CartLine = {
@@ -19,58 +19,49 @@ const CustomerCartRecipe = () => {
   );
 
   return (
-    <div
-      style={{
-        marginTop: "0.5rem",
-        marginBottom: "0.5rem",
-        backgroundColor: "#FFFFFF66",
-        borderRadius: 8,
-        justifyItems: "center",
-        padding: "0.25rem",
-      }}
-    >
+    <div className="my-2 rounded-lg bg-[#FFFFFF66] p-1">
       {promo > 0 && (
         <>
-          <div style={{ display: "flex", width: "100%", padding: "0 0.25rem" }}>
-            <div style={{ width: "40%", textAlign: "left" }}>
-              <Typography style={{ color: "#000000" }} align="left">
+          <div className="flex w-full px-1">
+            <div className="w-2/5 text-left">
+              <TextCustom className="text-black" align="left">
                 Harga Awal
-              </Typography>
+              </TextCustom>
             </div>
-            <div style={{ width: "60%", textAlign: "right" }}>
-              <Typography
+            <div className="w-3/5 text-right">
+              <TextCustom
                 variant="h6"
-                style={{ color: "#000000", textDecorationLine: "line-through" }}
+                className="text-black line-through"
                 align="right"
               >
                 {promo + total}
-              </Typography>
+              </TextCustom>
             </div>
           </div>
-          <div style={{ display: "flex", width: "100%", padding: "0 0.25rem" }}>
-            <div style={{ width: "30%", textAlign: "left" }}>
-              <Typography style={{ color: "#1FA845" }} align="left">
+          <div className="flex w-full px-1">
+            <div className="w-[30%] text-left">
+              <TextCustom className="text-brand-success" align="left">
                 Promo
-              </Typography>
+              </TextCustom>
             </div>
-            <div style={{ width: "70%", textAlign: "right" }}>
-              <Typography style={{ color: "#1FA845" }} align="right">
+            <div className="w-[70%] text-right">
+              <TextCustom className="text-brand-success" align="right">
                 {promo}
-              </Typography>
+              </TextCustom>
             </div>
           </div>
         </>
       )}
-      <div style={{ display: "flex", width: "100%", padding: "0 0.25rem" }}>
-        <div style={{ width: "30%", textAlign: "left" }}>
-          <Typography style={{ color: "#000000" }} align="left">
+      <div className="flex w-full px-1">
+        <div className="w-[30%] text-left">
+          <TextCustom className="text-black" align="left">
             Total
-          </Typography>
+          </TextCustom>
         </div>
-        <div style={{ width: "70%", textAlign: "right" }}>
-          <Typography variant="h4" style={{ color: "#000000" }} align="right">
+        <div className="w-[70%] text-right">
+          <TextCustom variant="h4" className="text-black" align="right">
             {total}
-          </Typography>
+          </TextCustom>
         </div>
       </div>
     </div>

@@ -1,23 +1,16 @@
-import type { ComponentProps } from "react";
-import { forwardRef } from "react";
-import { Button, Dialog, Slide, Typography } from "@material-ui/core";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
 import Icons from "../../../../assets/icons";
+import type { AppDispatch } from "../../../../store";
 
 type PaymentDialogState = {
   Cart: { dialog_payment: { open: boolean } };
   Orders: { loading: boolean };
 };
 
-const Transition = forwardRef<unknown, ComponentProps<typeof Slide>>(
-  function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-  },
-);
-
 const CustomerPaymentDialog = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const open = useSelector(
     (state: PaymentDialogState) => state.Cart.dialog_payment.open,
   );
@@ -29,128 +22,42 @@ const CustomerPaymentDialog = () => {
   const onOrderEMoney = () => alert("onOrderE_Money");
 
   return (
-    <Dialog
-      open={open}
-      TransitionComponent={Transition}
-      keepMounted
-      onClose={onClose}
-      aria-labelledby="alert-dialog-slide-title"
-      aria-describedby="alert-dialog-slide-description"
-    >
-      <div
-        style={{
-          borderRadius: 10,
-          backgroundColor: "#FFFFFF",
-          padding: "0.5rem",
-        }}
-      >
-        <Typography
-          style={{ color: "#000000", padding: "0.25rem" }}
-          variant="h6"
-          align="center"
-        >
-          Pilih Metode Pembayaran
-        </Typography>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            padding: "0.25rem",
-          }}
-        >
-          <Button
-            onClick={onOrderCash}
-            style={{
-              backgroundColor: "#D6A4A4",
-              borderRadius: 13,
-              padding: "0.25rem",
-              display: "block",
-            }}
-            disabled={loading}
-          >
-            <div
-              style={{
-                backgroundColor: "#D6A4A4",
-                alignItems: "center",
-                justifyContent: "center",
-                display: "flex",
-                padding: "0.5rem",
-              }}
+    <Dialog open={open} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-slate-950/40" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <DialogPanel className="w-full max-w-sm rounded-xl bg-white p-4 shadow-xl">
+          <DialogTitle className="p-1 text-center text-base font-semibold text-slate-900">
+            Pilih Metode Pembayaran
+          </DialogTitle>
+          <div className="flex justify-between gap-3 p-1">
+            <button
+              type="button"
+              onClick={onOrderCash}
+              disabled={loading}
+              className="block flex-1 rounded-xl bg-[#D6A4A4] p-1 disabled:opacity-50"
             >
-              <img
-                style={{ width: "4rem", height: "4rem" }}
-                src={Icons.cashier}
-                alt="cashier"
-              />
-            </div>
-            <div
-              style={{
-                backgroundColor: "#D6A4A4",
-                alignItems: "center",
-                justifyContent: "center",
-                display: "flex",
-              }}
-            >
-              <Typography
-                style={{
-                  color: "#000000",
-                  paddingTop: "0.25rem",
-                  paddingBottom: "0.25rem",
-                }}
-                variant="h6"
-                align="center"
-              >
+              <div className="flex items-center justify-center p-2">
+                <img className="size-16" src={Icons.cashier} alt="cashier" />
+              </div>
+              <span className="block py-1 text-center font-semibold text-black">
                 Tunai
-              </Typography>
-            </div>
-          </Button>
-          <Button
-            onClick={onOrderEMoney}
-            style={{
-              backgroundColor: "#D6A4A4",
-              borderRadius: 13,
-              padding: "0.25rem",
-              display: "block",
-            }}
-            disabled={loading}
-          >
-            <div
-              style={{
-                backgroundColor: "#D6A4A4",
-                alignItems: "center",
-                justifyContent: "center",
-                display: "flex",
-                padding: "0.5rem",
-              }}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={onOrderEMoney}
+              disabled={loading}
+              className="block flex-1 rounded-xl bg-[#D6A4A4] p-1 disabled:opacity-50"
             >
-              <img
-                style={{ width: "4rem", height: "4rem" }}
-                src={Icons.e_money}
-                alt="e money"
-              />
-            </div>
-            <div
-              style={{
-                backgroundColor: "#D6A4A4",
-                alignItems: "center",
-                justifyContent: "center",
-                display: "flex",
-              }}
-            >
-              <Typography
-                style={{
-                  color: "#000000",
-                  paddingTop: "0.25rem",
-                  paddingBottom: "0.25rem",
-                }}
-                variant="h6"
-                align="center"
-              >
+              <div className="flex items-center justify-center p-2">
+                <img className="size-16" src={Icons.e_money} alt="e money" />
+              </div>
+              <span className="block py-1 text-center font-semibold text-black">
                 E-Money
-              </Typography>
-            </div>
-          </Button>
-        </div>
+              </span>
+            </button>
+          </div>
+        </DialogPanel>
       </div>
     </Dialog>
   );

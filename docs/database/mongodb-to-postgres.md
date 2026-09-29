@@ -47,6 +47,10 @@ The importer recognizes Mongo Extended JSON ObjectIds and dates, preserves Objec
 Legacy role names `user` and `kasir` are normalized to `customer` and
 `cashier` during import. The PostgreSQL migration performs the same rename on
 existing role rows and preserves account references.
+Legacy order ETA fields (`estimasi`) and transaction status values
+(`proses`) are normalized to `estimatedReadyAt` and `processing` during
+import. PostgreSQL migrations rename the stored column and enum value while
+preserving existing data.
 
 Dry run only parses the full snapshot and reports collection counts:
 

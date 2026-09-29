@@ -111,7 +111,7 @@ const orderOutput = (order: any, includeCategories: boolean): OrderRecord => {
     total_price: order.totalPrice,
     note: order.note,
     status: order.status.toLowerCase(),
-    estimasi: order.estimasi,
+    estimatedReadyAt: order.estimatedReadyAt,
     expires: order.expires,
     isExpired:
       Date.now() >= new Date(order.expires).getTime() ||

@@ -12,7 +12,7 @@ const ContainerBase = ({ children, title }: ContainerBaseProps) => {
   }, [title]);
 
   return (
-    <div style={{ minHeight: "100vh", position: "relative" }}>
+    <div className="relative min-h-screen">
       <AppBar title={title} />
       {children}
     </div>

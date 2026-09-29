@@ -1,0 +1,91 @@
+x-api-environment: &api-environment
+  NODE_ENV: production
+  API_PORT: ${API_PORT:-3000}
+  TRUST_PROXY_HOPS: 1
+  API_KEY: ${API_KEY:?Set API_KEY in .env.docker.production}
+  APP_KEY: ${APP_KEY:?Set APP_KEY in .env.docker.production}
+  ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY:?Set ACCESS_TOKEN_KEY in .env.docker.production}
+  ACCESS_TOKEN_TIMEOUT: ${ACCESS_TOKEN_TIMEOUT:-900000}
+  REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY:?Set REFRESH_TOKEN_KEY in .env.docker.production}
+  REFRESH_TOKEN_TIMEOUT: ${REFRESH_TOKEN_TIMEOUT:-604800000}
+  ORDERS_TIMEOUT: ${ORDERS_TIMEOUT:-60000}
+  CLIENT_URL: ${CLIENT_URL:-http://localhost:8080}
+  PATH_UPLOADS: public/uploads
+  DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env.docker.production}
+
+x-api-build: &api-build
+  context: .
+  dockerfile: docker/api.Dockerfile
+  network: host
+  entitlements:
+    - network.host
+
+services:
+  api:
+    build: *api-build
+    image: bukit-delight-api:local
+    restart: unless-stopped
+    environment: *api-environment
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    volumes:
+      - production_api_uploads:/app/apps/api/public/uploads
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/readyz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 20s
+    networks:
+      default:
+        aliases:
+          - bukit-delight-production-api
+
+  migrate:
+    build: *api-build
+    image: bukit-delight-api:local
+    restart: "no"
+    working_dir: /app/apps/api
+    entrypoint: ["sh", "-c"]
+    command:
+      - >-
+        node /app/apps/api/node_modules/prisma/build/index.js migrate deploy
+        && PATH="/app/apps/api/node_modules/.bin:/app/node_modules/.bin:$${PATH}"
+        node /app/apps/api/node_modules/prisma/build/index.js db seed
+    environment: *api-environment
+
+  web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+      network: host
+      entitlements:
+        - network.host
+    image: bukit-delight-web:local
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  production_api_uploads:
+
+networks:
+  default:
+    external: true
+    name: ${LOCAL_INFRA_NETWORK:-local-infra_local-infra}

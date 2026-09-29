@@ -1,11 +1,20 @@
-FROM node:22-alpine AS build
+# syntax=docker/dockerfile:1
 
-ENV DATABASE_URL=postgresql://build:build@localhost:5432/build
+FROM node:22-alpine AS development
+
+ENV NODE_ENV=development \
+    DATABASE_URL=postgresql://build:build@localhost:5432/build
 WORKDIR /app
 RUN corepack enable
 COPY . .
-RUN pnpm install --frozen-lockfile
+RUN --network=host --mount=type=cache,id=bukit-delight-pnpm,target=/root/.local/share/pnpm/store \
+  pnpm install --frozen-lockfile --network-concurrency=4
 RUN pnpm --filter @bukit-delight/api db:generate
+EXPOSE 3000 5173
+
+FROM development AS build
+
+ENV NODE_ENV=production
 RUN pnpm --filter @bukit-delight/api build
 
 FROM node:22-alpine AS runtime

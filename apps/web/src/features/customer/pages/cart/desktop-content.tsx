@@ -1,10 +1,10 @@
-import { IconButton, Typography } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import RemoveIcon from "@material-ui/icons/Remove";
+import { MinusIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
 import Icons from "../../../../assets/icons";
 import ButtonCustom from "../../../../components/common/button.custom";
+import TextCustom from "../../../../components/common/text.custom";
+import type { AppDispatch } from "../../../../store";
 import CustomerCartOverview from "./overview";
 import CustomerDesktopCartOrders from "./desktop-cart-orders";
 import CustomerOrderInvoice from "./invoice-order";
@@ -44,7 +44,7 @@ type CustomerDesktopCartState = {
 };
 
 const SelectedMenuPanel = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const cart = useSelector((state: CustomerDesktopCartState) => state.Cart);
   const { selected } = cart;
   const { quality, note, menu } = selected;
@@ -72,101 +72,48 @@ const SelectedMenuPanel = () => {
       : Math.sign(price) * Math.abs(price);
 
   return (
-    <div
-      style={{
-        height: "90vh",
-        position: "relative",
-        backgroundColor: "#FFECEC",
-        padding: "3vh 3vw",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          height: "5vh",
-          alignItems: "center",
-        }}
-      >
-        <div style={{ width: "50%" }}>
-          <Typography variant="h4" style={{ color: "#37929E" }}>
+    <div className="relative h-[90vh] bg-surface-blush px-[3vw] py-[3vh]">
+      <div className="flex h-[5vh] w-full items-center">
+        <div className="w-1/2">
+          <TextCustom variant="h4" className="text-brand-teal">
             {displayPrice}
-          </Typography>
+          </TextCustom>
         </div>
-        <div
-          style={{
-            width: "50%",
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "flex-end",
-          }}
-        >
-          <IconButton aria-label="Tutup pilihan menu" onClick={onClean}>
-            <img style={{ height: "2.5vh" }} src={Icons.close} alt="" />
-          </IconButton>
+        <div className="flex w-1/2 items-end justify-end">
+          <button
+            type="button"
+            aria-label="Tutup pilihan menu"
+            onClick={onClean}
+            className="rounded-full p-2 text-slate-600 hover:bg-black/5"
+          >
+            <XMarkIcon aria-hidden="true" className="size-6" />
+          </button>
         </div>
       </div>
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          height: "5vh",
-          alignItems: "center",
-        }}
-      >
-        <Typography variant="h5" style={{ color: "#AD3737" }}>
+      <div className="flex h-[5vh] w-full items-center">
+        <TextCustom variant="h5" className="text-[#AD3737]">
           {menu.name || "Name"}
-        </Typography>
+        </TextCustom>
       </div>
-      <div
-        style={{
-          width: "100%",
-          height: "40vh",
-          alignItems: "center",
-          justifyContent: "center",
-          display: "flex",
-        }}
-      >
+      <div className="flex h-[40vh] w-full items-center justify-center">
         <div
           role="img"
           aria-label={menu.name ?? "Menu"}
-          style={{
-            borderRadius: 8,
-            width: "100%",
-            height: "30vh",
-            backgroundImage: `url(${menu.image ?? ""})`,
-            backgroundPosition: "center",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            position: "relative",
-          }}
+          className="relative h-[30vh] w-full rounded-lg bg-center bg-cover bg-no-repeat"
+          style={{ backgroundImage: `url(${menu.image ?? ""})` }}
         >
           {menu.promo ? (
-            <div
-              style={{
-                position: "absolute",
-                bottom: -17,
-                right: 0,
-                alignContent: "center",
-              }}
-            >
+            <div className="absolute -bottom-[17px] right-0 content-center">
               <img src={Icons.star} alt="Promo" />
             </div>
           ) : null}
         </div>
       </div>
-      <div style={{ display: "flex", width: "100%", height: "10vh" }}>
-        <Typography>{menu.desc || "Desc"}</Typography>
+      <div className="flex h-[10vh] w-full">
+        <TextCustom>{menu.desc || "Desc"}</TextCustom>
       </div>
-      <div
-        style={{
-          display: "flex",
-          width: "100%",
-          height: "20vh",
-          justifyContent: "flex-end",
-        }}
-      >
-        <div style={{ width: "70%" }}>
+      <div className="flex h-[20vh] w-full justify-end">
+        <div className="w-[70%]">
           <input
             aria-label="Catatan menu"
             placeholder="Klik untuk menambahkan catatan"
@@ -174,38 +121,26 @@ const SelectedMenuPanel = () => {
             onChange={(event) =>
               dispatch(Actions.Cart.selectedChangeNote(event.target.value))
             }
-            style={{
-              borderColor: "transparent",
-              backgroundColor: "#ECFDFE",
-              height: 35,
-              width: "100%",
-              border: "none",
-              borderRadius: 10,
-              boxShadow: "none",
-              outline: "none",
-            }}
+            className="h-[35px] w-full rounded-[10px] border-0 bg-[#ECFDFE] shadow-none outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
           />
-          <div
-            style={{
-              display: "flex",
-              width: "100%",
-              justifyContent: "space-around",
-              alignItems: "center",
-            }}
-          >
-            <IconButton
+          <div className="flex w-full items-center justify-around">
+            <button
+              type="button"
               aria-label="Tambah jumlah"
               onClick={() => dispatch(Actions.Cart.selectedIncrementQuality())}
+              className="rounded-full p-2 text-[#AD3636] hover:bg-black/5"
             >
-              <AddIcon style={{ color: "#AD3636" }} />
-            </IconButton>
-            <Typography style={{ color: "#AD3636" }}>{quality}</Typography>
-            <IconButton
+              <PlusIcon aria-hidden="true" className="size-5" />
+            </button>
+            <TextCustom className="text-[#AD3636]">{quality}</TextCustom>
+            <button
+              type="button"
               aria-label="Kurangi jumlah"
               onClick={() => dispatch(Actions.Cart.selectedDescrementQuality())}
+              className="rounded-full p-2 text-[#AD3636] hover:bg-black/5"
             >
-              <RemoveIcon style={{ color: "#AD3636" }} />
-            </IconButton>
+              <MinusIcon aria-hidden="true" className="size-5" />
+            </button>
           </div>
           <ButtonCustom
             label={
@@ -217,11 +152,7 @@ const SelectedMenuPanel = () => {
                   ? "Remove"
                   : "Cancel"
             }
-            style={{
-              borderRadius: 10,
-              backgroundColor: "#A42121",
-              color: "#FFFFFF",
-            }}
+            className="rounded-[10px] bg-brand-danger text-white hover:bg-red-900 focus-visible:outline-red-800"
             disabled={cart.loading}
             loading={cart.loading}
             onClick={onSubmit}
@@ -249,25 +180,9 @@ const CustomerDesktopCartContent = () => {
   if (cart.loading) return null;
 
   return (
-    <div
-      style={{
-        height: "90vh",
-        position: "relative",
-        backgroundColor: "#FFFFFF",
-        overflow: "scroll",
-      }}
-    >
-      <div
-        style={{ backgroundColor: "#FFA472", height: "0.5rem", width: "100%" }}
-      />
-      <div
-        style={{
-          width: "100%",
-          paddingLeft: "1rem",
-          paddingRight: "1rem",
-          paddingBottom: "1rem",
-        }}
-      >
+    <div className="relative h-[90vh] overflow-auto bg-white">
+      <div className="h-2 w-full bg-brand-accent" />
+      <div className="w-full px-4 pb-4">
         <CustomerCartOverview />
         <CartContent />
       </div>

@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { randomBytes } = require("node:crypto");
+const PASSWORD_SALT_ROUNDS = 12;
 type TokenAccount = { id: string };
 
 const extractTokenAccountId = (account: TokenAccount): string => {
@@ -57,12 +58,15 @@ const JwtRefreshToken = async (account: TokenAccount) => {
 };
 
 const HashPassword = async (password: string) => {
-  return bcrypt.hashSync(password, 8);
+  return bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
 };
 
 const VerifyHashPassword = async (bodyPassword: string, password: string) => {
-  return bcrypt.compareSync(bodyPassword, password);
+  return bcrypt.compare(bodyPassword, password);
 };
+
+const PasswordNeedsRehash = (passwordHash: string) =>
+  bcrypt.getRounds(passwordHash) < PASSWORD_SALT_ROUNDS;
 
 const VerifyAccessToken = async (accessToken: string) => {
   return jwt.verify(accessToken, process.env.ACCESS_TOKEN_KEY);
@@ -81,6 +85,7 @@ export = {
   JwtRefreshToken,
   HashPassword,
   VerifyHashPassword,
+  PasswordNeedsRehash,
   VerifyAccessToken,
   VerifyRefreshToken,
 };

@@ -8,9 +8,6 @@ vi.mock("react-redux", () => ({ useDispatch: vi.fn() }));
 vi.mock("../../components/menu-dialog", () => ({
   default: () => <div>menu dialog</div>,
 }));
-vi.mock("./payment-dialog", () => ({
-  default: () => <div>payment dialog</div>,
-}));
 vi.mock("./recipe", () => ({
   default: () => <div>recipe</div>,
 }));
@@ -31,7 +28,7 @@ describe("CustomerCartOrders", () => {
 
     expect(screen.getByText("cart item list")).toBeDefined();
     expect(screen.getByText("recipe")).toBeDefined();
-    expect(screen.getByText("payment dialog")).toBeDefined();
+    expect(screen.queryByText("payment dialog")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Pesan" }));
 
     expect(dispatch).toHaveBeenCalledWith(Actions.Cart.dialogPaymentOpen());

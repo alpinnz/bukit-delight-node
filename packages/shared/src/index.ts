@@ -1,4 +1,4 @@
-export const TRANSACTION_STATUSES = ["pending", "proses", "done"] as const;
+export const TRANSACTION_STATUSES = ["pending", "processing", "done"] as const;
 export const TRANSACTION_PAYMENT_METHODS = ["cash", "virtual"] as const;
 
 export type TransactionStatus = (typeof TRANSACTION_STATUSES)[number];
@@ -72,6 +72,7 @@ export type OrderRecord = {
   id_customer?: { _id?: string; username?: string } | string;
   id_table?: { _id?: string; name?: string } | string;
   status?: string;
+  estimatedReadyAt?: string | number | Date;
   customer_username?: string;
   table_name?: string;
   categories?: OrderCategoryRecord[];

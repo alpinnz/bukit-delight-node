@@ -11,7 +11,7 @@ type TransactionDatabase = Pick<
   Pick<PrismaClient, "$queryRaw">;
 type TransactionClient = TransactionDatabase;
 
-type TransactionStatus = "PENDING" | "PROCESS" | "DONE";
+type TransactionStatus = "PENDING" | "PROCESSING" | "DONE";
 type PaymentType = "CASH" | "VIRTUAL";
 
 type TransactionCreateInput = {
@@ -121,13 +121,13 @@ export const createTransactionInTransaction = async (
     0,
   );
   const now = input.now ?? new Date();
-  const estimasi = new Date(
+  const estimatedReadyAt = new Date(
     now.getTime() + Math.trunc((activeDuration + order.duration) * 60_000),
   );
 
   await transaction.order.update({
     where: { id: order.id },
-    data: { status: input.payment, estimasi },
+    data: { status: input.payment, estimatedReadyAt },
   });
   return transaction.transaction.create({
     data: {

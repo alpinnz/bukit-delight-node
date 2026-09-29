@@ -1,15 +1,8 @@
 import Convert from "../../../../helpers/convert";
-import {
-  makeStyles,
-  GridList,
-  GridListTile,
-  GridListTileBar,
-  Typography,
-  ButtonBase,
-} from "@material-ui/core";
 import Icons from "../../../../assets/icons";
 import { useDispatch } from "react-redux";
 import Actions from "../../../../actions";
+import type { AppDispatch } from "../../../../store";
 
 type MenuCard = {
   _id?: string;
@@ -26,145 +19,53 @@ type ListHorizontalProps = {
   title: string;
 };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexWrap: "nowrap",
-  },
-  gridList: {
-    flexWrap: "nowrap",
-  },
-
-  titlePositionBottom: {
-    backgroundColor: "transparent",
-  },
-  titleWrap: {
-    width: "100%",
-    height: "100%",
-  },
-  titleWrapActionPosRight: {
-    color: "#408A1D",
-  },
-
-  title: {
-    color: "#000000",
-  },
-  subtitle: {
-    color: "#000000",
-  },
-}));
-
 const ListCardHorizontal = ({ data = [], title }: ListHorizontalProps) => {
-  const classes = useStyles();
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const onPress = (menu: MenuCard) => {
     dispatch(Actions.Cart.selectedAdd(menu));
     dispatch(Actions.Cart.dialogMenuOpen());
   };
 
   return (
-    <div
-      style={{
-        marginLeft: "0.5rem",
-        marginRight: "0.5rem",
-      }}
-    >
-      <div
-        style={{
-          alignItems: "center",
-          display: "flex",
-        }}
-      >
+    <section className="mx-2">
+      <div className="flex items-center">
         <img
-          style={{ height: 16, width: 16, marginRight: "0.25rem" }}
+          className="mr-1 size-4"
           src={Icons.recommended}
           alt="recommended"
         />
-        <Typography>{`${title}`}</Typography>
+        <h2 className="font-medium">{title}</h2>
       </div>
-      <div
-        style={{
-          paddingTop: "0.25rem",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <GridList className={classes.gridList} cols={2.5}>
-          {data.map((e) => (
-            <GridListTile style={{ width: 171 }} key={`${title}-${e.name}`}>
-              <ButtonBase
-                type="button"
-                style={{
-                  display: "block",
-                  border: "none",
-                  padding: 0,
-                  position: "relative",
-                  width: "100%",
-                  textAlign: "left",
-                }}
-                onClick={() => onPress(e)}
-              >
-                <img
-                  style={{
-                    borderRadius: 8,
-                    width: "100%",
-                    height: "62%",
-                    // objectFit: "contain",
-                  }}
-                  src={e.image}
-                  alt={e.title}
-                />
-                <GridListTileBar
-                  classes={classes}
-                  title={e.name || ""}
-                  subtitle={
-                    <div>
-                      <br />
-                      {/* <spam
-                        variant="subtitle1"
-                        style={{
-                          color: "gray",
-                        }}
-                      >
-                        {e.desc || ""}
-                      </spam> */}
-                      {e.promo > 0 ? (
-                        <div style={{ display: "flex" }}>
-                          <Typography
-                            style={{
-                              textDecorationLine: "line-through",
-                              color: "#37929E",
-                              marginRight: "0.5rem",
-                            }}
-                          >
-                            {Convert.Price(e.price) || 0}
-                          </Typography>
-                          <Typography
-                            style={{
-                              color: "#37929E",
-                            }}
-                          >
-                            {Convert.Price(e.price - e.promo) || 0}
-                          </Typography>
-                        </div>
-                      ) : (
-                        <Typography
-                          style={{
-                            color: "#37929E",
-                          }}
-                        >
-                          {Convert.Price(e.price) || 0}
-                        </Typography>
-                      )}
-                    </div>
-                  }
-                  // actionIcon={}
-                />
-              </ButtonBase>
-            </GridListTile>
-          ))}
-        </GridList>
+      <div className="flex items-center gap-3 overflow-x-auto py-1">
+        {data.map((e) => (
+          <button
+            type="button"
+            key={`${title}-${e.name}`}
+            className="block w-[171px] shrink-0 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-indigo-600"
+            onClick={() => onPress(e)}
+          >
+            <img
+              className="h-28 w-full rounded-lg object-cover"
+              src={e.image}
+              alt={e.title || e.name}
+            />
+            <span className="block truncate pt-2 font-medium text-slate-900">
+              {e.name}
+            </span>
+            {e.promo > 0 ? (
+              <span className="flex gap-2 text-sm text-brand-teal">
+                <del>{Convert.Price(e.price) || 0}</del>
+                <span>{Convert.Price(e.price - e.promo) || 0}</span>
+              </span>
+            ) : (
+              <span className="block text-sm text-brand-teal">
+                {Convert.Price(e.price) || 0}
+              </span>
+            )}
+          </button>
+        ))}
       </div>
-    </div>
+    </section>
   );
 };
 

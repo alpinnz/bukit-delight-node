@@ -5,56 +5,34 @@ import Images from "../../assets/images";
 
 type CustomerContainerMode = "menu" | "book";
 type ContainerCustomerBaseProps = {
-  navigationActive?: number;
   type?: CustomerContainerMode;
   children?: ReactNode;
   title?: string;
 };
 
 const ContainerCustomerBase = ({
-  navigationActive,
   type,
   children,
   title,
 }: ContainerCustomerBaseProps) => {
-  const appBarHeight = 60;
-
   return (
     <div
-      style={{
-        paddingTop: type ? appBarHeight : 0,
-        paddingBottom: 56,
-        backgroundColor: "#CCC1C1",
-        minHeight: "100vh",
-      }}
+      className={`min-h-screen bg-surface-customer pb-14 ${type ? "pt-[60px]" : "pt-0"}`}
     >
       {children}
       {type === "menu" && (
-        <AppBar title={title} routeName="/customer/book" hight={appBarHeight} />
+        <AppBar title={title} routeName="/customer/book" height={60} />
       )}
       {type === "book" && (
-        <div
-          style={{
-            padding: "0.25rem",
-            position: "fixed",
-            backgroundColor: "#CCC1C1",
-            height: appBarHeight,
-            justifyContent: "center",
-            textAlign: "center",
-            alignItems: "center",
-            top: 0,
-            right: 0,
-            left: 0,
-          }}
-        >
+        <div className="fixed inset-x-0 top-0 flex h-[60px] items-center justify-center bg-surface-customer p-1 text-center">
           <img
-            style={{ width: "70%", height: 52.5 }}
+            className="h-[52.5px] w-[70%]"
             src={Images.banner_book}
             alt="banner-book"
           />
         </div>
       )}
-      <BottomNavigationCustom selected={navigationActive} />
+      <BottomNavigationCustom />
     </div>
   );
 };

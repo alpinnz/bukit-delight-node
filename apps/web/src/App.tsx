@@ -1,11 +1,4 @@
 import { useEffect, type ReactNode } from "react";
-import { Grid } from "@material-ui/core";
-import {
-  CssBaseline,
-  createMuiTheme,
-  ThemeProvider,
-  responsiveFontSizes,
-} from "@material-ui/core";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import Actions from "./actions";
@@ -30,25 +23,6 @@ const NetworkStatusView = () => {
     </div>
   );
 };
-
-let theme = createMuiTheme({
-  typography: {
-    fontFamily: `'Roboto', sans-serif`,
-    fontSize: 14,
-    fontWeightLight: 300,
-    fontWeightRegular: 400,
-    fontWeightMedium: 500,
-  },
-  overrides: {
-    MuiCssBaseline: {
-      "@global": {
-        "@font-face": [],
-      },
-    },
-  },
-});
-
-theme = responsiveFontSizes(theme);
 
 const InitCheck = ({ children }: { children: ReactNode }) => {
   const authenticationMounted = useSelector(
@@ -82,11 +56,13 @@ const InitCheck = ({ children }: { children: ReactNode }) => {
     const customer = JSON.parse(localStorage.getItem("customer") || "null");
 
     if (account) {
-      await dispatch(Actions.Accounts.onMount());
+      if (`${account.role}`.toLowerCase() === "admin") {
+        await dispatch(Actions.Accounts.onMount());
+        dispatch(Actions.Roles.onMount());
+        dispatch(Actions.Favorites.onMount());
+      }
       await dispatch(Actions.Transactions.onMount());
       await dispatch(Actions.Orders.onMount());
-      dispatch(Actions.Roles.onMount());
-      dispatch(Actions.Favorites.onMount());
     } else if (customer) {
       await dispatch(Actions.Customers.onMount());
       await dispatch(Actions.Orders.onMount());
@@ -110,16 +86,9 @@ const InitCheck = ({ children }: { children: ReactNode }) => {
 
   if (!isInitialized) {
     return (
-      <Grid
-        container
-        spacing={0}
-        direction="column"
-        alignItems="center"
-        justify="center"
-        style={{ minHeight: "100vh" }}
-      >
+      <div className="flex min-h-screen flex-col items-center justify-center">
         <LoadingCustom />
-      </Grid>
+      </div>
     );
   }
 
@@ -172,20 +141,17 @@ const Logic = ({ children }: { children: ReactNode }) => {
 };
 
 const App = () => (
-  <ThemeProvider theme={theme}>
-    <div className="App">
-      <CssBaseline />
-      <Provider store={Store}>
-        <InitCheck>
-          <NetworkStatusView />
-          <NotificationCustom />
-          <Logic>
-            <Routes />
-          </Logic>
-        </InitCheck>
-      </Provider>
-    </div>
-  </ThemeProvider>
+  <div className="App min-h-screen font-sans text-slate-900 antialiased">
+    <Provider store={Store}>
+      <InitCheck>
+        <NetworkStatusView />
+        <NotificationCustom />
+        <Logic>
+          <Routes />
+        </Logic>
+      </InitCheck>
+    </Provider>
+  </div>
 );
 
 export default App;

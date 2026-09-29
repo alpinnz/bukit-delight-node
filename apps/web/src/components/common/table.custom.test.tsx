@@ -66,7 +66,7 @@ describe("TableCustom", () => {
       </Provider>,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Row actions" }));
+    fireEvent.click(screen.getByRole("button", { name: "Actions for row 1" }));
     fireEvent.click(screen.getByRole("menuitem", { name: "Update" }));
 
     expect(store.getState().Service.form_dialog).toMatchObject({

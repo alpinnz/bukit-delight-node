@@ -54,7 +54,7 @@ describe("CustomerInvoiceOverview", () => {
 
     expect(screen.getByText("order-2")).toBeDefined();
     expect(screen.getByText("Rp 12000")).toBeDefined();
-    expect(screen.queryByText("Kasir")).toBeNull();
+    expect(screen.queryByText("Cashier")).toBeNull();
     expect(screen.queryByText("Kembalian")).toBeNull();
     expect(screen.queryByText("Promo")).toBeNull();
   });

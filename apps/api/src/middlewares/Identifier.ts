@@ -9,6 +9,9 @@ exports.CheckIdentifier = (
   next: NextFunction,
 ) => {
   const identifier = req.params._id;
+  if (typeof identifier !== "string") {
+    return next(createError("Id Error", 400));
+  }
   const isMongoObjectId = /^[a-f\d]{24}$/i.test(identifier);
   const isPrismaCuid = /^c[a-z\d]{24}$/i.test(identifier);
 

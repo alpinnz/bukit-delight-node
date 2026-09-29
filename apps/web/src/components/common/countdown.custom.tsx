@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Typography } from "@material-ui/core";
 
 type CountdownCustomProps = { date?: string | number | Date | null };
 type TimeLeft = { minutes?: number; seconds?: number };
@@ -29,74 +28,22 @@ const CountdownCustom = ({ date }: CountdownCustomProps) => {
   }, [date]);
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: 10,
-          marginBottom: 30,
-        }}
-      >
-        <div
-          style={{
-            backgroundColor: "#FFFFFF",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "7.5rem",
-            height: 50,
-            borderRadius: 8,
-            position: "relative",
-            padding: "0.5rem",
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "#FFFFFF",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              width: "100%",
-              position: "relative",
-            }}
-          >
-            <div
-              style={{
-                width: "45%",
-                alignItems: "center",
-                justifyContent: "center",
-                display: "flex",
-              }}
-            >
-              <Typography style={{ color: "#000000" }} align="center" variant="h3">
+    <div role="timer" aria-label="Waktu tersisa">
+      <div className="mt-[10px] mb-[30px] flex items-center justify-center">
+        <div className="relative flex h-[50px] w-[7.5rem] items-center justify-center rounded-lg bg-white p-2">
+          <div className="relative flex w-full items-center justify-center bg-white">
+            <div className="flex w-[45%] items-center justify-center">
+              <span className="text-3xl font-semibold text-black">
                 {date ? (timeLeft.minutes ?? 0) : "--"}
-              </Typography>
+              </span>
             </div>
-            <div
-              style={{
-                width: "10%",
-                alignItems: "center",
-                justifyContent: "center",
-                display: "flex",
-              }}
-            >
-              <Typography style={{ color: "#000000" }} align="center" variant="h3">
-                :
-              </Typography>
+            <div className="flex w-[10%] items-center justify-center">
+              <span className="text-3xl font-semibold text-black">:</span>
             </div>
-            <div
-              style={{
-                width: "45%",
-                alignItems: "center",
-                justifyContent: "center",
-                display: "flex",
-              }}
-            >
-              <Typography style={{ color: "#000000" }} align="center" variant="h3">
+            <div className="flex w-[45%] items-center justify-center">
+              <span className="text-3xl font-semibold text-black">
                 {date ? (timeLeft.seconds ?? 0) : "--"}
-              </Typography>
+              </span>
             </div>
           </div>
         </div>

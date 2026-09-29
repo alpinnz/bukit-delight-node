@@ -5,24 +5,15 @@ type CategoryBannerProps = {
 };
 
 const CategoryBanner = ({ image }: CategoryBannerProps) => (
-  <div
-    style={{
-      height: 104,
-      marginLeft: "0.5rem",
-      marginRight: "0.5rem",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}
-  >
+  <div className="mx-2 flex h-[104px] items-center justify-center">
     {image ? (
       <img
-        style={{ borderRadius: 8, width: "100%", height: 104 }}
+        className="h-[104px] w-full rounded-lg object-cover"
         src={image}
         alt="banner-menu"
       />
     ) : (
-      <LoadingCustom style={{ color: "#CF672E" }} />
+      <LoadingCustom className="text-brand-primary" />
     )}
   </div>
 );

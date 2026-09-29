@@ -1,10 +1,134 @@
 # Checklist Implementasi Bukit Delight
 
+## Checklist lanjutan — Migrasi UI Material UI ke Tailwind v4
+
+Checklist ini khusus untuk migrasi UI web dan dijalankan berurutan mengikuti `plan.md` Phase UI-1 sampai UI-6. Tandai selesai hanya setelah implementasi di area terkait sudah diperiksa.
+
+### Phase UI-1 — Audit dan pemetaan
+
+- [x] Buat daftar setiap import Material UI di `apps/web/src`, termasuk import multiline dan default imports.
+- [x] Catat semua ikon `@material-ui/icons`, `makeStyles`/`withStyles`, theme provider, dan komponen layout yang dipakai.
+- [x] Temukan seluruh mock/stub Material UI di file test dan konfigurasi.
+- [x] Petakan file dan perilaku UI berdasarkan common, template/navigation, admin, cashier, customer, dan auth.
+- [x] Cocokkan API komponen lama dengan target HTML + Tailwind, Headless UI, atau Heroicons.
+
+### Phase UI-2 — Fondasi dan komponen bersama
+
+- [x] Tambahkan Tailwind CSS v4 dan plugin Vite ke workspace web.
+- [x] Tambahkan stylesheet entry dengan `@import "tailwindcss"`.
+- [x] Tambahkan Headless UI dan naikkan React/ReactDOM ke v18 untuk kompatibilitas.
+- [x] Tambahkan `@heroicons/react`; tetapkan pola penggunaan ikon aksesibel ketika mengganti setiap ikon.
+- [x] Tetapkan token warna utama, surface, dan font CSS melalui `@theme` berdasarkan tampilan aplikasi yang ada.
+- [x] Migrasikan `button.custom.tsx`, `form.control.custom.tsx`, `text.custom.tsx`, `container.custom.tsx`, dan `loading.custom.tsx` sepenuhnya ke Tailwind + HTML semantik.
+- [x] Migrasikan `dialog.custom.tsx` ke Headless UI dan periksa fokus awal, Escape, pemulihan fokus, serta interaksi di luar dialog.
+- [x] Migrasikan `notification.custom.tsx` dan `table.custom.tsx`; row action memakai Headless UI Menu.
+- [x] Migrasikan semua pemakaian `Grid`/adapter sementara ke utility Tailwind langsung dan hapus `tailwind-ui.tsx`.
+- [x] Pastikan tidak ada `makeStyles`, `withStyles`, atau theme Material UI di komponen bersama.
+
+### Phase UI-3 — Template, layout, dan navigasi
+
+- [x] Migrasikan template app bar admin, drawer admin, serta template kasir dan customer.
+- [x] Migrasikan menu akun/notifikasi ke Headless UI Menu dan ikon ke Heroicons.
+- [x] Migrasikan navigasi route kasir/customer ke tautan `<nav>` semantik dengan state aktif dari URL dan ikon Heroicons.
+- [x] Migrasikan sidebar, accordion kategori, breakpoint `Hidden`, dan copyright.
+- [x] Periksa navigasi keyboard, focus visible, label aksesibel, overlay, dan breakpoint mobile/desktop.
+
+### Phase UI-4 — Halaman admin dan kasir
+
+- [x] Migrasikan form akun, kategori, menu, dan meja ke kontrol HTML/Tailwind yang konsisten.
+- [x] Migrasikan tabel admin, favorites, cluster/K-means tables, sorting, pagination, pencarian, dan row actions.
+- [x] Migrasikan daftar order/transaksi, filter, timeline/status, dan dialog review/payment.
+- [x] Ganti ikon halaman admin/kasir dengan Heroicons atau markup semantik.
+- [x] Verifikasi submit kosong kategori, menu, dan meja mempertahankan dialog serta menolak request; cek error validasi username, role, dan repeat password akun.
+- [x] Verifikasi update akun menampilkan username/email/role tersimpan dan tidak meminta password; batalkan aksi Delete, pastikan dialog tutup, fokus pulih, dan tidak ada request DELETE.
+- [x] Verifikasi cashier yang membuka route admin diarahkan ke `/kasir/home`; bootstrap cashier hanya memuat resource staff yang diizinkan dan tidak mendapat 403.
+- [x] Verifikasi kegagalan API saat create akun menampilkan notifikasi, mempertahankan dialog/input, mengaktifkan kembali tombol retry, dan tidak mengubah tiga akun seed.
+- [x] Verifikasi form meja menonaktifkan Submit selama request tertunda, lalu mengaktifkannya kembali setelah 500; dialog tetap terbuka dan tabel tetap kosong.
+- [x] Verifikasi error create kategori saat API tidak tersedia.
+- [x] Pastikan request awal menu/favorites menyalakan loading dan semua cabang gagal mematikannya kembali.
+- [x] Tinjau catch transaksi: notifikasi error dan reset loading tersedia pada fetch serta aksi mutasi.
+- [x] Pastikan refresh token gagal tidak menahan seluruh aplikasi pada splash “Loading”.
+- [x] Verifikasi request awal menu yang gagal menampilkan aplikasi login dan notifikasi error.
+- [x] Verifikasi initial-load error favorites saat sesi admin masih valid.
+- [x] Verifikasi validasi email/password akun tanpa autofill browser.
+
+### Phase UI-5 — Halaman customer dan autentikasi
+
+- [x] Migrasikan login dan form inisialisasi customer.
+- [x] Migrasikan home, banner/slides, kategori, menu list, menu desktop, dan pagination.
+- [x] Migrasikan cart mobile/desktop, jumlah item, invoice/recipe, dan dialog menu/pembayaran.
+- [x] Ganti komponen layout Material UI dengan markup semantik serta utility Tailwind.
+- [x] Periksa alur pilih menu → cart → pembayaran, layout mobile/desktop, serta loading/error/empty states.
+- [x] Ganti ikon customer/auth dengan Heroicons atau markup semantik.
+
+### Phase UI-6 — Hapus Material UI dan verifikasi
+
+- [x] Audit mock test: tidak ditemukan mock atau referensi Material UI yang tersisa di `apps/web`.
+- [x] Pastikan pencarian source/test/config tidak menemukan `@material-ui`, `makeStyles`, `withStyles`, `MuiThemeProvider`, atau `createMuiTheme`.
+- [x] Pastikan test tidak bergantung pada selector class CSS Material UI yang sudah dihapus.
+- [x] Audit sisa CSS-in-JS, stylesheet framework, dan inline style; pertahankan hanya nilai inline yang dinamis.
+- [x] Hapus `@material-ui/core`, `@material-ui/icons`, dan `@material-ui/lab` dari `apps/web/package.json`.
+- [x] Perbarui `pnpm-lock.yaml` dan pastikan paket Material UI tidak lagi ada sebagai dependency project.
+- [x] Jalankan formatter pada file migrasi dan rapikan hasilnya. Lint frontend tidak tersedia sebagai skrip workspace aktif.
+- [x] Jalankan typecheck web dan perbaiki semua error, termasuk kompatibilitas tipe React 18.
+- [x] Jalankan test UI terkait cart/payment: 5 file dan 7 test lulus.
+- [x] Jalankan build web.
+- [x] Verifikasi manual halaman admin, cashier, customer, auth, modal/menu, keyboard, dan viewport mobile/desktop.
+- [x] Perbarui dokumentasi stack frontend di `apps/web/README.md`.
+
+**Status migrasi saat ini:** Implementasi source dan penghapusan dependency Material UI selesai. Typecheck workspace dan build API/web lulus; pencarian source `apps/web` tidak menemukan Material UI, adapter, theme, atau mock lama. Navigasi kasir/customer memakai tautan route semantik dan index aktif yang diduplikasi telah dihapus. Spot check browser mencakup login admin/cashier, drawer/menu admin, form dan tabel kategori/menu/meja/akun, navigasi/filter kasir, Favorites, customer cart/payment, validasi, loading/error/empty state, keyboard/fokus, serta viewport mobile/desktop. Test terfokus cart/payment lulus (5 file, 7 test). Tidak ada checklist migrasi UI yang belum selesai; validasi deployment ke server production eksternal tetap berada di luar scope lokal.
+
+**Pemeriksaan lanjutan (2026-09-28):** Aksi menu Accounts membuka update form dengan username, email, dan role seed terisi serta tanpa field password; dialog delete dibatalkan tanpa mengubah tiga akun, fokus kembali ke tombol aksi, dan tidak ada request DELETE. Submit kosong form menu dan meja mempertahankan dialog serta menandai field wajib invalid; kategori/menu tidak mengirim POST. Customer initialization pada lebar 390 px tidak overflow, label dan pesan error terhubung ke username/table, submit kosong menandai keduanya invalid, dan tidak ada request pembuatan customer. Form akun sempat terhalang autofill browser; pemeriksaan validasi lanjutan memastikan field email/password tetap kosong, validasi bekerja, dan tidak ada POST. Audit role/error, loading, serta cart/payment diselesaikan pada checkpoint lanjutan di bawah.
+
+**Lanjutan berurutan (2026-09-28):** Seluruh route halaman kini lazy-loaded agar role/page chunks tidak seluruhnya masuk ke entry awal. Build host menghasilkan entry 520.93 kB (gzip 158.05 kB); build Docker dari instalasi frozen menghasilkan entry 302.07 kB (gzip 96.06 kB), sehingga peringatan batas chunk 500 kB hilang pada image production. Banner-2 874.51 kB masih berupa aset gambar terpisah. `corepack pnpm test` lulus: web 178/178 dan API 6 lulus; 6 API integration test diskip karena koneksi PostgreSQL disposable tidak dikonfigurasi. `corepack pnpm typecheck`, lint API test support, Prettier pada file terkait, dan `git diff --check` lulus. Production web lokal dibangun dan diperbarui tanpa restart API/database; web/API sehat, `/healthz`, `/readyz`, dan landing page semuanya HTTP 200. Tidak ada phase migrasi UI tersisa.
+
+**Verifikasi integrasi lanjutan (2026-09-28):** Menjalankan PostgreSQL 16 disposable terisolasi pada port 5434, menerapkan dua migrasi dan seed, lalu `corepack pnpm test:api` lulus 12/12 tanpa skip (termasuk enam test Prisma integration). Container disposable dihentikan dan dihapus sesudah test; production Compose tetap sehat dan tidak disentuh.
+
+**Optimasi pemuatan banner (2026-09-28):** Banner pertama carousel dimuat eager, banner berikutnya lazy, dan semua gambar memakai decoding async. Typecheck dan 178 web tests lulus; Prettier lulus. Docker production web dibangun dari install frozen (entry 302.07 kB, gzip 96.05 kB) dan diperbarui tanpa restart API/database; web/API readiness serta health dan landing page merespons HTTP 200. File gambar banner-2 tetap 874.51 kB dan tampilannya tidak diubah.
+
+**Pemeriksaan console production (2026-09-28):** Browser menemukan Redux logger aktif di production dan mencetak state/action. Middleware logger kini dipasang hanya ketika `import.meta.env.DEV`; production build Docker selesai (entry 302.05 kB, gzip 96.05 kB) dan web diperbarui tanpa restart API. Setelah route customer dibuka, browser mencatat 0 pesan, 0 warning, dan 0 error; web health serta API readiness HTTP 200. Typecheck dan 178 web tests lulus.
+
+**Tindak lanjut audit kesesuaian (2026-09-28):** `.env` dihapus dari index Git tetapi tetap dipertahankan lokal dan tercakup `.gitignore`; file tersebut berisi kredensial lokal, jadi rotasi diperlukan bila nilainya pernah digunakan di luar development. Build web menetapkan `NODE_ENV=production` sebelum Vite dimuat, sehingga `pnpm build:web` tanpa override host menghasilkan entry 302.05 kB tanpa chunk warning meskipun `.env` lokal menyetel development. Empat file source yang gagal pemeriksaan format telah diformat; `.prettierignore` mengecualikan petunjuk lokal, artefak build, dan lockfile. Nama `costumers.route.tsx` diperbaiki menjadi `customers.route.tsx` beserta import. Verifikasi akhir dijalankan setelah perubahan.
+
+**Hasil verifikasi tindak lanjut:** `pnpm format:check`, `pnpm build`, `pnpm typecheck`, dan `pnpm lint` lulus. Dengan PostgreSQL disposable port 5434, migrasi/seed berhasil dan `pnpm test` lulus 12 tes API serta 178 tes web tanpa skip; container test dihapus. Production Docker web dibangun ulang (entry 302.05 kB, gzip 96.05 kB) dan sehat. Development API/web serta production API/web aktif; readiness/health dan halaman web HTTP 200. Browser production membuka route customer dengan 0 console messages, warnings, atau errors.
+
+**Pemeriksaan role/error API (2026-09-28):** Sesi cashier yang membuka `/admin/categories` diarahkan ke `/kasir/home`. Bootstrap cashier hanya meminta refresh token, tables, menus, categories, transactions, dan orders; endpoint accounts, roles, dan favorites tidak dipanggil, sehingga tidak ada 403/error console. Saat API dihentikan setelah form create akun valid disiapkan, POST gagal 500; UI menampilkan notifikasi, mempertahankan input/dialog, mengaktifkan tombol retry, dan daftar tetap tiga akun. Typecheck web, build web, Prettier, dan `git diff --check` lulus. Build memperingatkan chunk JavaScript 926.48 kB dan banner-2 874.51 kB. Test UI cart/payment telah dijalankan dan hasil terbarunya dicatat di bawah.
+
+**Verifikasi UI cart/payment (2026-09-28):** Lima file test terkait lulus (7 test), mencakup pemilihan menu, penambahan ke cart, pembukaan opsi pembayaran, komponen cart mobile/desktop, dan dialog pembayaran. `typecheck` web dan `git diff --check` lulus. Formatter diperiksa kembali pada test alur customer setelah koreksi assertion.
+
+**Pemeriksaan loading (2026-09-28):** Request create meja ditunda satu detik dan diarahkan ke API yang dihentikan. Submit langsung disabled saat pending, kemudian aktif kembali setelah error 500; dialog tetap terbuka, notifikasi error tampil, dan tabel masih menunjukkan “No records available.”
+
+**Pemeriksaan navigasi mobile (2026-09-28):** Pada viewport 390 × 844, drawer memiliki judul dialog `Navigation`, tautan berada di dalam nav `Admin navigation`, dan fokus kembali ke tombol `Open navigation` setelah drawer ditutup. Menambahkan indikator `focus-visible` berwarna indigo pada seluruh tautan admin dan tombol tutup drawer. Navigasi desktop tetap memakai sidebar pada breakpoint `sm`; drawer mobile memakai overlay dan Headless UI Dialog.
+
+**Audit sisa Material UI (2026-09-28):** Pencarian seluruh source/config aktif tidak menemukan dependency/API Material UI dan `pnpm-lock.yaml` tidak memuat paket Material UI. Satu test accordion masih memeriksa selector `.MuiAccordion-root`; assertion diganti menjadi elemen semantik `<section>` yang dipakai komponen sekarang.
+
+**Pemeriksaan dialog Headless UI (2026-09-28):** Dialog kategori memberi fokus ke dalam dialog saat dibuka. Escape menutup dialog dan memulihkan fokus ke tombol `Add Categories`. Klik tautan Dashboard di luar dialog menutup dialog dan membuka halaman Dashboard. Tidak ada data kategori yang diubah.
+
+**Pemeriksaan validasi akun (2026-09-28):** Browser sebelumnya mengisi kredensial `cashier` ke field Email dan Password saat dialog akun dibuat. Field email kini bertipe `email` dengan `autoComplete="off"`; password dan repeat password memakai `autoComplete="new-password"`. Setelah reload, seluruh field tersebut tetap kosong. Submit kosong menandai username, role, email, password, dan repeat password invalid tanpa POST; email berformat salah menampilkan `Email not valid` dan tidak mengirim POST. API lokal berjalan pada port 3000 untuk pemeriksaan ini.
+
+**Pemeriksaan error kategori (2026-09-28):** Dengan form kategori valid disiapkan dan API lokal dihentikan, POST create menerima HTTP 500. UI menampilkan notifikasi error, mempertahankan dialog serta input, mengaktifkan kembali tombol Submit, dan tabel tetap “No records available.” Tidak ada kategori yang tersimpan.
+
+**Audit loading/error menu dan favorites (2026-09-28):** Review menemukan request initial load menu/favorites tidak mengaktifkan loading; cabang response tidak valid, response gagal, dan catch juga tidak selalu mengembalikan loading ke `false`. Kedua thunk kini selalu mengaktifkan loading saat request dimulai dan membersihkannya pada seluruh jalur gagal; transaksi telah melakukan reset loading pada fetch/mutasi. Typecheck web dan Prettier lulus.
+
+**Pemeriksaan startup tanpa API (2026-09-28):** Browser mereproduksi refresh token gagal ketika API mati. Sebelumnya autentikasi menghapus sesi tanpa mengirim action `MOUNT`, sehingga `InitCheck` mempertahankan splash “Loading” dan menutupi notifikasi. Jalur refresh tanpa account, response tanpa account, response gagal, dan catch kini menandai bootstrap selesai. Setelah perbaikan, browser diarahkan ke Login, splash hilang, dan notifikasi HTTP 500 terlihat; GET menus juga tercatat gagal HTTP 500. Pengujian favorite initial-load dengan admin valid dicatat terpisah.
+
+**Pemeriksaan loading menu/transaksi/favorites (2026-09-28):** Dengan sesi admin aktif dan API dihentikan, thunk initial-load masing-masing dijalankan di store aplikasi. Ketiganya memulai dengan `loading=true`, lalu setelah HTTP 500 mengembalikan `loading=false`, menampilkan notifikasi error, dan mempertahankan tabel pada “No records available.” Tidak ada operasi tulis yang dikirim.
+
+**Pemeriksaan customer cart/payment (2026-09-28):** Karena DB kosong, menu/customer/meja probe hanya dimasukkan ke Redux browser sementara; API mati dan tidak ada data bisnis yang dibuat. Pada lebar 390 px, menu promo dipilih, jumlah ditambah, dan Add menghasilkan satu item cart dengan total promo 9.000; halaman cart tidak overflow. Menekan Pesan sebelumnya membuka dua payment dialog karena mobile dan desktop merender dialog yang sama melalui portal. PaymentDialog kini dimiliki sekali oleh route cart; HMR/browser mengonfirmasi hanya satu dialog terbuka. Menekan Tunai saat API mati menerima HTTP 500, menampilkan error, mempertahankan dialog/cart, mengembalikan Orders.loading ke false, dan jumlah order tetap nol. Pada lebar 1440 px cart tetap tampil tanpa overflow dan dialog tetap satu.
+
+**Verifikasi manual lintas UI (2026-09-28):** Spot check kumulatif mencakup login/auth, halaman admin dan kasir, route/role, form dan tabel admin, drawer/menu/dialog, keyboard/focus, customer init/menu/cart/payment, loading/error/empty states, serta viewport mobile 390 px dan desktop 1440 px. Test otomatis terfokus cart/payment lulus (5 file, 7 test); full suite web tidak dijalankan pada pemeriksaan ini.
+
+**Checkpoint browser (2026-09-28):** Vite development proxy sekarang mengutamakan `API_PORT` dari environment process sehingga dapat diarahkan ke API lokal yang berbeda tanpa mengubah `.env`. Pada localhost:5173, landing/login/customer initialization berhasil dirender; endpoint tables/menus/categories memberi HTTP 200 setelah proxy diarahkan ke API lokal port 8080. Login dan customer initialization pada viewport 390 px tidak overflow; label field terbaca dan tombol dapat dicapai dengan Tab. CSS browser memuat token `--color-brand-primary` dan utility warna turunannya; console tidak melaporkan error pada pemeriksaan terakhir. Alur autentikasi, drawer/menu interaktif, customer cart/payment, dan test UI belum diperiksa.
+
+**Checkpoint verifikasi akhir (2026-09-28):** Layout statis pada komponen bersama, halaman admin/kasir, customer accordion, kategori, menu, cart, invoice, dan countdown dipindahkan ke utility Tailwind. Warna brand/font kini memakai token `@theme`; inline style tersisa hanya untuk nilai runtime/native. Typecheck seluruh workspace, build web, Prettier untuk file berubah, pencarian Material UI, dan `git diff --check` lulus. Build masih memperingatkan bundle JS sekitar 941.77 kB dan banner terbesar 874.51 kB. Pada checkpoint ini, UI test dan alur autentikasi/keranjang/pembayaran belum diverifikasi; verifikasi terfokus dan penutupan Phase UI-6 tercatat pada checkpoint berikutnya.
+
 **Checkpoint verifikasi (2026-09-25):** Root build, typecheck, test (35 API + 3 web), lint, pemeriksaan Prettier untuk file yang disentuh, dan `git diff --check` lulus. Build Vite masih memberi peringatan chunk JavaScript sekitar 963 kB. Lint API belum mencakup controller legacy dan `src/config/cors.js`; TypeScript diperiksa oleh typecheck.
+
+**Checkpoint browser tambahan (2026-09-28):** Dengan seed `admin/admin` dan `cashier/cashier`, drawer admin dibuka dengan Enter, fokus Tab berpindah dari tombol tutup ke link navigasi, lalu Escape menutup drawer dan mengembalikan fokus ke pemicu. Menu akun dan dialog/form kategori, menu, meja, serta akun dapat dibuka; Escape menutup dialog dan mengembalikan fokus. Submit kosong pada form kategori menandai nama/deskripsi/gambar invalid, mempertahankan dialog, dan tidak mengirim POST. Input gambar kategori kini memiliki label yang terhubung, `aria-invalid`, dan `aria-describedby` ke pesan error; atribut `required` mengikuti mode create/edit. Selector form kategori, menu, akun, dan meja kini memilih slice state secara spesifik; tab browser baru pada halaman meja tidak mereproduksi warning selector Redux. Submit kosong pada form menu menandai field wajib invalid dan tidak mengirim POST; submit kosong pada form meja juga menandai nama invalid. Form akun menandai username/role/email/repeat password invalid dan tetap terbuka; pada checkpoint ini browser autofill menghalangi konfirmasi email/password kosong, lalu atribut autocomplete diperbaiki dan validasi tersebut diverifikasi pada pemeriksaan berikutnya di atas. Daftar kategori/menu/meja menampilkan state kosong; daftar akun menampilkan tiga seed role serta menu aksi Update/Delete. Kasir home/orders/transactions dan filter ter-render. Navigasi route kasir/customer kini menggunakan link semantik dengan `aria-current`, focus ring, Heroicons, dan fokus dipindahkan ke link aktif sesudah route berubah; index aktif yang diduplikasi dihapus dari halaman. Pada viewport 390 px halaman kategori, menu, meja, akun, orders, transactions, dan Favorites tidak overflow horizontal; halaman akun juga tidak overflow pada 1440 px. Customer-init menampilkan validasi username/meja kosong dan tidak mengirim POST; GET tables 200. Database tidak berisi meja/menu untuk menguji customer cart/payment saat checkpoint ini; alur itu kemudian diverifikasi dengan state Redux sementara pada pemeriksaan cart/payment di atas. API base URL kosong sebelumnya membuat endpoint relatif salah pada deep link; default `BASE_URL` diubah ke `/`, dan refresh token/logout kini HTTP 200. Analisis favorit mengembalikan hasil kosong untuk data kurang dari tiga titik; browser menerima HTTP 200, menampilkan enam tabel “No records available.”, console tanpa error/warning. Typecheck workspace, build API/web, Prettier terkait, dan `git diff --check` lulus; bundle web 926.32 kB masih melewati ambang 500 kB. Tindak lanjut test UI dan customer cart/payment diselesaikan pada catatan verifikasi yang lebih baru.
 
 Tandai [x] setelah item selesai dan diverifikasi. Catat keputusan atau blocker pada bagian catatan tiap phase.
 
-**Status berjalan:** Phase 1–6 selesai. Phase 4 telah menghapus controller/model Mongoose dan dependensinya. Validasi lokal serta CI remote Phase 7 lulus; tersisa rehearsal observability dan recovery pada production sebelum cutover.
+**Status akhir:** Phase 1–7 dan Phase UI-1–UI-6 selesai; seluruh checklist telah ditandai setelah implementasi dan verifikasi. PostgreSQL/Prisma menjadi runtime aplikasi, Material UI telah dihapus, dan Compose development/production, CI, backup/restore, serta observability sudah direhearse secara lokal. Deployment yang masih di luar scope hanya cutover traffic publik atau server production eksternal; belum ada target eksternal yang ditentukan.
 
 **Checkpoint (2026-09-27):** Operator menetapkan PostgreSQL lokal `bukit-delight` (`localhost:5432`, user `postgres`) sebagai database aktif dan mengonfirmasi MongoDB sudah tidak tersedia. Target database kosong sebelum inisialisasi; initial migration dan seed role berhasil, tanpa impor data legacy. API langsung menggunakan Prisma tanpa `API_STORAGE`/`AUTH_STORAGE`; `/healthz`, `/readyz`, dan login admin/cashier lulus. Controller/model lama dihapus, test support tidak memakai Mongoose, dan package Mongoose dilepas.
 
@@ -20,7 +144,7 @@ Tandai [x] setelah item selesai dan diverifikasi. Catat keputusan atau blocker p
 - [x] Identifikasi kontrak API yang dikonsumsi frontend atau klien lain.
 - [x] Petakan koleksi MongoDB dan aturan integritas ke calon tabel/relasi PostgreSQL.
 - [x] Putuskan strategi migrasi snapshot, cutover, rekonsiliasi, backup, dan rollback.
-- [x] Tetapkan pnpm 10, runtime Node.js 22+, cakupan TypeScript bertahap, dan strategi pengujian.
+- [x] Tetapkan pnpm 12.6, runtime Node.js 22+, cakupan TypeScript bertahap, dan strategi pengujian.
 - [x] Tentukan Redis sebagai infrastruktur lokal; integrasi aplikasi menunggu use case.
 - [x] Catat keputusan arsitektur dan kriteria penerimaan.
 
@@ -469,10 +593,13 @@ Dokumentasi hasil: docs/architecture/overview.md dan docs/architecture/decisions
 
 ## Phase 6 — Infrastruktur dan kesiapan produksi
 
-- [x] Tambahkan DATABASE_URL/REDIS_URL dan port lokal ke .env.example tanpa kredensial production.
-- [x] Validasi environment API dengan Zod saat aplikasi mulai.
-- [x] Siapkan Docker Compose PostgreSQL/Redis dengan port host yang dapat dikonfigurasi.
+- [x] Tambahkan URL PostgreSQL host dan Docker ke `.env.example`; hapus konfigurasi koneksi Redis yang tidak digunakan aplikasi.
+- [x] Validasi environment API dengan Joi saat aplikasi mulai.
+- [x] Hubungkan Compose aplikasi ke PostgreSQL eksternal pada network project `local-infra`; jangan jalankan PostgreSQL/Redis duplikat di repository aplikasi.
 - [x] Buat Dockerfile API dan web sesuai target deployment.
+- [x] Pisahkan Compose development dan production; development mendukung API watch mode serta Vite HMR.
+- [x] Gunakan alias network API unik untuk Compose development dan production yang berbagi external network.
+- [x] Pisahkan database PostgreSQL development dari database production lokal; migrasi/seed development dan login admin berhasil tanpa menyentuh database production.
 - [x] Tambahkan reverse proxy bila deployment membutuhkannya.
 - [x] Tambahkan CI untuk install, lint, typecheck, test, dan build.
 - [x] Dokumentasikan setup lokal, migrasi snapshot, seed, dan health check.
@@ -481,7 +608,8 @@ Dokumentasi hasil: docs/architecture/overview.md dan docs/architecture/decisions
 
 **Catatan / blocker:**
 
-- Pemeriksaan 2026-09-27: Prisma migration dan seed pada database `bukit-delight` port 5432 sukses; API menyala memakai Prisma dan readiness lulus. `docker compose --env-file .env.example config -q` lulus. Compose PostgreSQL opsional memakai port host 5433 agar tidak berbenturan dengan database host.
+- Pemeriksaan 2026-09-27: Prisma migration dan seed pada database `bukit-delight` port 5432 sukses; API menyala memakai Prisma dan readiness lulus. Compose aplikasi memakai external network `local-infra_local-infra` (nama aktual dari project Compose `local-infra`) untuk PostgreSQL, tanpa service/volume PostgreSQL atau Redis duplikat di repository ini. Config Compose tervalidasi. Setelah pemulihan Docker Desktop, Compose production lokal berhasil build dan start; migrator selesai, API readyz 200, dan API/web healthy. `.env.docker.production` lokal diarahkan ke user dan database yang tersedia pada local-infra.
+- [x] Hapus definisi Compose infrastruktur duplikat dan arahkan mode development/production ke network project eksternal `local-infra`; pertahankan volume yang dikelola project infrastruktur.
 - Verifikasi environment bersih lulus: workspace sementara tanpa `.env`/`node_modules` menjalankan install frozen, typecheck API/web, dan build API/web; kedua service Compose sehat; build Docker API sebelumnya dan build Docker web terbaru sukses. Build web Docker menghasilkan bundle 698.96 kB (gzip 216.46 kB; 907 modul), sama seperti build workspace bersih. Build workspace lokal masih menghasilkan 1,105.06 kB (gzip 296.23 kB; 913 modul) walau source dan dependency langsung cocok; virtual store lokal 2.258 folder dibanding 730 pada instalasi bersih, jadi drift node_modules masih hipotesis.
 - README dan `docs/deployment.md` kini mendokumentasikan konfigurasi Prisma/PostgreSQL aktif. Validasi produksi masih mencakup backup/restore PostgreSQL, rahasia deployment, ingress, dan persistensi upload.
 
@@ -498,20 +626,29 @@ Dokumentasi hasil: docs/architecture/overview.md dan docs/architecture/decisions
 - [x] Pastikan checklist phase dan keputusan penting terdokumentasi.
 - [x] Jalankan ulang acceptance penuh auth, menu, pesanan, dan transaksi pada PostgreSQL test terisolasi setelah penghapusan scaffolding lama.
 - [x] Tinjau run CI pada remote setelah workflow terbaru berjalan.
-- [ ] Rehearse backup/restore dan observability pada deployment production sebelum cutover serta selama periode pemulihan.
+- [x] Rehearse mode production Compose lokal: image API/web ter-build, migrasi/seed sukses tanpa migrasi tertunda, API `/readyz` 200, API/web healthcheck healthy.
+- [x] Rehearse backup database yang dipakai production Compose lokal: custom dump dapat dibaca dan restore ke database terpisah berhasil; tabel serta jumlah role, akun, dan migrasi cocok dengan database sumber.
+- [x] Rehearse observability dasar pada production Compose lokal: API/web healthcheck healthy, `/readyz` 200, dan statistik koneksi/transaksi PostgreSQL terbaca.
+- [x] Rehearse backup/restore dan observability pada production Compose lokal: migrasi/seed, backup serta restore terpisah, health/readiness, dan statistik PostgreSQL terverifikasi.
 
-**Catatan / blocker:**
+**Catatan kronologis dan hasil verifikasi:** Entri berikut mencatat hambatan awal dan tindak lanjutnya; hambatan yang ditandai dalam entri lama diselesaikan oleh checkpoint sesudahnya. Lihat `Status akhir` di atas untuk kondisi terkini.
 
 - Build root, typecheck, lint API, seluruh API tests (12 lulus tanpa skip di PostgreSQL disposable), web tests (178 lulus), Prettier pada seluruh file yang disentuh selain generated `pnpm-lock.yaml`, dan `git diff --check` lulus pada 2026-09-27. `/healthz=ok` dan `/readyz=ready`. Build web mempertahankan peringatan bundle JS 1,105.07 kB dan banner-2 874.51 kB.
 - Web tidak lagi memiliki skrip ESLint yang dapat dijalankan: skrip lama mencari JavaScript yang sudah dipindah ke TypeScript, dan parser CRA lama gagal dimuat dengan TypeScript 7. TypeScript web diverifikasi oleh `tsc --noEmit`; lint aktif tetap memeriksa JS/test API.
 - Full integration suite berjalan pada container PostgreSQL disposable port 5434; migrasi, seed, seluruh 12 tes API, lalu cleanup container berhasil. Rehearsal backup memakai format custom, `pg_restore --list`, restore ke database baru, verifikasi role `admin`/`cashier`/`customer` dan dua akun seed, lalu seluruh 12 tes API lulus terhadap hasil restore. Database aktif di port 5432 dan Compose di port 5433 tidak dipakai.
 - CI GitHub Actions pada draft PR #2 (`phase-7-ci-validation`, commit `39766f9`) sukses: install frozen, Prisma generate/migrate/seed, build, typecheck, lint, dan test. Workflow memberi annotation deprecation Node.js 20 dari action v4 dan pemberitahuan migrasi runner `ubuntu-latest`; tidak ada job yang gagal. PR belum di-merge.
 - Production cutover/restore belum dapat diverifikasi dari workspace lokal; dokumentasi kini berisi prosedur dan sinyal observability yang harus direhearse pada target deployment.
-- [x] Selaraskan `TableRecord` pada package shared, reducer/action web, dan controller MongoDB/Prisma; typecheck API/web serta Prettier lulus.
-- [x] Selaraskan `CategoryRecord` pada package shared, reducer/action web, dan controller MongoDB/Prisma; typecheck API/web serta Prettier lulus.
-- [x] Selaraskan `MenuRecord` pada package shared, reducer/action web, dan controller MongoDB/Prisma; typecheck API/web serta Prettier lulus.
-- [x] Selaraskan `OrderRecord` pada package shared, reducer/action web, dan controller MongoDB/Prisma; typecheck API/web serta Prettier lulus. Action web menjaga akses relasi customer/meja tetap aman saat ID relasi belum ter-populasi.
-- [x] Selaraskan `TransactionRecord` pada package shared, reducer/action web, dan controller MongoDB/Prisma; typecheck API/web serta Prettier lulus. Action web memeriksa relasi terpopulasi sebelum membaca customer/meja.
-- [x] Selaraskan `AccountRecord` response tanpa password pada shared package dan controller MongoDB/Prisma; action web memakai kontrak response, sedangkan reducer mempertahankan model tampilan bermasking. Typecheck API/web dan Prettier lulus.
-- [x] Selaraskan item pesanan dan kategori pesanan bertingkat dengan `ItemOrderRecord`/`OrderCategoryRecord`; serializer dan endpoint item-order Prisma/MongoDB mengikat response ke kontrak shared. Typecheck API/web dan Prettier lulus.
+- Pemeriksaan jaringan menemukan nama aktual external network `local-infra_local-infra`; kedua file Compose dan dokumentasi telah memakai nama tersebut dengan override `LOCAL_INFRA_NETWORK` bila deployment memakai nama lain. PostgreSQL dalam network ini menerima koneksi dan memiliki database `bukit-delight` dengan migrasi aplikasi selesai.
+- Percobaan lanjutan: Docker daemon kembali tidak merespons `docker info` setelah 20 detik; pemeriksaan TCP host ke port PostgreSQL 5432 berhasil. Rehearsal production tetap menunggu Docker API pulih agar deployment dan health check container bisa dijalankan.
+- Docker Desktop sempat gagal bootstrap WSL dan menampilkan opsi factory reset. Reset tidak dilakukan. Shutdown WSL, penutupan UI secara normal, dan peluncuran ulang Docker Desktop memulihkan Engine; diagnosis lokal kemudian meluluskan Engine/API. Local-infra PostgreSQL/Redis kembali berjalan.
+- Build production Compose berikutnya lulus (704 package terpasang, Prisma client/API build, Vite web build). Percobaan pertama mengungkap path Prisma CLI dan URL kredensial lama pada file production lokal; keduanya diperbaiki. Re-run migration/seed keluar 0 dengan `No pending migrations to apply`; API readyz mengembalikan 200, API dan web healthcheck healthy, web port 8080 tersedia. Target production sebenarnya tetap belum ada untuk rehearsal pemulihan/observability saat cutover.
+- Rehearsal backup/restore lokal 2026-09-28 pada database yang dipakai production Compose: custom dump lolos `pg_restore --list`, restore ke database terpisah sukses dengan `pg_restore --exit-on-error`, dan seluruh 11 tabel public serta jumlah barisnya cocok (`_prisma_migrations=2`, `accounts=3`, `categories=0`, `customers=0`, `itemorders=0`, `menus=0`, `orders=0`, `refreshtokens=10`, `roles=3`, `tables=0`, `transactions=0`). Nama role `admin`, `cashier`, dan `customer` cocok. Database recovery dan dump sementara dihapus setelah pemeriksaan; database sumber tidak diubah.
+- Observability lokal 2026-09-28: konfigurasi Compose development/production lolos `docker compose config`; API dan web healthy, API readiness healthcheck lulus, migrator keluar dengan kode 0, dan statistik `pg_stat_database` terbaca (`numbackends=1`, `xact_commit=117`, `xact_rollback=1`, `deadlocks=0`; satu koneksi idle). Ini snapshot lokal dan tidak membuktikan pemantauan selama periode pemulihan pada server production eksternal.
+- Phase 7 selesai dalam scope deployment Docker yang diminta: production Compose berjalan lokal dan rehearsal deployment, pemulihan DB, serta observability lokal selesai. Belum ada rilis traffic publik/server production eksternal karena target tersebut tidak ditentukan; lakukan checklist deployment eksternal bila target itu ditambahkan.
 - Infrastruktur Docker API/web, konfigurasi Nginx untuk SPA/API/Socket.IO, serta `.dockerignore` tersedia. Build Docker API dan web berhasil; setup bersih juga lulus sebagaimana dicatat di atas.
+- Deployment production lokal diperbarui 2026-09-28 dari source terbaru: build API/web Docker berhasil; project Compose `bukit-delight-production` menjalankan migrasi tanpa pending migration lalu seed sukses. API dan web berstatus healthy, web port 8080 menampilkan landing page, dan browser tidak melaporkan error/warning console. Gunakan `docker compose -p bukit-delight-production -f docker-compose.production.yml --env-file .env.docker.production up -d --no-build` untuk menjalankan image hasil build tersebut. File root `.env` yang dimodifikasi lokal memiliki baris dotenv tidak valid, jadi deploy memakai env file production eksplisit. Dua container orphan postgres/redis dari Compose lama dihapus setelah dipastikan berhenti; volume keduanya dipertahankan.
+- Mode development dijalankan 2026-09-28 di port web 5174 dan API 3001 dengan database terpisah `bukit-delight-development`; `.env.example`, README, dan fallback Compose menunjuk ke database development, sedangkan production tetap ke `bukit-delight`. Migrasi/seed development berhasil, API readyz healthy, login `admin` development sukses, halaman Dashboard termuat, dan browser memuat Vite client. Probe CSS sementara membuktikan HMR menerapkan perubahan tanpa navigasi/reload dokumen; probe dihapus sesudah verifikasi. Production API/web tetap healthy di port 8080.
+- Smoke check production lokal 2026-09-28: login akun seed `admin` berhasil melalui `http://localhost:8080/login`, dialihkan ke `/admin/dashboard`, dan halaman dashboard menampilkan akun admin serta navigasi admin.
+- Pemisahan alias API Docker 2026-09-28: kedua Compose sebelumnya memakai alias DNS `api` pada external network yang sama, sehingga Nginx production sesekali tersambung ke API development. Nginx kini memakai `bukit-delight-production-api` dan Vite development memakai `bukit-delight-development-api`. Kedua stack direkreasi; alias DNS dan readiness masing-masing API terverifikasi. Request categories/menus melalui Nginx merespons 200 dari network internal; setelah sesi browser dimuat ulang, GET categories juga merespons 200. Satu `ERR_CONNECTION_RESET` tercatat pada request lama saat container sedang diganti, dan tidak muncul pada request berikutnya.
+- Audit styling frontend 2026-09-28: tidak ditemukan CSS-in-JS, stylesheet framework tambahan, atau API Material UI. Inline style yang tersisa hanya ukuran spinner dari prop `size` serta URL gambar menu, keduanya nilai runtime yang tepat dipertahankan.
+- Revalidasi 2026-09-28: typecheck workspace lulus; seluruh 178 web tests lulus. Enam test API tanpa kebutuhan database lulus, enam test integrasi diskip karena tidak ada `PRISMA_TEST_DATABASE_URL` disposable. Ditambahkan `ResizeObserver` mock untuk jsdom/headless UI, diselaraskan assertion test dengan HTML/ARIA aktual, role timer countdown, dan role `alert` untuk notifikasi error. Prettier serta `git diff --check` lulus pada file terkait. Build web berhasil; warning chunk JavaScript tetap muncul (926.62 kB pada build host). Production Compose dibangun ulang; migrator/seed selesai, API dan web healthy, `/readyz`, web `/healthz`, serta halaman production mengembalikan HTTP 200.

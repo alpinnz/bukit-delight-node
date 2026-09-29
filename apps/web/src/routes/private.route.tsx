@@ -1,42 +1,37 @@
-import type { ComponentType } from "react";
-import { Redirect, Route, type RouteProps } from "react-router-dom";
+import type { ReactNode } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import type { RootState } from "../reducers";
 
-type PrivateRouteProps = Omit<RouteProps, "component" | "render"> & {
+type PrivateRouteProps = {
   role: string;
-  component: ComponentType;
+  children: ReactNode;
 };
 
-const PrivateRoute = ({
-  role,
-  component: Component,
-  ...rest
-}: PrivateRouteProps) => {
-  const account = useSelector((state: RootState) => state.Authentication.account);
+const roleHomePaths: Record<string, string> = {
+  admin: "/admin/dashboard",
+  cashier: "/cashier/home",
+};
+
+const PrivateRoute = ({ role, children }: PrivateRouteProps) => {
+  const account = useSelector(
+    (state: RootState) => state.Authentication.account,
+  );
+  const location = useLocation();
+
+  if (!account) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  const roleName = role.toLowerCase();
+  const roleAuth = `${account.role}`.toLowerCase();
+  if (roleName === roleAuth) return children;
 
   return (
-    <Route
-      {...rest}
-      render={(routeProps) => {
-        if (!account) {
-          return (
-            <Redirect
-              to={{ pathname: "/login", state: { from: routeProps.location } }}
-            />
-          );
-        }
-
-        const roleName = role.toLowerCase();
-        const roleAuth = `${account.role}`.toLowerCase();
-        if (roleName === roleAuth) return <Component />;
-
-        return (
-          <Redirect
-            to={{ pathname: `/${roleAuth}`, state: { from: routeProps.location } }}
-          />
-        );
-      }}
+    <Navigate
+      to={roleHomePaths[roleAuth] ?? "/"}
+      state={{ from: location }}
+      replace
     />
   );
 };

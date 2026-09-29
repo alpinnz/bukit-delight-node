@@ -80,6 +80,7 @@ const onMount = (): AuthenticationThunk => {
           if (!newAccount) {
             localRemoveAccount();
             dispatch(removeAccount());
+            dispatch(mount());
             return;
           }
 
@@ -94,11 +95,13 @@ const onMount = (): AuthenticationThunk => {
 
         localRemoveAccount();
         dispatch(removeAccount());
+        dispatch(mount());
       })
       .catch((cause: unknown) => {
         localRemoveAccount();
         dispatch(removeAccount());
         dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
+        dispatch(mount());
       });
   };
 };

@@ -1,15 +1,15 @@
-import Link from "@material-ui/core/Link";
-import Typography from "@material-ui/core/Typography";
-
 const Copyright = () => (
-  <Typography variant="body2" color="textSecondary" align="center">
+  <p className="text-center text-sm text-slate-500">
     {"Copyright © Bukit Delight By "}
-    <Link color="inherit" href="https://www.facebook.com/Alpinnz">
+    <a
+      className="text-inherit underline-offset-2 hover:underline"
+      href="https://www.facebook.com/Alpinnz"
+    >
       Alpinnz
-    </Link>{" "}
+    </a>{" "}
     {new Date().getFullYear()}
     {"."}
-  </Typography>
+  </p>
 );
 
 export default Copyright;

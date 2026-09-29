@@ -1,13 +1,4 @@
-import { useState, type MouseEvent } from "react";
-import {
-  AppBar,
-  Button,
-  makeStyles,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import Actions from "../../../actions";
@@ -17,98 +8,57 @@ import type { AppDispatch } from "../../../store";
 
 type AppBarIndexProps = { title: string };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  button: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    flexGrow: 1,
-  },
-}));
-
-const MenuAccount = () => {
-  const account = useSelector(
-    (state: RootState) => state.Authentication.account,
-  );
-  const dispatch = useDispatch<AppDispatch>();
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const isOpen = Boolean(anchorEl);
-
-  const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const closeMenu = () => setAnchorEl(null);
-  const logout = () => {
-    closeMenu();
-    dispatch(Actions.Authentication.onLogout());
-  };
-
-  if (!account) return null;
-
-  return (
-    <div>
-      <Button
-        aria-label="account of current user"
-        aria-controls="menu-appbar"
-        variant="text"
-        aria-haspopup="true"
-        onClick={openMenu}
-        color="inherit"
-      >
-        {account.username}
-      </Button>
-      <Menu
-        id="menu-appbar"
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        keepMounted
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        open={isOpen}
-        onClose={closeMenu}
-      >
-        <MenuItem to={`/${account.role}`} component={Link}>
-          {Convert.Capitals(account.role)}
-        </MenuItem>
-        <MenuItem onClick={logout}>Logout</MenuItem>
-      </Menu>
-    </div>
-  );
-};
-
 const AppBarIndex = ({ title }: AppBarIndexProps) => {
   const account = useSelector(
     (state: RootState) => state.Authentication.account,
   );
-  const classes = useStyles();
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
-    <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" className={classes.title}>
-            {title}
-          </Typography>
-          <Button
-            className={classes.button}
-            to="/customer"
-            component={Link}
-            color="inherit"
-          >
-            Customer
-          </Button>
-          {account ? (
-            <MenuAccount />
-          ) : (
-            <Button to="/login" component={Link} color="inherit">
-              Login
-            </Button>
-          )}
-        </Toolbar>
-      </AppBar>
-    </div>
+    <header className="flex min-h-16 items-center gap-4 bg-indigo-700 px-4 text-white sm:px-6">
+      <h1 className="flex-1 text-lg font-semibold">{title}</h1>
+      <Link
+        to="/customer"
+        className="rounded-md px-3 py-2 text-sm font-medium hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+      >
+        Customer
+      </Link>
+      {account ? (
+        <div className="relative">
+          <Menu>
+            <MenuButton className="rounded-md px-3 py-2 text-sm font-medium hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white">
+              {account.username}
+            </MenuButton>
+            <MenuItems className="absolute right-0 z-50 mt-2 w-48 rounded-md bg-white py-1 text-slate-700 shadow-lg ring-1 ring-black/5 focus:outline-none">
+              <MenuItem>
+                <Link
+                  to={`/${account.role}`}
+                  className="block px-4 py-2 text-sm data-focus:bg-slate-100"
+                >
+                  {Convert.Capitals(account.role)}
+                </Link>
+              </MenuItem>
+              <MenuItem>
+                <button
+                  type="button"
+                  onClick={() => dispatch(Actions.Authentication.onLogout())}
+                  className="block w-full px-4 py-2 text-left text-sm data-focus:bg-slate-100"
+                >
+                  Logout
+                </button>
+              </MenuItem>
+            </MenuItems>
+          </Menu>
+        </div>
+      ) : (
+        <Link
+          to="/login"
+          className="rounded-md px-3 py-2 text-sm font-medium hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+        >
+          Login
+        </Link>
+      )}
+    </header>
   );
 };
 

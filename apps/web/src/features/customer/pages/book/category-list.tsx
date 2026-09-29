@@ -1,17 +1,16 @@
-import { Grid, Typography } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 type CustomerCategory = { _id: string; name: string; image?: string };
 type CustomerBookState = { Categories: { data: CustomerCategory[] } };
 
-const CATEGORY_COLORS = [
-  "#BCB686B8",
-  "#AA2222A3",
-  "#C8540059",
-  "#CAC43566",
-  "#7CAF4E80",
-  "#BCB686B8",
+const CATEGORY_COLOR_CLASSES = [
+  "bg-[#BCB686B8]",
+  "bg-[#AA2222A3]",
+  "bg-[#C8540059]",
+  "bg-[#CAC43566]",
+  "bg-[#7CAF4E80]",
+  "bg-[#BCB686B8]",
 ];
 
 const CustomerCategoryList = () => {
@@ -22,17 +21,11 @@ const CustomerCategoryList = () => {
   if (categories.length === 0) return null;
 
   return (
-    <div style={{ marginLeft: "0.25rem", marginRight: "0.25rem" }}>
-      <Grid container spacing={0}>
+    <div className="mx-1">
+      <div className="grid grid-cols-2 sm:grid-cols-3">
         {categories.map((category, index) => (
-          <Grid key={category._id} item xs={6} sm={4}>
-            <div
-              style={{
-                marginLeft: "0.25rem",
-                marginRight: "0.25rem",
-                marginBottom: "0.5rem",
-              }}
-            >
+          <div key={category._id}>
+            <div className="mx-1 mb-2">
               <Link
                 aria-label={`Pilih kategori ${category.name}`}
                 to={`/customer/book/${category._id}`}
@@ -40,48 +33,26 @@ const CustomerCategoryList = () => {
                 <div
                   role={category.image ? "img" : undefined}
                   aria-label={category.image ? category.name : undefined}
-                  style={{
-                    backgroundImage: category.image
-                      ? `url(${category.image})`
-                      : undefined,
-                    backgroundColor: "#BCB686B8",
-                    backgroundPosition: "50% 50%",
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    position: "relative",
-                    width: "100%",
-                    borderRadius: 9,
-                    height: 200,
-                  }}
+                  className="relative h-[200px] w-full rounded-[9px] bg-[#BCB686B8] bg-cover bg-[position:50%_50%] bg-no-repeat"
+                  style={
+                    category.image
+                      ? { backgroundImage: `url(${category.image})` }
+                      : undefined
+                  }
                 >
                   <div
-                    style={{
-                      position: "absolute",
-                      backgroundColor:
-                        CATEGORY_COLORS[index % CATEGORY_COLORS.length],
-                      bottom: 0,
-                      right: 0,
-                      left: 0,
-                      borderBottomLeftRadius: 9,
-                      borderBottomRightRadius: 9,
-                      borderTopRightRadius: 1,
-                      borderTopLeftRadius: 1,
-                      height: "2.5rem",
-                      justifyContent: "center",
-                      alignItems: "center",
-                      display: "flex",
-                    }}
+                    className={`absolute inset-x-0 bottom-0 flex h-10 items-center justify-center rounded-b-[9px] rounded-t-[1px] ${CATEGORY_COLOR_CLASSES[index % CATEGORY_COLOR_CLASSES.length]}`}
                   >
-                    <Typography style={{ color: "#FFFFFF" }} align="center">
+                    <span className="text-center text-white">
                       {category.name}
-                    </Typography>
+                    </span>
                   </div>
                 </div>
               </Link>
             </div>
-          </Grid>
+          </div>
         ))}
-      </Grid>
+      </div>
     </div>
   );
 };

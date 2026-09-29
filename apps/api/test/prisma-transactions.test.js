@@ -46,7 +46,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
         price: 10,
         totalPrice: 10,
         status,
-        estimasi: now,
+        estimatedReadyAt: now,
         expires: new Date(now.getTime() + 60_000),
       },
     });
@@ -81,7 +81,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
             id: oldTransactionId,
             accountId,
             orderId: oldOrderId,
-            status: "PROCESS",
+            status: "PROCESSING",
           },
         });
 
@@ -99,7 +99,10 @@ prismaTest("creates and updates payment transactions atomically", async () => {
           where: { id: paidOrderId },
         });
         assert.equal(paidOrder.status, "VIRTUAL");
-        assert.equal(paidOrder.estimasi.getTime(), now.getTime() + 10 * 60_000);
+        assert.equal(
+          paidOrder.estimatedReadyAt.getTime(),
+          now.getTime() + 10 * 60_000,
+        );
 
         await assert.rejects(
           createTransactionInTransaction(transaction, {
@@ -123,7 +126,10 @@ prismaTest("creates and updates payment transactions atomically", async () => {
         const laterOrder = await transaction.order.findUnique({
           where: { id: laterOrderId },
         });
-        assert.equal(laterOrder.estimasi.getTime(), now.getTime() + 8 * 60_000);
+        assert.equal(
+          laterOrder.estimatedReadyAt.getTime(),
+          now.getTime() + 8 * 60_000,
+        );
 
         const updated = await updateTransactionInTransaction(
           transaction,
@@ -132,11 +138,11 @@ prismaTest("creates and updates payment transactions atomically", async () => {
             accountId,
             orderId: laterOrderId,
             note: "cash at counter",
-            status: "PROCESS",
+            status: "PROCESSING",
           },
         );
         assert.equal(updated.note, "cash at counter");
-        assert.equal(updated.status, "PROCESS");
+        assert.equal(updated.status, "PROCESSING");
         const deleted = await deleteTransactionInTransaction(
           transaction,
           laterTransaction.id,

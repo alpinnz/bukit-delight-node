@@ -62,7 +62,7 @@ describe("CustomerDesktopMenuContent", () => {
       () => ({ pathname }) as ReturnType<typeof useLocation>,
     );
     vi.mocked(useParams).mockImplementation(
-      () => ({ _id: categoryId }) as ReturnType<typeof useParams>,
+      () => ({ categoryId }) as ReturnType<typeof useParams>,
     );
     vi.mocked(useSelector).mockImplementation((selector) =>
       selector({
@@ -112,7 +112,7 @@ describe("CustomerDesktopMenuContent", () => {
     expect(
       screen.queryByRole("button", { name: "Pilih Menu menu-6" }),
     ).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Go to page 2" }));
+    fireEvent.click(screen.getByRole("button", { name: "Page 2" }));
     expect(
       screen.getByRole("button", { name: "Pilih Menu menu-6" }),
     ).toBeDefined();

@@ -1,15 +1,14 @@
-import {
-  fireEvent,
-  render,
-  screen,
-  waitForElementToBeRemoved,
-} from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import RootReducer from "../../reducers";
+import CustomerCartPage from "./pages/cart";
 import CartOrders from "./pages/cart/cart-orders";
 import MenuList from "./components/menu-list";
+
+vi.mock("./pages/cart/mobile", () => ({ default: () => null }));
+vi.mock("./pages/laptop.page", () => ({ default: () => null }));
 
 describe("customer order flow", () => {
   it("selects a menu, adds it to cart, and opens payment choices", async () => {
@@ -24,6 +23,7 @@ describe("customer order flow", () => {
 
     render(
       <Provider store={store}>
+        <CustomerCartPage />
         <MenuList data={[menu]} />
         <CartOrders />
       </Provider>,
@@ -42,8 +42,8 @@ describe("customer order flow", () => {
     expect(screen.getByText("1.300")).toBeDefined();
     expect(store.getState().Cart.data).toHaveLength(1);
 
-    await waitForElementToBeRemoved(() => screen.queryByRole("dialog"));
-    fireEvent.click(screen.getByRole("button", { name: "Pesan" }));
+    expect(screen.queryByRole("dialog", { name: "Iced Tea" })).toBeNull();
+    fireEvent.click(screen.getAllByRole("button", { name: "Pesan" })[0]);
     expect(screen.getByText("Pilih Metode Pembayaran")).toBeDefined();
     expect(screen.getByRole("button", { name: /Tunai/ })).toBeDefined();
   });

@@ -55,6 +55,11 @@ const customerResponse = ({ id, ...customer }: Record<string, unknown>) => ({
 const isForbiddenCustomer = (req: CustomerRequest, customerId: string) =>
   req.auth?.type === "customer" && req.auth.customerId !== customerId;
 
+const customerIdFromRequest = (req: CustomerRequest) => {
+  const customerId = req.params._id;
+  return typeof customerId === "string" ? customerId : null;
+};
+
 const emitCustomersUpdate = (req: CustomerRequest) =>
   req.app.io.emit("CustomersUpdate", "CustomersUpdate");
 
@@ -85,11 +90,13 @@ exports.ReadOne = async (
   res: ExpressResponse,
   next: NextFunction,
 ) => {
-  if (isForbiddenCustomer(req, req.params._id)) {
+  const customerId = customerIdFromRequest(req);
+  if (!customerId) return next(error("Invalid customer identifier", 400));
+  if (isForbiddenCustomer(req, customerId)) {
     return next(error("Forbidden", 403));
   }
   try {
-    const customer = await findCustomerById(requirePrisma(), req.params._id);
+    const customer = await findCustomerById(requirePrisma(), customerId);
     if (!customer) return next(error("Customer not found", 404));
     return Response.Success(
       res,
@@ -139,7 +146,9 @@ exports.Update = async (
   res: ExpressResponse,
   next: NextFunction,
 ) => {
-  if (isForbiddenCustomer(req, req.params._id)) {
+  const customerId = customerIdFromRequest(req);
+  if (!customerId) return next(error("Invalid customer identifier", 400));
+  if (isForbiddenCustomer(req, customerId)) {
     return next(error("Forbidden", 403));
   }
   const { error: validationError, value } = Joi.object({
@@ -152,12 +161,12 @@ exports.Update = async (
 
   try {
     const database = requirePrisma();
-    if (!(await findCustomerById(database, req.params._id))) {
+    if (!(await findCustomerById(database, customerId))) {
       return next(error("Customer not found", 404));
     }
     const customer = await updateCustomer(
       database,
-      req.params._id,
+      customerId,
       request.username,
     );
     emitCustomersUpdate(req);
@@ -175,11 +184,13 @@ exports.Delete = async (
   res: ExpressResponse,
   next: NextFunction,
 ) => {
-  if (isForbiddenCustomer(req, req.params._id)) {
+  const customerId = customerIdFromRequest(req);
+  if (!customerId) return next(error("Invalid customer identifier", 400));
+  if (isForbiddenCustomer(req, customerId)) {
     return next(error("Forbidden", 403));
   }
   try {
-    const customer = await deleteCustomer(requirePrisma(), req.params._id);
+    const customer = await deleteCustomer(requirePrisma(), customerId);
     emitCustomersUpdate(req);
     return Response.Success(res, "Delete", 0, 200, customer);
   } catch (cause) {

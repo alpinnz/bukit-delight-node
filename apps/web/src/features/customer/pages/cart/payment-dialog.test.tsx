@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { useDispatch, useSelector } from "react-redux";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -8,28 +7,6 @@ vi.mock("react-redux", () => ({
   useDispatch: vi.fn(),
   useSelector: vi.fn(),
 }));
-vi.mock("@material-ui/core", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@material-ui/core")>();
-  return {
-    ...actual,
-    Dialog: ({
-      open,
-      children,
-      onClose,
-    }: {
-      open: boolean;
-      children: ReactNode;
-      onClose: () => void;
-    }) =>
-      open ? (
-        <section role="dialog">
-          {children}
-          <button onClick={onClose}>Close payment dialog</button>
-        </section>
-      ) : null,
-  };
-});
-
 describe("CustomerPaymentDialog", () => {
   const dispatch = vi.fn();
   let isLoading = false;

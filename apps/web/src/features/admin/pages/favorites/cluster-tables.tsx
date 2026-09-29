@@ -1,4 +1,3 @@
-import Grid from "@material-ui/core/Grid";
 import { useSelector } from "react-redux";
 import TableCustom from "../../../../components/common/table.custom";
 
@@ -33,18 +32,18 @@ const ClusterTables = () => {
   if (!clusters) return null;
 
   return (
-    <Grid container spacing={2}>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
       {(["c1", "c2", "c3"] as const).map((clusterId, index) => (
-        <Grid key={clusterId} item sm={12} md={4}>
+        <div key={clusterId}>
           <TableCustom
             title={`Cluster ${index + 1}`}
             columns={columns}
             rows={clusters[clusterId]}
             loading={favorites.loading}
           />
-        </Grid>
+        </div>
       ))}
-    </Grid>
+    </div>
   );
 };
 

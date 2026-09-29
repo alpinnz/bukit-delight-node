@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ButtonBase, Grid, Typography } from "@material-ui/core";
 import { useDispatch } from "react-redux";
 import Actions from "../../../actions";
 import Icons from "../../../assets/icons";
@@ -26,50 +25,26 @@ const MenuList = ({ data = [] }: MenuListProps) => {
   };
 
   return (
-    <div style={{ margin: "0.25rem" }}>
-      <Grid container>
+    <div className="m-1">
+      <div className="grid grid-cols-2 sm:grid-cols-3">
         {data.map((menu) => {
           return (
-            <Grid key={menu._id ?? menu.name} item xs={6} sm={4}>
-              <ButtonBase
+            <div key={menu._id ?? menu.name}>
+              <button
                 type="button"
                 aria-label={`Pilih ${menu.name}`}
                 onClick={() => onPress(menu)}
-                style={{ display: "block", width: "100%", textAlign: "left" }}
+                className="block w-full text-left focus-visible:outline-2 focus-visible:outline-indigo-600"
               >
-                <div
-                  style={{
-                    margin: "0.25rem",
-                    padding: "0.50rem",
-                    backgroundColor: "#FFFFFF9E",
-                    borderRadius: 9,
-                    height: 259,
-                    position: "relative",
-                  }}
-                >
+                <div className="relative m-1 h-[259px] rounded-[9px] bg-[#FFFFFF9E] p-2">
                   <div
                     role="img"
                     aria-label={menu.name}
-                    style={{
-                      borderRadius: 8,
-                      width: "100%",
-                      height: 166,
-                      backgroundImage: `url(${menu.image})`,
-                      backgroundPosition: "center",
-                      backgroundSize: "cover",
-                      backgroundRepeat: "no-repeat",
-                      position: "relative",
-                    }}
+                    className="relative h-[166px] w-full rounded-lg bg-center bg-cover bg-no-repeat"
+                    style={{ backgroundImage: `url(${menu.image})` }}
                   >
                     {menu.favorite && menu.favorite > 0 ? (
-                      <div
-                        style={{
-                          position: "absolute",
-                          bottom: -17,
-                          right: 0,
-                          alignContent: "center",
-                        }}
-                      >
+                      <div className="absolute -bottom-[17px] right-0 content-center">
                         <img src={Icons.star} alt="" />
                       </div>
                     ) : (
@@ -77,81 +52,35 @@ const MenuList = ({ data = [] }: MenuListProps) => {
                     )}
                   </div>
 
-                  <div style={{ padding: "0.25rem" }}>
-                    <div>
-                      <Typography style={{ color: "#000000" }}>
-                        {menu.name}
-                      </Typography>
-                    </div>
-                    {/* <div>
-                      <Typography style={{ color: "#000000" }}>
-                        {`${e.desc}`}
-                      </Typography>
-                    </div> */}
-
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        paddingLeft: "0.5rem",
-                        paddingRight: "0.5rem",
-                        paddingBottom: "0.25rem",
-                      }}
-                    >
-                      <div style={{ display: "flex" }}>
+                  <div className="p-1">
+                    <p className="truncate text-black">{menu.name}</p>
+                    <div className="absolute inset-x-0 bottom-0 px-2 pb-1">
+                      <div className="flex">
                         {menu.promo > 0 ? (
-                          <div
-                            style={{
-                              display: "flex",
-                            }}
-                          >
-                            <Typography
-                              style={{
-                                color: "#37929E",
-                                textDecorationLine: "line-through",
-                                marginRight: "0.5rem",
-                              }}
-                              align="left"
-                              variant="h5"
-                            >
+                          <div className="flex">
+                            <p className="mr-2 text-lg font-semibold text-brand-teal line-through">
                               {Convert.Price(menu.price)}
-                            </Typography>
-                            <Typography
-                              style={{ color: "#408A1D" }}
-                              align="left"
-                              variant="h5"
-                            >
+                            </p>
+                            <p className="text-lg font-semibold text-brand-success">
                               {Convert.Price(menu.price - menu.promo)}
-                            </Typography>
+                            </p>
                           </div>
                         ) : (
-                          <div
-                            style={{
-                              width: "40%",
-                            }}
-                          >
-                            <Typography
-                              style={{
-                                color: "#37929E",
-                              }}
-                              align="left"
-                              variant="h5"
-                            >
+                          <div className="w-2/5">
+                            <p className="text-lg font-semibold text-brand-teal">
                               {Convert.Price(menu.price)}
-                            </Typography>
+                            </p>
                           </div>
                         )}
                       </div>
                     </div>
                   </div>
                 </div>
-              </ButtonBase>
-            </Grid>
+              </button>
+            </div>
           );
         })}
-      </Grid>
+      </div>
     </div>
   );
 };

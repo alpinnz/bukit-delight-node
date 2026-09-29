@@ -23,8 +23,8 @@ const CartContent = () => {
 };
 
 const CustomerCartMobilePage = () => (
-  <ContainerBase navigationActive={0} title={undefined} type={undefined}>
-    <div style={{ paddingLeft: "0.5rem", paddingRight: "0.5rem" }}>
+  <ContainerBase title={undefined} type={undefined}>
+    <div className="px-2">
       <Overview />
       <CartContent />
     </div>

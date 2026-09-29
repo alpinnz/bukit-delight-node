@@ -1,26 +1,11 @@
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import {
-  useState,
-  type Dispatch,
-  type MouseEvent,
-  type SetStateAction,
-} from "react";
-import {
-  AppBar,
-  Badge,
-  Button,
-  Divider,
-  Hidden,
-  IconButton,
-  makeStyles,
-  Menu,
-  MenuItem,
-  Toolbar,
-  Typography,
-} from "@material-ui/core";
-import ExitToAppIcon from "@material-ui/icons/ExitToApp";
-import MenuIcon from "@material-ui/icons/Menu";
-import MoreIcon from "@material-ui/icons/MoreVert";
-import NotificationsIcon from "@material-ui/icons/Notifications";
+  Bars3Icon,
+  BellIcon,
+  EllipsisVerticalIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
+import type { Dispatch, SetStateAction } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../actions";
 import type { RootState } from "../../../reducers";
@@ -30,285 +15,104 @@ type AppBarAdminProps = {
   openMobileDrawer: boolean;
   setOpenMobileDrawer: Dispatch<SetStateAction<boolean>>;
 };
-type AnchorMenuProps = {
-  anchorEl: HTMLElement | null;
-  onClose: () => void;
-};
-type MobileNotificationsProps = {
-  onClose: Dispatch<SetStateAction<HTMLElement | null>>;
-};
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  button: {
-    marginRight: theme.spacing(2),
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      display: "none",
-    },
-  },
-  toolbar: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-  },
-  closeMenuButton: {
-    marginRight: "auto",
-    marginLeft: 0,
-  },
-  sectionDesktop: {
-    display: "none",
-    [theme.breakpoints.up("sm")]: {
-      display: "flex",
-    },
-  },
-  sectionMobile: {
-    display: "flex",
-    [theme.breakpoints.up("sm")]: {
-      display: "none",
-    },
-  },
-}));
-
-const MenuAccount = () => {
-  const account = useSelector(
-    (state: RootState) => state.Authentication.account,
-  );
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const dispatch = useDispatch<AppDispatch>();
-  const isOpen = Boolean(anchorEl);
-
-  const logout = () => dispatch(Actions.Authentication.onLogout());
-  const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const closeMenu = () => setAnchorEl(null);
-
-  if (!account) return null;
-
-  return (
-    <div>
-      <Button
-        aria-label="account of current user"
-        aria-controls="menu-appbar"
-        variant="text"
-        aria-haspopup="true"
-        onClick={openMenu}
-        color="inherit"
-      >
-        {account.username}
-      </Button>
-      <Menu
-        id="menu-appbar"
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        keepMounted
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        open={isOpen}
-        onClose={closeMenu}
-      >
-        <MenuItem onClick={logout}>Logout</MenuItem>
-      </Menu>
-    </div>
-  );
-};
-
-const MenuNotifications = () => {
-  const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const isOpen = Boolean(anchorEl);
-
-  const openMenu = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const closeMenu = () => setAnchorEl(null);
-
-  return (
-    <div>
-      <IconButton
-        className={classes.button}
-        onClick={openMenu}
-        color="inherit"
-        aria-label="Notifications"
-      >
-        <Badge badgeContent={17} color="secondary">
-          <NotificationsIcon />
-        </Badge>
-      </IconButton>
-      <Menu
-        id="menu-appbar"
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        keepMounted
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        open={isOpen}
-        onClose={closeMenu}
-      >
-        <MenuItem onClick={closeMenu}>Notifications</MenuItem>
-        <Divider />
-        <MenuItem onClick={closeMenu}>1</MenuItem>
-      </Menu>
-    </div>
-  );
-};
-
-const MenuItemNotifications = ({ onClose }: MobileNotificationsProps) => {
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const isOpen = Boolean(anchorEl);
-
-  const openMenu = (event: MouseEvent<HTMLLIElement>) => {
-    onClose(null);
-    setAnchorEl(event.currentTarget);
-  };
-  const closeMenu = () => setAnchorEl(null);
-
-  return (
-    <div>
-      <MenuItem onClick={openMenu}>
-        <IconButton color="inherit" aria-label="Open notifications">
-          <Badge badgeContent={11} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
-        <p>Notifications</p>
-      </MenuItem>
-      <Menu
-        id="menu-appbar"
-        anchorEl={anchorEl}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        keepMounted
-        transformOrigin={{ vertical: "top", horizontal: "right" }}
-        open={isOpen}
-        onClose={closeMenu}
-      >
-        <MenuItem onClick={closeMenu}>Notifications</MenuItem>
-        <Divider />
-        <MenuItem onClick={closeMenu}>1</MenuItem>
-      </Menu>
-    </div>
-  );
-};
-
-const AdminMenu = ({ anchorEl, onClose }: AnchorMenuProps) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const logout = () => dispatch(Actions.Authentication.onLogout());
-
-  return (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      id="primary-search-account-menu"
-      keepMounted
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
-      open={Boolean(anchorEl)}
-      onClose={onClose}
-    >
-      <MenuItem onClick={logout}>Logout</MenuItem>
-    </Menu>
-  );
-};
-
-const AdminMobileMenu = ({
-  anchorEl,
-  onClose,
-}: AnchorMenuProps & { onClose: () => void }) => {
-  const dispatch = useDispatch<AppDispatch>();
-  const logout = () => dispatch(Actions.Authentication.onLogout());
-
-  return (
-    <Menu
-      anchorEl={anchorEl}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      id="primary-search-account-menu-mobile"
-      keepMounted
-      transformOrigin={{ vertical: "top", horizontal: "right" }}
-      open={Boolean(anchorEl)}
-      onClose={onClose}
-    >
-      <MenuItemNotifications onClose={() => onClose()} />
-      <MenuItem onClick={logout}>
-        <IconButton color="inherit" aria-label="Logout">
-          <ExitToAppIcon />
-        </IconButton>
-        <p>Logout</p>
-      </MenuItem>
-    </Menu>
-  );
-};
+const accountMenuClass =
+  "absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 focus:outline-none";
+const menuItemClass =
+  "block w-full px-4 py-2 text-left text-sm text-slate-700 data-focus:bg-slate-100";
 
 const AppBarAdmin = ({
   openMobileDrawer,
   setOpenMobileDrawer,
 }: AppBarAdminProps) => {
-  const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    useState<HTMLElement | null>(null);
-
-  const closeMobileMenu = () => setMobileMoreAnchorEl(null);
-  const closeMenu = () => {
-    setAnchorEl(null);
-    closeMobileMenu();
-  };
-  const openMobileMenu = (event: MouseEvent<HTMLButtonElement>) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
+  const account = useSelector(
+    (state: RootState) => state.Authentication.account,
+  );
+  const dispatch = useDispatch<AppDispatch>();
+  const logout = () => dispatch(Actions.Authentication.onLogout());
 
   return (
-    <>
-      <AppBar position="fixed" className={classes.appBar}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="Open drawer"
-            edge="start"
-            onClick={() => setOpenMobileDrawer(!openMobileDrawer)}
-            className={classes.menuButton}
+    <header className="fixed inset-x-0 top-0 z-40 flex h-16 items-center gap-3 bg-white px-4 shadow-sm sm:px-6">
+      <button
+        type="button"
+        aria-label={openMobileDrawer ? "Close navigation" : "Open navigation"}
+        aria-expanded={openMobileDrawer}
+        onClick={() => setOpenMobileDrawer((isOpen) => !isOpen)}
+        className="rounded-md p-2 text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-indigo-600 sm:hidden"
+      >
+        {openMobileDrawer ? (
+          <XMarkIcon aria-hidden="true" className="size-6" />
+        ) : (
+          <Bars3Icon aria-hidden="true" className="size-6" />
+        )}
+      </button>
+      <h1 className="text-lg font-semibold text-slate-900">Bukit Delight</h1>
+      <div className="flex-1" />
+      <div className="relative hidden sm:block">
+        <Menu>
+          <MenuButton
+            aria-label="Notifications"
+            className="rounded-md p-2 text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-indigo-600"
           >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            Bukit Delight
-          </Typography>
-          <div className={classes.grow} />
-          <div
-            style={{ alignItems: "center" }}
-            className={classes.sectionDesktop}
+            <BellIcon aria-hidden="true" className="size-5" />
+          </MenuButton>
+          <MenuItems className={accountMenuClass}>
+            <MenuItem>
+              <span className={menuItemClass}>Notifications</span>
+            </MenuItem>
+            <MenuItem>
+              <span className={menuItemClass}>1</span>
+            </MenuItem>
+          </MenuItems>
+        </Menu>
+      </div>
+      {account && (
+        <div className="relative">
+          <Menu>
+            <MenuButton className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-indigo-600">
+              {account.username}
+            </MenuButton>
+            <MenuItems className={accountMenuClass}>
+              <MenuItem>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className={menuItemClass}
+                >
+                  Logout
+                </button>
+              </MenuItem>
+            </MenuItems>
+          </Menu>
+        </div>
+      )}
+      <div className="relative sm:hidden">
+        <Menu>
+          <MenuButton
+            aria-label="More options"
+            className="rounded-md p-2 text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-indigo-600"
           >
-            <MenuNotifications />
-            <MenuAccount />
-          </div>
-          <div className={classes.sectionMobile}>
-            <IconButton
-              aria-label="show more"
-              aria-controls="primary-search-account-menu-mobile"
-              aria-haspopup="true"
-              onClick={openMobileMenu}
-              color="inherit"
-            >
-              <MoreIcon />
-            </IconButton>
-          </div>
-        </Toolbar>
-        <Hidden smUp implementation="css" />
-        <Hidden xsDown implementation="css" />
-      </AppBar>
-      <AdminMobileMenu
-        anchorEl={mobileMoreAnchorEl}
-        onClose={closeMobileMenu}
-      />
-      <AdminMenu anchorEl={anchorEl} onClose={closeMenu} />
-    </>
+            <EllipsisVerticalIcon aria-hidden="true" className="size-6" />
+          </MenuButton>
+          <MenuItems className={accountMenuClass}>
+            <MenuItem>
+              <span className={menuItemClass}>Notifications</span>
+            </MenuItem>
+            {account && (
+              <MenuItem>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className={menuItemClass}
+                >
+                  Logout
+                </button>
+              </MenuItem>
+            )}
+          </MenuItems>
+        </Menu>
+      </div>
+    </header>
   );
 };
 

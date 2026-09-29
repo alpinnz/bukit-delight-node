@@ -38,9 +38,6 @@ type KMeansIteration = {
   new_data: { data: ClusterPoint[]; detail: ClusterDetail };
 };
 
-const err = (message: unknown, status = 500) =>
-  Object.assign(new Error(String(message)), { status });
-
 const selectExtreme = (
   points: MenuPoint[],
   direction: "max" | "min",
@@ -141,7 +138,15 @@ const analyzeFavorites = (menus: MenuSummary[]): FavoriteAnalysis => {
     x: menu.total_transactions,
     y: menu.price,
   }));
-  if (points.length === 0) throw err("No menu transaction data available");
+  if (points.length < 3) {
+    return {
+      c_awal: [],
+      DataSet: points,
+      data_kmeans: [],
+      menu_cluster_akhir: { c1: [], c2: [], c3: [] },
+      menu_favorit: [],
+    };
+  }
 
   const initialMenus = [
     selectExtreme(points, "max"),

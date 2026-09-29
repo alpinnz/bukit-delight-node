@@ -26,7 +26,9 @@ describe("CustomerLaptopPage", () => {
     expect(screen.getByText("customer banner")).toBeDefined();
     expect(screen.getByText("customer menu panel")).toBeDefined();
     expect(screen.getByText("customer cart panel")).toBeDefined();
-    expect(screen.getByAltText("laptop_plater")).toBeDefined();
-    expect(screen.getByAltText("laptop_cart")).toBeDefined();
+    expect(screen.getByRole("button", { name: "Lihat pesanan" })).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: "Lihat keranjang" }),
+    ).toBeDefined();
   });
 });

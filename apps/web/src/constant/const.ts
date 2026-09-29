@@ -6,7 +6,7 @@ type WebConstants = {
 };
 
 const Const: WebConstants = {
-  BASE_URL: import.meta.env.VITE_API_URL || "",
+  BASE_URL: import.meta.env.VITE_API_URL || "/",
   PATH_API: "api/v1",
   X_API_KEY: "",
   X_APP_KEY: "",

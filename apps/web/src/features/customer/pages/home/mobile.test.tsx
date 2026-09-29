@@ -49,6 +49,6 @@ describe("CustomerMobileHome", () => {
     );
 
     expect(screen.getByText("Promo: Promo Tea")).toBeDefined();
-    expect(screen.getByText("Pemesanan: Favorite Coffee")).toBeDefined();
+    expect(screen.getByText("Favorites: Favorite Coffee")).toBeDefined();
   });
 });

@@ -78,7 +78,7 @@ describe("FavoriteResultsTable", () => {
 
   it("renders favorite menu data and display formatting", () => {
     render(<FavoriteResultsTable />);
-    expect(screen.getByText("Result Pemesanan")).toBeDefined();
+    expect(screen.getByText("Favorite Results")).toBeDefined();
     expect(screen.getByText("Description")).toBeDefined();
     expect(screen.getByText("Nasi")).toBeDefined();
     expect(screen.getByText("8 Minute")).toBeDefined();

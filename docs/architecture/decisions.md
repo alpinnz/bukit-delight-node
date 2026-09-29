@@ -3,10 +3,10 @@
 ## ADR 001 — Target workspace and runtimes
 
 - **Status:** accepted for implementation.
-- **Decision:** use the README's pnpm 10 workspace, with `apps/web`, `apps/api`, and a small `packages/shared`; require Node.js 22.12 or newer for the selected Vite major.
+- **Decision:** use the README's pnpm 12.6 workspace, with `apps/web`, `apps/api`, and a small `packages/shared`; require Node.js 22.12 or newer for the selected Vite major.
 - **Reason:** this matches the project target and the installed toolchain is Node 24. Pinning the package manager makes workspace installs repeatable.
-- **Constraint:** the current frontend is Create React App/React 17 and the API is CommonJS JavaScript. Preserve behavior during relocation; convert tooling and language in explicit, verifiable increments.
-- **Progress:** frontend tooling has moved to Vite/Vitest and has a TypeScript entry point. Existing feature code still uses JavaScript, React 17, and Redux.
+- **Constraint:** preserve the existing API and UI behavior while moving the repository into the workspace and TypeScript toolchain.
+- **Progress:** web and API runtime source are TypeScript; web uses Vite/Vitest and the API compiles with `tsc`. The API retains Express and the existing React/Redux stack.
 
 ## ADR 002 — MongoDB to PostgreSQL migration
 
@@ -16,11 +16,11 @@
 - **Data mapping:** preserve each ObjectId's hexadecimal representation as a string primary/foreign key in PostgreSQL so existing API identifiers remain stable. Map Mongoose timestamps to `createdAt`/`updatedAt`; preserve the refresh token's `created` field. Enforce required references only after checking legacy data for orphans.
 - **Cutover gate:** do not switch production until a dry run succeeds, reconciliation has no unexplained differences, backup/restore is verified, and the maintenance window is scheduled. Actual production access/credentials are not part of repository implementation.
 
-## ADR 003 — Redis adoption
+## ADR 003 — Redis remains external and optional
 
-- **Status:** infrastructure accepted; API integration deferred until a concrete feature requires it.
-- **Decision:** provide Redis in local Docker infrastructure to match README setup, but do not move refresh-token ownership or add cache/rate-limit behavior without a separately defined consistency and failure policy.
-- **Reason:** refresh tokens are currently persisted in MongoDB and Redis is not currently used by application code. Avoid creating a second token source of truth.
+- **Status:** local infrastructure is managed separately; API integration is deferred until a concrete feature requires it.
+- **Decision:** the application Compose files do not start Redis. The API currently uses PostgreSQL as its only runtime storage; do not add cache, rate-limit, or token behavior without a defined consistency and failure policy.
+- **Reason:** Redis is available in the separate `local-infra` project, but application code does not use it. The app Compose files join the infrastructure project's network instead of creating duplicate services.
 
 ## ADR 004 - PostgreSQL is the runtime database
 

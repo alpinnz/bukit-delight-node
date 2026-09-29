@@ -25,10 +25,10 @@ const MobilePage = () => {
   const menuFavorite = menus.filter((menu) => menu.favorite === true);
 
   return (
-    <ContainerBase navigationActive={2} title={undefined} type={undefined}>
+    <ContainerBase title={undefined} type={undefined}>
       <Slide />
       <ListHorizontal title="Promo" data={menuPromo} />
-      <ListHorizontal title="Pemesanan" data={menuFavorite} />
+      <ListHorizontal title="Favorites" data={menuFavorite} />
       <MenuDialog />
     </ContainerBase>
   );

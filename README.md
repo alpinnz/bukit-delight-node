@@ -1,8 +1,9 @@
-# Fullstack Monorepo
+# Bukit Delight
 
-A scalable fullstack monorepo containing a React frontend and Express.js backend, managed with pnpm workspaces.
+Restaurant ordering and management application with a React frontend and
+Express API, managed as a pnpm workspace.
 
-The project is designed with a modular architecture, shared packages, TypeScript, PostgreSQL, Redis, Docker, testing, and CI/CD support.
+The project is designed with a modular architecture, shared packages, TypeScript, PostgreSQL, Docker, testing, and CI/CD support. Redis is available through separate local infrastructure but is not used by the API.
 
 ## Tech Stack
 
@@ -11,10 +12,11 @@ The project is designed with a modular architecture, shared packages, TypeScript
 - React
 - TypeScript
 - Vite
+- Tailwind CSS v4
+- Headless UI
+- Heroicons
 - React Router
-- TanStack Query
-- Zustand
-- Zod
+- Redux
 - Axios
 - Vitest
 - React Testing Library
@@ -24,11 +26,10 @@ The project is designed with a modular architecture, shared packages, TypeScript
 - Node.js
 - Express.js
 - TypeScript
-- Zod
+- Joi
 - PostgreSQL
-- Redis
 - Prisma
-- Vitest / Jest
+- Node.js built-in test runner
 - Pino
 
 ### Development
@@ -38,136 +39,29 @@ The project is designed with a modular architecture, shared packages, TypeScript
 - Docker Compose
 - ESLint
 - Prettier
-- Husky
-- lint-staged
 
 ## Project Structure
 
+Application source and Vite configuration use TypeScript. API tests remain JavaScript for the Node.js test runner; ESLint configuration uses `.mjs` for Node tooling.
+
 ```text
-.
-├── apps/
-│   ├── web/
-│   │   ├── public/
-│   │   ├── src/
-│   │   │   ├── app/
-│   │   │   │   ├── router.tsx
-│   │   │   │   └── providers.tsx
-│   │   │   ├── components/
-│   │   │   │   ├── ui/
-│   │   │   │   └── common/
-│   │   │   ├── features/
-│   │   │   │   ├── auth/
-│   │   │   │   │   ├── components/
-│   │   │   │   │   ├── hooks/
-│   │   │   │   │   ├── pages/
-│   │   │   │   │   ├── services/
-│   │   │   │   │   ├── types.ts
-│   │   │   │   │   └── index.ts
-│   │   │   │   ├── users/
-│   │   │   │   ├── products/
-│   │   │   │   └── orders/
-│   │   │   ├── hooks/
-│   │   │   ├── layouts/
-│   │   │   ├── lib/
-│   │   │   ├── services/
-│   │   │   ├── stores/
-│   │   │   ├── types/
-│   │   │   ├── utils/
-│   │   │   ├── App.tsx
-│   │   │   └── main.tsx
-│   │   ├── tests/
-│   │   ├── package.json
-│   │   ├── tsconfig.json
-│   │   └── vite.config.ts
-│   │
-│   └── api/
-│       ├── src/
-│       │   ├── config/
-│       │   │   ├── env.ts
-│       │   │   ├── database.ts
-│       │   │   └── redis.ts
-│       │   ├── modules/
-│       │   │   ├── auth/
-│       │   │   │   ├── auth.controller.ts
-│       │   │   │   ├── auth.service.ts
-│       │   │   │   ├── auth.repository.ts
-│       │   │   │   ├── auth.routes.ts
-│       │   │   │   ├── auth.schema.ts
-│       │   │   │   ├── auth.types.ts
-│       │   │   │   └── index.ts
-│       │   │   ├── users/
-│       │   │   ├── products/
-│       │   │   └── orders/
-│       │   ├── middlewares/
-│       │   │   ├── auth.middleware.ts
-│       │   │   ├── error.middleware.ts
-│       │   │   ├── not-found.middleware.ts
-│       │   │   └── rate-limit.middleware.ts
-│       │   ├── routes/
-│       │   │   └── index.ts
-│       │   ├── utils/
-│       │   │   ├── logger.ts
-│       │   │   └── response.ts
-│       │   ├── app.ts
-│       │   └── server.ts
-│       ├── tests/
-│       ├── prisma/
-│       │   ├── migrations/
-│       │   └── schema.prisma
-│       ├── package.json
-│       └── tsconfig.json
-│
-├── packages/
-│   ├── shared/
-│   │   ├── src/
-│   │   │   ├── constants/
-│   │   │   ├── schemas/
-│   │   │   ├── types/
-│   │   │   ├── utils/
-│   │   │   └── index.ts
-│   │   ├── package.json
-│   │   └── tsconfig.json
-│   ├── eslint-config/
-│   │   ├── base.js
-│   │   ├── react.js
-│   │   └── package.json
-│   └── tsconfig/
-│       ├── base.json
-│       ├── react.json
-│       ├── node.json
-│       └── package.json
-│
-├── database/
-│   ├── seed/
-│   └── README.md
-├── docker/
-│   ├── api.Dockerfile
-│   ├── web.Dockerfile
-│   └── nginx.conf
-├── docs/
-│   ├── architecture/
-│   │   ├── overview.md
-│   │   └── decisions.md
-│   ├── api/
-│   └── development/
-├── scripts/
-│   ├── setup.ts
-│   └── clean.ts
-├── .github/
-│   └── workflows/
-│       ├── ci.yml
-│       ├── api.yml
-│       └── web.yml
-├── .env.example
-├── .gitignore
-├── .prettierrc
-├── eslint.config.js
-├── docker-compose.yml
-├── package.json
-├── pnpm-workspace.yaml
-├── pnpm-lock.yaml
-└── README.md
+apps/
+├── api/
+│   ├── prisma/       schema, migrations, seed, snapshot importer
+│   ├── src/          TypeScript config, controllers, middleware, routes, services
+│   ├── test/         API test support
+│   └── tsconfig.json
+└── web/
+    ├── src/          TypeScript and TSX actions, components, features, reducers, routes
+    ├── vite.config.mts
+    └── tsconfig.json
+packages/
+└── shared/src/       shared TypeScript contracts
+docker/               API/web Dockerfiles and Nginx configuration
+docker-compose.*.yml   development and production application stacks
 ```
+
+The detailed route and persistence map is in [docs/architecture/overview.md](docs/architecture/overview.md).
 
 ## Architecture
 
@@ -190,13 +84,11 @@ The project is designed with a modular architecture, shared packages, TypeScript
                         │    apps/api     │
                         └────────┬────────┘
                                  │
-              ┌──────────────────┼──────────────────┐
-              │                  │                  │
-              ▼                  ▼                  ▼
-       ┌────────────┐     ┌────────────┐     ┌────────────┐
-       │ PostgreSQL │     │   Redis    │     │ External   │
-       │            │     │            │     │ Services   │
-       └────────────┘     └────────────┘     └────────────┘
+                                 │
+                                 ▼
+                        ┌────────────┐
+                        │ PostgreSQL │
+                        └────────────┘
 ```
 
 ## Monorepo Principles
@@ -222,7 +114,7 @@ packages:
   - "packages/*"
 ```
 
-The workspace contains:
+The workspace contains two applications and one shared-contract package:
 
 ```text
 apps/
@@ -230,45 +122,10 @@ apps/
 └── api
 
 packages/
-├── shared
-├── eslint-config
-└── tsconfig
+└── shared
 ```
 
-## Root Package
-
-Example `package.json`:
-
-```json
-{
-  "name": "fullstack-monorepo",
-  "private": true,
-  "packageManager": "pnpm@10",
-  "scripts": {
-    "dev": "corepack pnpm --parallel --filter @bukit-delight/web --filter @bukit-delight/api dev",
-    "dev:web": "corepack pnpm --filter @bukit-delight/web start",
-    "dev:api": "corepack pnpm --filter @bukit-delight/api dev",
-    "build": "corepack pnpm -r build",
-    "build:web": "corepack pnpm --filter @bukit-delight/web build",
-    "build:api": "corepack pnpm --filter @bukit-delight/api build",
-    "test": "corepack pnpm -r test",
-    "test:web": "corepack pnpm --filter @bukit-delight/web test",
-    "test:api": "corepack pnpm --filter @bukit-delight/api test",
-    "lint": "corepack pnpm -r lint",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "typecheck": "corepack pnpm -r typecheck",
-    "db:generate": "corepack pnpm --filter @bukit-delight/api db:generate",
-    "db:migrate": "corepack pnpm --filter @bukit-delight/api db:migrate",
-    "db:deploy": "corepack pnpm --filter @bukit-delight/api db:deploy",
-    "db:seed": "corepack pnpm --filter @bukit-delight/api db:seed",
-    "db:import": "corepack pnpm --filter @bukit-delight/api db:import"
-  },
-  "devDependencies": {
-    "prettier": "^3.0.0"
-  }
-}
-```
+The root ESLint and TypeScript configuration files are shared directly; they are not separate workspace packages.
 
 ## Frontend
 
@@ -278,39 +135,25 @@ The frontend lives inside:
 apps/web
 ```
 
-React uses a feature-based architecture.
+React UI is organized by the application's roles and flows.
 
 ```text
-features/
-├── auth/
-│   ├── components/
-│   ├── hooks/
-│   ├── pages/
-│   ├── services/
-│   ├── types.ts
-│   └── index.ts
-├── users/
-│   ├── components/
-│   ├── hooks/
-│   ├── pages/
-│   ├── services/
-│   └── types.ts
-└── products/
+apps/web/src/
+├── components/common/  shared UI and form components
+├── features/
+│   ├── admin/
+│   ├── auth/
+│   ├── customer/
+│   ├── kasir/
+│   └── landing/
+├── routes/             route guards and route declarations
+├── templates/          role-specific page layouts
+├── actions/            shared Redux actions
+└── reducers/           shared Redux state
 ```
 
-Everything belonging to one business feature stays together.
-
-Global reusable UI belongs in:
-
-```text
-components/ui
-```
-
-Feature-specific components belong in:
-
-```text
-features/products/components
-```
+Feature-specific pages and components belong under the relevant `features/*`
+directory. Reusable UI belongs under `components/common`.
 
 ## Backend
 
@@ -320,176 +163,72 @@ The backend lives inside:
 apps/api
 ```
 
-Express uses a modular architecture.
+Express uses separate route, middleware, controller, and service folders.
 
 ```text
-modules/
-├── auth/
-│   ├── auth.controller.ts
-│   ├── auth.service.ts
-│   ├── auth.repository.ts
-│   ├── auth.routes.ts
-│   ├── auth.schema.ts
-│   └── auth.types.ts
-├── users/
-├── products/
-└── orders/
+apps/api/src/
+├── config/
+├── controllers/
+├── middlewares/
+├── routes/v1/
+├── services/
+└── utils/
 ```
 
-The general flow is:
+Requests flow through versioned routes and authorization middleware to
+controllers and Prisma-backed services. Keep the existing boundaries; add
+another layer only when it provides meaningful isolation or reuse.
 
 ```text
 HTTP Request
      │
      ▼
+Versioned Route
+     │
+     ▼
 Middleware
      │
      ▼
-Route
-     │
-     ▼
-Controller
-     │
-     ▼
-Service
-     │
-     ▼
-Repository
-     │
-     ▼
-Database
+Controller / service -> Prisma -> PostgreSQL
 ```
 
 ### Controller
 
-The controller handles HTTP concerns:
+Controllers handle HTTP request and response concerns and call the operations
+needed by a route. Keep business rules in the existing service or controller
+that owns them; add another layer only when it improves the current domain.
 
 - Request
 - Response
 - Status code
 - HTTP-level validation result
 
-It should not contain complex business logic.
-
-```ts
-export async function createUser(req, res) {
-  const result = await userService.create(req.body);
-
-  return res.status(201).json(result);
-}
-```
-
 ### Service
 
-The service contains business logic.
-
-```ts
-export async function create(input: CreateUserInput) {
-  const existingUser = await userRepository.findByEmail(input.email);
-
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
-
-  return userRepository.create(input);
-}
-```
-
-### Repository
-
-Repositories are responsible for data access.
-
-```text
-Service
-   │
-   ▼
-Repository
-   │
-   ▼
-Prisma
-   │
-   ▼
-PostgreSQL
-```
-
-The service should not directly contain database queries.
+Services in this project use Prisma directly where they own persistence and
+domain operations, for example `PrismaCatalog` and `PrismaOrders`. Keep that
+pattern consistent; introduce a repository only for a concrete isolation or
+reuse need.
 
 ## Validation
 
-Request validation should happen through schemas.
-
-Example:
-
-```ts
-import { z } from "zod";
-
-export const createUserSchema = z.object({
-  name: z.string().min(2),
-  email: z.email(),
-  password: z.string().min(8),
-});
-```
-
-Schemas can also be shared when appropriate.
+The API validates untrusted request input with Joi at the route boundary.
+Shared TypeScript contracts provide compile-time alignment between the API
+and web client; they do not replace runtime validation.
 
 ## Shared Package
 
-Shared code lives here:
-
-```text
-packages/shared
-```
-
-Example:
-
-```text
-packages/shared/src/
-├── constants/
-├── schemas/
-├── types/
-├── utils/
-└── index.ts
-```
-
-Example shared type:
+`packages/shared/src/index.ts` exports TypeScript request, response, and domain
+contracts plus constants used by both applications. Runtime request validation
+stays at the API boundary and uses Joi. The shared package does not duplicate
+runtime validators or contain framework-specific code.
 
 ```ts
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import type {
+  CategoryRecord,
+  CreateCategoryRequest,
+} from "@bukit-delight/shared";
 ```
-
-Both applications can consume it:
-
-```text
-React
-  │
-  └── @project/shared
-
-Express
-  │
-  └── @project/shared
-```
-
-## Shared API Contract
-
-For simple projects, shared TypeScript types may be enough.
-
-For larger applications, request and response schemas can also be shared.
-
-Example:
-
-```ts
-export const userResponseSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  email: z.string().email(),
-});
-```
-
-This gives the frontend and backend a common contract.
 
 ## Database
 
@@ -500,7 +239,9 @@ Prisma is used as the ORM.
 ```text
 apps/api/prisma/
 ├── schema.prisma
-└── migrations/
+├── migrations/
+├── seed.ts
+└── import-mongodb.ts
 ```
 
 Example:
@@ -518,23 +259,10 @@ model User {
 
 ## Redis
 
-Redis can be used for:
-
-- Session storage
-- Cache
-- Rate limiting
-- Temporary data
-- Queue support
-- OTP
-- Token blacklist
-
-```text
-Express
-   │
-   ├───────────────┐
-   ▼               ▼
-PostgreSQL       Redis
-```
+Redis runs in the separately managed `local-infra` project. This application
+does not connect to it, so it is not part of the application runtime or API
+readiness requirements. Add a Redis integration only when a concrete feature
+requires it.
 
 ## Environment Variables
 
@@ -555,14 +283,8 @@ API_PORT=3000
 CLIENT_URL=http://localhost:5173
 PATH_UPLOADS=public/uploads
 
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DB=bukit-delight
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/bukit-delight?schema=public
-
-REDIS_URL=redis://localhost:6380
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/bukit-delight-development?schema=public
+DATABASE_URL_DOCKER=postgresql://postgres:postgres@postgres:5432/bukit-delight-development?schema=public
 
 API_KEY=replace-with-a-local-api-key
 APP_KEY=replace-with-a-local-app-key
@@ -581,51 +303,53 @@ cp .env.example .env
 
 ## Docker
 
-Docker is used for infrastructure and production deployment.
+Docker Compose runs this project's application services. PostgreSQL and Redis are managed by the separate `local-infra` project; only PostgreSQL is currently used by the API.
 
-Example services:
+Application services:
 
 ```text
-┌──────────────┐
-│   PostgreSQL │
-│     :5432    │
-└──────────────┘
-
-┌──────────────┐
-│    Redis     │
-│     :6379    │
-└──────────────┘
+Development: Web :5174 -> API :3001 -> PostgreSQL :5432
+Production:  Nginx :8080 -> API :3000 -> PostgreSQL :5432
 ```
 
-The current `docker-compose.yml` starts PostgreSQL and Redis for local
-development. Build the application images from the repository root:
+PostgreSQL runs in the external `local-infra` project. Redis is not used by
+this application.
+
+Both application Compose modes connect to the existing external Docker network
+`local-infra_local-infra` (the network created by the Compose project named
+`local-infra`); PostgreSQL is provided by that infrastructure project. Set
+`LOCAL_INFRA_NETWORK` if its network has a different name. Use
+`docker-compose.development.yml` for API watch mode and web HMR, or
+`docker-compose.production.yml` for built API and Nginx containers:
+
+Development uses the separate `bukit-delight-development` database; production
+uses the database configured in `.env.docker.production`.
+
+```bash
+docker compose --env-file .env.example -f docker-compose.development.yml up --build
+```
+
+Development web runs at `http://localhost:5174`; source edits reload the API
+and web app. Production configuration and recovery steps are in
+[deployment preparation](docs/deployment.md). Build the application images
+manually from the repository root only when needed:
 
 ```bash
 docker build -f docker/api.Dockerfile -t bukit-delight-api:local .
 docker build -f docker/web.Dockerfile -t bukit-delight-web:local .
 ```
 
-The web image runs Nginx on port 80, serves the SPA, and proxies `/api/` and
-`/socket.io/` to the API service named `api`. The API listens on port 3000. See
+The production web image runs Nginx on port 80, serves the SPA, and proxies
+`/api/` and `/socket.io/` to the production API network alias
+`bukit-delight-production-api`. The API listens on port 3000; Compose exposes
+the production web app on port 8080 by default. See
 [deployment preparation](docs/deployment.md) for runtime variables and the
 production release gates, PostgreSQL recovery procedure, and operational
 monitoring checklist.
 
 ```text
-┌──────────────┐
-│   React Web  │
-│     :5173    │
-└──────┬───────┘
-       │
-       ▼
-┌──────────────┐
-│ Express API  │
-│     :3000    │
-└──────┬───────┘
-       │
-   ┌───┴────┐
-   ▼        ▼
-Postgres   Redis
+Development: Web :5174 -> API :3001 -> PostgreSQL :5432
+Production:  Nginx :8080 -> API :3000 -> PostgreSQL :5432
 ```
 
 ## Local Development
@@ -653,8 +377,8 @@ docker compose version
 Clone the repository:
 
 ```bash
-git clone <repository-url>
-cd <repository-directory>
+git clone https://github.com/alpinnz/bukit-delight-node.git
+cd bukit-delight-node
 ```
 
 Install dependencies:
@@ -671,22 +395,11 @@ cp .env.example .env
 
 ## Start Infrastructure
 
-Start PostgreSQL and Redis:
-
-```bash
-docker compose --env-file .env.example up -d
-```
-
-This starts the optional Compose PostgreSQL on port `COMPOSE_POSTGRES_PORT`
-(`5433` by default) and Redis on port `6380`. The example `DATABASE_URL`
-targets the existing host PostgreSQL on `127.0.0.1:5432`; set it to
-`localhost:5433` if the API should use the Compose PostgreSQL instead.
-
-Check running containers:
-
-```bash
-docker compose --env-file .env.example ps
-```
+Start the separate `local-infra` Compose project first. It must create the
+external Docker network `local-infra_local-infra` and provide PostgreSQL as
+`postgres:5432` on that network. Set `LOCAL_INFRA_NETWORK` if the network name
+differs. This repository does not start or own shared
+PostgreSQL or other shared infrastructure services.
 
 ## Database Setup
 
@@ -750,23 +463,31 @@ http://localhost:3000
 
 ## API
 
-The API should use versioned routes.
+The API is mounted at `/api/v1`. Current route groups include:
 
 ```text
-/api/v1/auth
-/api/v1/users
-/api/v1/products
+/api/v1/authentication
+/api/v1/accounts
+/api/v1/categories
+/api/v1/customers
+/api/v1/item-orders
+/api/v1/menus
 /api/v1/orders
+/api/v1/roles
+/api/v1/tables
+/api/v1/transactions
 ```
 
-Example:
+Examples:
 
 ```text
-GET    /api/v1/users
-GET    /api/v1/users/:id
-POST   /api/v1/users
-PATCH  /api/v1/users/:id
-DELETE /api/v1/users/:id
+POST   /api/v1/authentication/login
+POST   /api/v1/authentication/refresh-token
+GET    /api/v1/categories
+GET    /api/v1/menus
+GET    /api/v1/tables
+GET    /api/v1/orders
+GET    /api/v1/transactions
 ```
 
 ## API Response Format
@@ -776,10 +497,11 @@ Success:
 ```json
 {
   "success": true,
-  "data": {
-    "id": "123",
-    "name": "Alfin"
-  }
+  "name": "Success",
+  "message": "Categories success",
+  "code": 0,
+  "status": 200,
+  "data": []
 }
 ```
 
@@ -789,9 +511,13 @@ Error:
 {
   "success": false,
   "error": {
-    "code": "USER_NOT_FOUND",
-    "message": "User not found"
-  }
+    "code": "NOT_FOUND",
+    "message": "Category not found"
+  },
+  "name": "Error",
+  "message": "Category not found",
+  "code": "NOT_FOUND",
+  "status": 404
 }
 ```
 
@@ -803,7 +529,7 @@ Authentication should be handled centrally.
 Login
   │
   ▼
-POST /api/v1/auth/login
+POST /api/v1/authentication/login
   │
   ▼
 Validate credentials
@@ -860,10 +586,10 @@ Example:
 ```text
 INFO  Server started
 INFO  Database connected
-INFO  Redis connected
-WARN  Rate limit reached
 ERROR Database query failed
 ```
+
+Redis and rate limiting are not currently part of the API runtime.
 
 Do not log:
 
@@ -875,7 +601,10 @@ Do not log:
 
 ## Testing
 
-Testing exists at multiple levels.
+The API uses Node's test runner for files under `apps/api/test`. The web app
+uses Vitest and React Testing Library, with tests beside the source files.
+Current coverage includes API routes and Prisma services, web reducers,
+helpers, route guards, and UI behavior.
 
 ```text
 Unit Tests
@@ -886,9 +615,8 @@ Unit Tests
 
 Integration Tests
     │
-    ├── Repository
-    ├── Database
-    └── API
+    ├── Prisma services
+    └── API routes
 
 Frontend Tests
     │
@@ -923,6 +651,8 @@ Run lint:
 pnpm lint
 ```
 
+ESLint currently checks the API's JavaScript test support files. API and web TypeScript source are checked by `pnpm typecheck`; the web package does not define a separate ESLint script.
+
 Run type checking:
 
 ```bash
@@ -951,7 +681,7 @@ main
 ├── develop
 │
 ├── feature/auth
-├── feature/users
+├── feature/categories
 ├── feature/orders
 │
 ├── fix/login
@@ -991,7 +721,7 @@ A pull request should:
 
 ## CI/CD
 
-GitHub Actions can run:
+The GitHub Actions workflow in `.github/workflows/ci.yml` runs:
 
 ```text
 Pull Request
@@ -1000,16 +730,16 @@ Pull Request
 Install Dependencies
      │
      ▼
-Lint
+Build
      │
      ▼
 Typecheck
      │
      ▼
-Test
+Lint
      │
      ▼
-Build
+Test
 ```
 
 Production deployment can then be triggered after the CI pipeline passes.
@@ -1054,7 +784,7 @@ Bad:
 ```text
 apps/web
    ↓
-apps/api/src/database
+apps/api/prisma
 ```
 
 Good:
@@ -1075,59 +805,46 @@ packages/shared
 
 ## Adding a New Backend Module
 
-For a `products` feature:
+For a new API domain, follow the existing route/controller/service structure:
 
 ```text
-apps/api/src/modules/products/
-
-├── product.controller.ts
-├── product.service.ts
-├── product.repository.ts
-├── product.routes.ts
-├── product.schema.ts
-├── product.types.ts
-└── index.ts
+apps/api/src/
+├── routes/v1/<Domain>.ts
+├── controllers/Prisma<Domain>.ts
+└── services/Prisma<Domain>.ts
 ```
 
-Then register the route:
+Add only the files the domain needs, then mount its route in
+`apps/api/src/routes/v1/index.ts`. Use Joi for runtime validation and export
+shared TypeScript contracts only when both applications consume them. Do not
+add a repository layer unless it provides a concrete benefit.
 
-```ts
-router.use("/products", productRoutes);
-```
-
-The API becomes:
-
-```text
-/api/v1/products
-```
+For example, catalog endpoints live at `/api/v1/categories`, `/api/v1/menus`,
+and `/api/v1/tables`.
 
 ## Adding a New Frontend Feature
 
-Create:
+Add pages and components under the feature that owns them:
 
 ```text
-apps/web/src/features/products/
-
-├── components/
-├── hooks/
-├── pages/
-├── services/
-├── types.ts
-└── index.ts
+apps/web/src/features/<feature>/
 ```
 
-The feature should own its business-specific UI and logic.
+Current feature folders are `admin`, `auth`, `customer`, `kasir`, and `landing`.
+Shared UI belongs in `apps/web/src/components/common`; shared Redux actions and
+reducers currently live in `apps/web/src/actions` and `apps/web/src/reducers`.
 
 ## Naming Convention
 
 ### Files
 
-Use consistent naming.
+Follow the naming used by the existing domain files and their framework
+conventions.
 
 ```text
-auth.service.ts
-user.repository.ts
-create-user.schema.ts
+PrismaCatalog.ts
+categories.action.ts
+form.tsx
 ```
 
 ### Components
@@ -1135,9 +852,9 @@ create-user.schema.ts
 Use PascalCase:
 
 ```text
-UserCard.tsx
+CategoryCard.tsx
 LoginForm.tsx
-ProductTable.tsx
+MenuTable.tsx
 ```
 
 ### Functions
@@ -1145,8 +862,8 @@ ProductTable.tsx
 Use camelCase:
 
 ```ts
-createUser();
-getUserById();
+fetchCategories();
+createOrder();
 validateToken();
 ```
 
@@ -1155,8 +872,8 @@ validateToken();
 Use PascalCase:
 
 ```ts
-UserService;
-UserRepository;
+PrismaCatalog;
+PrismaOrders;
 ```
 
 ## Folder Responsibilities
@@ -1184,12 +901,11 @@ Express application responsible for:
 
 ### `packages/shared`
 
-Code shared between applications:
+TypeScript contracts and constants shared between applications:
 
-- Types
-- Schemas
+- Request and response types
+- Domain types
 - Constants
-- Generic utilities
 
 It should not contain:
 
@@ -1197,9 +913,9 @@ It should not contain:
 - React-specific code
 - Database implementation
 
-### `database`
+### `apps/api/prisma`
 
-Database-related documentation and resources.
+PostgreSQL schema, migrations, seed data, and the one-time MongoDB importer.
 
 ### `docker`
 
@@ -1236,9 +952,9 @@ Controller
   ↓
 Service
   ↓
-Repository
+Prisma
   ↓
-Database
+PostgreSQL
 ```
 
 Frontend:
@@ -1248,9 +964,9 @@ Page
   ↓
 Feature
   ↓
-Hook
+Redux action or feature component
   ↓
-Service
+API client
   ↓
 API
 ```
@@ -1260,10 +976,7 @@ Shared:
 ```text
 Shared
   ↓
-Types
-Schemas
-Constants
-Utilities
+TypeScript contracts and constants
 ```
 
 ## Production Build
@@ -1306,13 +1019,9 @@ Only commit:
 
 ## Health Check
 
-The API should expose:
+The API exposes `/health` and `/healthz` for process liveness. `/readyz` checks PostgreSQL connectivity.
 
-```text
-GET /health
-```
-
-Example response:
+A successful liveness response is:
 
 ```json
 {
@@ -1320,53 +1029,11 @@ Example response:
 }
 ```
 
-For production environments, the health check can also verify:
-
-```text
-API
- │
- ├── PostgreSQL
- │
- └── Redis
-```
+Redis is managed by the separate `local-infra` project and is not required for API readiness.
 
 ## Future Extensions
 
-The monorepo can be extended with:
-
-```text
-apps/
-├── web
-├── api
-├── admin
-└── worker
-```
-
-And shared packages:
-
-```text
-packages/
-├── shared
-├── ui
-├── eslint-config
-├── tsconfig
-└── api-client
-```
-
-For example:
-
-```text
-                    Monorepo
-                       │
-        ┌──────────────┼──────────────┐
-        │              │              │
-        ▼              ▼              ▼
-       Web            API           Worker
-        │              │              │
-        └──────────────┼──────────────┘
-                       │
-                  Shared Packages
-```
+Additional applications can be added when there is a concrete product need. Shared TypeScript contracts already belong in `packages/shared`; keep configuration at the repository root unless separate package ownership becomes necessary.
 
 ## Quick Commands
 
@@ -1424,16 +1091,35 @@ Format:
 pnpm format
 ```
 
-Start Docker:
+Start the development application (ensure `local-infra` is already running):
 
 ```bash
-docker compose --env-file .env.example up -d
+docker compose --env-file .env.example -f docker-compose.development.yml up --build
 ```
 
-Stop Docker:
+Stop the development application:
 
 ```bash
-docker compose --env-file .env.example down
+docker compose --env-file .env.example -f docker-compose.development.yml down
+```
+
+Start the production application after creating `.env.docker.production` with
+the required production secrets and PostgreSQL `DATABASE_URL`:
+
+```bash
+docker compose --env-file .env.docker.production -f docker-compose.production.yml -p bukit-delight-production up -d --build
+```
+
+Check production container health:
+
+```bash
+docker compose --env-file .env.docker.production -f docker-compose.production.yml -p bukit-delight-production ps
+```
+
+Stop the production application:
+
+```bash
+docker compose --env-file .env.docker.production -f docker-compose.production.yml -p bukit-delight-production down
 ```
 
 Database migration:
@@ -1450,13 +1136,7 @@ pnpm db:generate
 
 ## License
 
-Add your preferred license here.
-
-Example:
-
-```text
-MIT License
-```
+This repository does not currently include a license file.
 
 ## Author
 

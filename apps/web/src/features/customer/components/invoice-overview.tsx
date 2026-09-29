@@ -1,8 +1,5 @@
 import type { ReactNode } from "react";
-import { Typography, makeStyles } from "@material-ui/core";
 import Convert from "../../../helpers/convert";
-
-const useStyles = makeStyles({ title: { flexGrow: 1 } });
 
 export type InvoiceRecord = {
   _id?: string;
@@ -29,8 +26,8 @@ type TextTitleValueProps = {
   value2?: ReactNode;
   boldLeft?: boolean;
   boldRight?: boolean;
-  colorRight?: string;
-  paddingTop?: string;
+  colorRight?: "brand";
+  paddingTop?: "1rem" | "0.25rem";
 };
 
 const TextTitleValue = ({
@@ -42,48 +39,25 @@ const TextTitleValue = ({
   colorRight,
   paddingTop,
 }: TextTitleValueProps) => {
-  const classes = useStyles();
-
   return (
-    <div style={{ display: "flex", alignItems: "center", paddingTop }}>
-      <Typography
-        align="left"
-        style={{ fontWeight: boldLeft ? "bold" : "normal" }}
-        className={classes.title}
-      >
+    <div
+      className={`flex items-center ${paddingTop === "1rem" ? "pt-4" : paddingTop ? "pt-1" : ""}`}
+    >
+      <span className={`flex-1 ${boldLeft ? "font-bold" : "font-normal"}`}>
         {title}
-      </Typography>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-end",
-          alignItems: "center",
-        }}
-      >
-        <Typography
-          align="right"
-          className={classes.title}
-          style={{
-            fontWeight: boldRight ? "bold" : "normal",
-            color: colorRight ?? "#000000",
-            marginLeft: "1rem",
-            textDecorationLine: value2 ? "line-through" : undefined,
-          }}
+      </span>
+      <div className="flex items-center justify-end">
+        <span
+          className={`ml-4 flex-1 text-right ${boldRight ? "font-bold" : "font-normal"} ${value2 ? "line-through" : ""} ${colorRight === "brand" ? "text-brand-primary" : "text-black"}`}
         >
           {value}
-        </Typography>
+        </span>
         {value2 && (
-          <Typography
-            align="right"
-            className={classes.title}
-            style={{
-              fontWeight: boldRight ? "bold" : "normal",
-              color: colorRight ?? "#000000",
-              marginLeft: "1rem",
-            }}
+          <span
+            className={`ml-4 flex-1 text-right ${boldRight ? "font-bold" : "font-normal"} ${colorRight === "brand" ? "text-brand-primary" : "text-black"}`}
           >
             {value2}
-          </Typography>
+          </span>
         )}
       </div>
     </div>
@@ -135,7 +109,7 @@ const CustomerInvoiceOverview = ({
       />
       {account && (
         <TextTitleValue
-          title="Kasir"
+          title="Cashier"
           paddingTop="0.25rem"
           boldRight
           value={account.username ?? ""}
@@ -149,14 +123,7 @@ const CustomerInvoiceOverview = ({
           value={status}
         />
       )}
-      <div
-        style={{
-          marginTop: "1rem",
-          backgroundColor: "#000",
-          opacity: 0.25,
-          height: 1,
-        }}
-      />
+      <div aria-hidden="true" className="mt-4 h-px bg-black/25" />
       <TextTitleValue
         title="Jumlah Item"
         paddingTop="1rem"
@@ -171,7 +138,7 @@ const CustomerInvoiceOverview = ({
             paddingTop="0.25rem"
             boldLeft
             boldRight
-            colorRight="#CF672E"
+            colorRight="brand"
             value={Convert.Rp(data.promo ?? 0)}
           />
           <TextTitleValue
@@ -179,7 +146,7 @@ const CustomerInvoiceOverview = ({
             paddingTop="0.25rem"
             boldLeft
             boldRight
-            colorRight="#CF672E"
+            colorRight="brand"
             value={Convert.Rp(data.price ?? 0)}
             value2={Convert.Rp(data.total_price ?? 0)}
           />
@@ -190,7 +157,7 @@ const CustomerInvoiceOverview = ({
           paddingTop="0.25rem"
           boldLeft
           boldRight
-          colorRight="#CF672E"
+          colorRight="brand"
           value2={Convert.Rp(data.total_price ?? 0)}
         />
       )}
@@ -200,18 +167,11 @@ const CustomerInvoiceOverview = ({
           paddingTop="0.25rem"
           boldLeft
           boldRight
-          colorRight="#CF672E"
+          colorRight="brand"
           value={Convert.Rp(change)}
         />
       ) : null}
-      <div
-        style={{
-          marginTop: "1rem",
-          backgroundColor: "#000",
-          opacity: 0.25,
-          height: 1,
-        }}
-      />
+      <div aria-hidden="true" className="mt-4 h-px bg-black/25" />
     </div>
   );
 };

@@ -1,10 +1,10 @@
 import { useEffect, useState, type ChangeEvent } from "react";
-import { Grid } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import DialogCustom from "../../../../components/common/dialog.custom";
 import FormControlCustom from "../../../../components/common/form.control.custom";
 import Validate from "../../../../components/hooks/use.validate";
 import Actions from "../../../../actions";
+import type { AppDispatch } from "../../../../store";
 
 type CategoryFields = { name?: string; desc?: string; image?: File };
 type FormState = { fields: CategoryFields; errors: Record<string, string> };
@@ -24,12 +24,14 @@ type CategoryFormReduxState = {
 const emptyForm: FormState = { fields: {}, errors: {} };
 
 const CategoryForm = () => {
-  const { Categories, Service } = useSelector(
-    (state: CategoryFormReduxState) => state,
+  const categories = useSelector(
+    (state: CategoryFormReduxState) => state.Categories,
   );
-  const dispatch = useDispatch();
+  const dialog = useSelector(
+    (state: CategoryFormReduxState) => state.Service.form_dialog,
+  );
+  const dispatch = useDispatch<AppDispatch>();
   const [form, setForm] = useState<FormState>(emptyForm);
-  const dialog = Service.form_dialog;
 
   useEffect(() => {
     if (dialog.type === "update" && dialog.row) {
@@ -92,7 +94,7 @@ const CategoryForm = () => {
         title={title}
         open={dialog.open}
         onClose={closeDialog}
-        loading={Categories.loading}
+        loading={categories.loading}
         onSubmit={submitForm}
       >
         Name : {dialog.row?.name || "name"}
@@ -105,11 +107,11 @@ const CategoryForm = () => {
       title={title}
       open={dialog.open}
       onClose={closeDialog}
-      loading={Categories.loading}
+      loading={categories.loading}
       onSubmit={submitForm}
     >
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
           <FormControlCustom
             error={form.errors.name}
             label="Name"
@@ -120,8 +122,8 @@ const CategoryForm = () => {
             type="text"
             required
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <FormControlCustom
             error={form.errors.desc}
             label="Description"
@@ -132,8 +134,8 @@ const CategoryForm = () => {
             type="text"
             required
           />
-        </Grid>
-        <Grid item xs={12}>
+        </div>
+        <div className="sm:col-span-2">
           <FormControlCustom
             error={form.errors.image}
             label="Image"
@@ -143,8 +145,8 @@ const CategoryForm = () => {
             type="file"
             required={dialog.type === "create"}
           />
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </DialogCustom>
   );
 };

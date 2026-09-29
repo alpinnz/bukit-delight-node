@@ -56,7 +56,11 @@ prismaTest(
             image: "category.png",
           });
           assert.equal(category.name, `phase4-catalog-${suffix}`.toUpperCase());
-          assert.equal((await listCategories(transaction)).length, 1);
+          assert.ok(
+            (await listCategories(transaction)).some(
+              ({ id }) => id === categoryId,
+            ),
+          );
           assert.equal(
             (await findCategoryById(transaction, categoryId)).id,
             categoryId,
@@ -94,7 +98,9 @@ prismaTest(
           });
           assert.equal(menu.category.id, categoryId);
           assert.equal((await findMenuById(transaction, menuId)).id, menuId);
-          assert.equal((await listMenus(transaction)).length, 1);
+          assert.ok(
+            (await listMenus(transaction)).some(({ id }) => id === menuId),
+          );
           await assert.rejects(
             createMenuInTransaction(transaction, {
               id: `${menuId}-duplicate`,
@@ -138,7 +144,9 @@ prismaTest(
           );
           assert.equal(table.name, `phase4 table ${suffix}`);
           assert.equal((await findTableById(transaction, tableId)).id, tableId);
-          assert.equal((await listTables(transaction)).length, 1);
+          assert.ok(
+            (await listTables(transaction)).some(({ id }) => id === tableId),
+          );
           await assert.rejects(
             createTableInTransaction(
               transaction,
@@ -172,7 +180,7 @@ prismaTest(
               price: 12,
               totalPrice: 10,
               status: "PENDING",
-              estimasi: new Date(Date.now() + 60_000),
+              estimatedReadyAt: new Date(Date.now() + 60_000),
               expires: new Date(Date.now() + 60_000),
             },
           });

@@ -1,12 +1,10 @@
-import type { ComponentProps } from "react";
-import { forwardRef } from "react";
-import { Dialog, Slide, Typography, Grid, IconButton } from "@material-ui/core";
-import AddIcon from "@material-ui/icons/Add";
-import RemoveIcon from "@material-ui/icons/Remove";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../actions";
 import ButtonCustom from "../../../components/common/button.custom";
 import Convert from "../../../helpers/convert";
+import type { AppDispatch } from "../../../store";
 
 type MenuCard = {
   image?: string;
@@ -32,14 +30,8 @@ type CartDialogState = {
   };
 };
 
-const Transition = forwardRef<unknown, ComponentProps<typeof Slide>>(
-  function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-  },
-);
-
 export default function MenuDialog() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const open = useSelector(
     (state: CartDialogState) => state.Cart.dialog_menu.open,
   );
@@ -47,33 +39,28 @@ export default function MenuDialog() {
   const selected = useSelector((state: CartDialogState) => state.Cart.selected);
 
   const { quality, note, menu } = selected;
-
   const onIncrement = () => dispatch(Actions.Cart.selectedIncrementQuality());
   const onDecrement = () => dispatch(Actions.Cart.selectedDescrementQuality());
   const onClean = () => dispatch(Actions.Cart.selectedClean());
-  const onDelete = (cartId: string) => dispatch(Actions.Cart.onDelete(cartId));
+  const onClose = () => dispatch(Actions.Cart.dialogMenuHide());
   const onChange = (value: string) =>
     dispatch(Actions.Cart.selectedChangeNote(value));
-  const onClose = () => dispatch(Actions.Cart.dialogMenuHide());
-
   const onRemove = () => {
     if (quality > 0) onDecrement();
   };
 
   const onSubmit = () => {
     if (quality <= 0) {
-      if (selected.id_cart) onDelete(selected.id_cart);
+      if (selected.id_cart) dispatch(Actions.Cart.onDelete(selected.id_cart));
       onClean();
       onClose();
       return;
     }
-
     if (selected.id_cart) {
       dispatch(Actions.Cart.onUpdate(menu, selected.id_cart, quality, note));
     } else {
       dispatch(Actions.Cart.onCreate(menu, quality, note));
     }
-
     onClean();
     onClose();
   };
@@ -82,135 +69,83 @@ export default function MenuDialog() {
   const promo = menu.promo ?? 0;
 
   return (
-    <div>
-      <Dialog
-        open={open}
-        TransitionComponent={Transition}
-        keepMounted
-        onClose={onClose}
-        aria-labelledby="alert-dialog-slide-title"
-        aria-describedby="alert-dialog-slide-description"
-      >
-        <div
-          style={{
-            borderRadius: 10,
-            backgroundColor: "#FFFFFF",
-            padding: "0.5rem",
-            position: "relative",
-          }}
-        >
+    <Dialog open={open} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-slate-950/40" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <DialogPanel className="w-full max-w-md rounded-xl bg-white p-2 shadow-xl">
           <img
-            src={`${menu.image}`}
-            alt={menu.name}
-            style={{
-              borderRadius: 7,
-              width: "100%",
-              height: 166,
-            }}
+            src={menu.image ?? ""}
+            alt={menu.name ?? "Menu"}
+            className="h-40 w-full rounded-lg object-cover"
           />
-          <div style={{ padding: "0.12rem" }}>
-            <div>
-              <Typography align="center">{menu.name}</Typography>
-            </div>
-            <div style={{ padding: "0.5rem", height: 55 }}>
-              <Typography variant="subtitle1">{menu.desc}</Typography>
-            </div>
-            <Grid container>
-              <Grid item xs={2} sm={2}>
+          <div className="p-2">
+            <DialogTitle className="text-center font-semibold text-slate-900">
+              {menu.name}
+            </DialogTitle>
+            <p className="mt-2 min-h-14 p-2 text-sm text-slate-600">
+              {menu.desc}
+            </p>
+            <div className="flex items-center gap-2">
+              <div className="flex flex-1 items-center gap-2 text-lg font-semibold text-brand-teal">
                 {promo > 0 ? (
-                  <div style={{ display: "flex" }}>
-                    <Typography
-                      variant="h6"
-                      style={{
-                        color: "#37929E",
-                        textDecorationLine: "line-through",
-                        marginRight: "0.5rem",
-                      }}
-                    >
+                  <>
+                    <del className="text-sm font-normal">
                       {Convert.Price(price)}
-                    </Typography>
-                    <Typography variant="h6" style={{ color: "#37929E" }}>
-                      {Convert.Price(price - promo)}
-                    </Typography>
-                  </div>
+                    </del>
+                    <span>{Convert.Price(price - promo)}</span>
+                  </>
                 ) : (
-                  <Typography variant="h6" style={{ color: "#37929E" }}>
-                    {Convert.Price(price)}
-                  </Typography>
+                  <span>{Convert.Price(price)}</span>
                 )}
-              </Grid>
-              <Grid item xs={1} sm={1} />
-              <Grid item xs={9} sm={9}>
-                <input
-                  placeholder="Klik untuk menambahkan catatan"
-                  value={note}
-                  onChange={(event) => onChange(event.target.value)}
-                  style={{
-                    borderColor: "transparent",
-                    backgroundColor: "#ECFDFE",
-                    height: 35,
-                    width: "100%",
-                    border: "none",
-                    borderRadius: 10,
-                    boxShadow: "none",
-                    outline: "none",
-                  }}
-                />
-              </Grid>
-            </Grid>
-            <Grid
-              style={{
-                marginTop: "0.5rem",
-                justifyContent: "center",
-                textAlign: "center",
-                alignItems: "center",
-              }}
-              container
-            >
-              <Grid item xs={3} sm={3}>
-                <IconButton aria-label="Tambah jumlah" onClick={onIncrement}>
-                  <AddIcon style={{ color: "#000000" }} />
-                </IconButton>
-              </Grid>
-              <Grid item xs={6} sm={6}>
-                <Typography
-                  align="center"
-                  variant="h6"
-                  style={{ color: "#000000" }}
-                >
-                  {quality}
-                </Typography>
-              </Grid>
-              <Grid item xs={3} sm={3}>
-                <IconButton aria-label="Kurangi jumlah" onClick={onRemove}>
-                  <RemoveIcon style={{ color: "#000000" }} />
-                </IconButton>
-              </Grid>
-
-              <ButtonCustom
-                label={
-                  quality > 0
-                    ? selected.id_cart
-                      ? "Edit"
-                      : "Add"
-                    : selected.id_cart
-                      ? "Remove"
-                      : "Cancel"
-                }
-                style={{
-                  borderRadius: 10,
-                  backgroundColor: "#A42121",
-                  color: "#FFFFFF",
-                }}
-                disabled={loading}
-                loading={loading}
-                onClick={onSubmit}
-                fullWidth
+              </div>
+              <input
+                aria-label="Catatan menu"
+                placeholder="Klik untuk menambahkan catatan"
+                value={note}
+                onChange={(event) => onChange(event.target.value)}
+                className="min-w-0 flex-1 rounded-lg border border-transparent bg-cyan-50 px-3 py-2 text-sm outline-none focus:border-cyan-600"
               />
-            </Grid>
+            </div>
+            <div className="mt-3 flex items-center justify-center gap-8">
+              <button
+                type="button"
+                aria-label="Tambah jumlah"
+                onClick={onIncrement}
+                className="rounded-full p-2 text-slate-800 hover:bg-slate-100"
+              >
+                <PlusIcon aria-hidden="true" className="size-5" />
+              </button>
+              <span className="min-w-8 text-center text-lg font-semibold text-slate-900">
+                {quality}
+              </span>
+              <button
+                type="button"
+                aria-label="Kurangi jumlah"
+                onClick={onRemove}
+                className="rounded-full p-2 text-slate-800 hover:bg-slate-100"
+              >
+                <MinusIcon aria-hidden="true" className="size-5" />
+              </button>
+            </div>
+            <ButtonCustom
+              label={
+                quality > 0
+                  ? selected.id_cart
+                    ? "Edit"
+                    : "Add"
+                  : selected.id_cart
+                    ? "Remove"
+                    : "Cancel"
+              }
+              disabled={loading}
+              loading={loading}
+              onClick={onSubmit}
+              fullWidth
+              className="mt-2 rounded-lg bg-brand-danger hover:bg-red-900"
+            />
           </div>
-        </div>
-      </Dialog>
-    </div>
+        </DialogPanel>
+      </div>
+    </Dialog>
   );
 }

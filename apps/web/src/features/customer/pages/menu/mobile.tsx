@@ -27,22 +27,19 @@ type MenuPageState = {
 };
 
 const CustomerCategoryMenuPage = () => {
-  const { _id: categoryId } = useParams<{ _id?: string }>();
-  const menus = useSelector((state: MenuPageState) =>
-    state.Menus.data.filter((menu) => menu.id_category._id === categoryId),
-  );
+  const { categoryId } = useParams<{ categoryId?: string }>();
+  const menus = useSelector((state: MenuPageState) => state.Menus.data);
   const category = useSelector((state: MenuPageState) =>
     state.Categories.data.find((entry) => entry._id === categoryId),
   );
+  const categoryMenus = menus.filter(
+    (menu) => menu.id_category._id === categoryId,
+  );
 
   return (
-    <ContainerBase
-      type="menu"
-      navigationActive={1}
-      title={category ? category.name : ""}
-    >
+    <ContainerBase type="menu" title={category ? category.name : ""}>
       <CategoryBanner image={category ? category.image : null} />
-      <MenuList data={menus} />
+      <MenuList data={categoryMenus} />
       <MenuDialog />
     </ContainerBase>
   );

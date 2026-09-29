@@ -1,66 +1,64 @@
-import { makeStyles } from "@material-ui/core/styles";
-import { useHistory } from "react-router-dom";
-import BottomNavigation from "@material-ui/core/BottomNavigation";
-import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
-import Icons from "../../assets/icons";
+import {
+  BookOpenIcon,
+  HomeIcon,
+  ShoppingCartIcon,
+} from "@heroicons/react/24/outline";
+import { NavLink } from "react-router-dom";
 
-type BottomNavigationCustomProps = { selected?: number };
+const navigationItems = [
+  { label: "Cart", path: "/customer/cart", icon: ShoppingCartIcon },
+  { label: "Book", path: "/customer/book", icon: BookOpenIcon },
+  { label: "Home", path: "/customer/home", icon: HomeIcon },
+];
 
-const useStyles = makeStyles({
-  root: {
-    color: "green",
-    backgroundColor: "#CF672E",
-    borderRadius: 32,
-    position: "fixed",
-    bottom: 5,
-    right: 5,
-    left: 5,
-  },
-});
-
-const BottomNavigationCustom = ({ selected }: BottomNavigationCustomProps) => {
-  const classes = useStyles();
-  const history = useHistory();
-
-  const onChange = (index: number) => {
-    const routes = ["/customer/cart", "/customer/book", "/customer/home"];
-    const route = routes[index];
-    if (route) history.push(route);
-  };
-
+const BottomNavigationCustom = () => {
   return (
-    <BottomNavigation value={selected} className={classes.root}>
-      <BottomNavigationAction
-        aria-label="Cart"
-        onClick={() => onChange(0)}
-        icon={
-          <img
-            src={selected === 0 ? Icons.cart_active : Icons.cart}
-            alt={selected === 0 ? "cart_active" : "book"}
-          />
-        }
-      />
-      <BottomNavigationAction
-        aria-label="Book"
-        onClick={() => onChange(1)}
-        icon={
-          <img
-            src={selected === 1 ? Icons.book_active : Icons.book}
-            alt={selected === 1 ? "book_active" : "book"}
-          />
-        }
-      />
-      <BottomNavigationAction
-        aria-label="Home"
-        onClick={() => onChange(2)}
-        icon={
-          <img
-            src={selected === 2 ? Icons.home_active : Icons.home}
-            alt={selected === 2 ? "home_active" : "home"}
-          />
-        }
-      />
-    </BottomNavigation>
+    <nav
+      aria-label="Customer navigation"
+      className="fixed inset-x-1 bottom-1 z-40 rounded-full bg-brand-primary shadow-lg"
+    >
+      <div className="flex justify-around">
+        {navigationItems.map(({ label, path, icon: Icon }) => (
+          <NavLink
+            key={path}
+            to={path}
+            end
+            aria-label={label}
+            data-page-navigation="true"
+            onClick={(event) => {
+              if (
+                event.defaultPrevented ||
+                event.button !== 0 ||
+                event.metaKey ||
+                event.ctrlKey ||
+                event.shiftKey ||
+                event.altKey
+              ) {
+                return;
+              }
+
+              window.setTimeout(() => {
+                document
+                  .querySelector<HTMLAnchorElement>(
+                    '[data-page-navigation][aria-current="page"]',
+                  )
+                  ?.focus();
+              }, 0);
+            }}
+            className={({ isActive }) =>
+              [
+                "flex flex-1 justify-center rounded-full p-3 text-white outline-none focus-visible:ring-2 focus-visible:ring-white",
+                isActive && "bg-white/15",
+              ]
+                .filter(Boolean)
+                .join(" ")
+            }
+          >
+            <Icon aria-hidden="true" className="size-7" />
+          </NavLink>
+        ))}
+      </div>
+    </nav>
   );
 };
 

@@ -59,7 +59,7 @@ const FavoriteResultsTable = () => {
 
   return (
     <TableCustom
-      title="Result Pemesanan"
+      title="Favorite Results"
       columns={columns}
       rows={rows}
       loading={favorites.loading}

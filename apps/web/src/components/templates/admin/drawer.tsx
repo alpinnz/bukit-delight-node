@@ -1,15 +1,6 @@
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 import type { Dispatch, SetStateAction } from "react";
-import {
-  Drawer,
-  Hidden,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  makeStyles,
-  useTheme,
-} from "@material-ui/core";
-import CloseIcon from "@material-ui/icons/Close";
 import { Link } from "react-router-dom";
 
 type AdminDrawerProps = {
@@ -17,113 +8,72 @@ type AdminDrawerProps = {
   setOpenMobileDrawer: Dispatch<SetStateAction<boolean>>;
 };
 
-const drawerWidth = 180;
-const categories = [
-  "Dashboard",
-  "Transactions",
-  "Categories",
-  "Menus",
-  "Tables",
-  "Accounts",
-  "Pemesanan",
+const navigationItems = [
+  { label: "Dashboard", path: "dashboard" },
+  { label: "Transactions", path: "transactions" },
+  { label: "Categories", path: "categories" },
+  { label: "Menus", path: "menus" },
+  { label: "Tables", path: "tables" },
+  { label: "Accounts", path: "accounts" },
+  { label: "Favorites", path: "favorites" },
 ];
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-  },
-  grow: {
-    flexGrow: 1,
-  },
-  drawer: {
-    [theme.breakpoints.up("sm")]: {
-      width: drawerWidth,
-      flexShrink: 0,
-    },
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up("sm")]: {
-      display: "none",
-    },
-  },
-  toolbar: theme.mixins.toolbar,
-  drawerPaper: {
-    width: drawerWidth,
-  },
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(3),
-  },
-  closeMenuButton: {
-    marginRight: "auto",
-    marginLeft: 0,
-  },
-}));
 
 const AdminDrawer = ({
   openMobileDrawer,
   setOpenMobileDrawer,
 }: AdminDrawerProps) => {
-  const classes = useStyles();
-  const theme = useTheme();
   const pathSegments = window.location.pathname.toLowerCase().split("/");
-  const closeMobileDrawer = () => setOpenMobileDrawer((isOpen) => !isOpen);
-
-  const drawerContent = (
-    <List>
-      {categories.map((category) => {
-        const route = category.toLowerCase();
+  const closeDrawer = () => setOpenMobileDrawer(false);
+  const navigation = (
+    <nav aria-label="Admin navigation" className="space-y-1 p-3">
+      {navigationItems.map(({ label, path }) => {
+        const isSelected = pathSegments[2] === path;
         return (
-          <ListItem
-            selected={pathSegments[2] === route}
-            button
-            component={Link}
-            to={`/admin/${route}`}
-            key={category}
+          <Link
+            key={path}
+            to={`/admin/${path}`}
+            onClick={closeDrawer}
+            aria-current={isSelected ? "page" : undefined}
+            className={`block rounded-md px-3 py-2 text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 ${isSelected ? "bg-indigo-50 text-indigo-700" : "text-slate-700 hover:bg-slate-100"}`}
           >
-            <ListItemText primary={category} />
-          </ListItem>
+            {label}
+          </Link>
         );
       })}
-    </List>
+    </nav>
   );
 
   return (
-    <nav className={classes.drawer}>
-      <Hidden smUp implementation="css">
-        <Drawer
-          variant="temporary"
-          anchor={theme.direction === "rtl" ? "right" : "left"}
-          open={openMobileDrawer}
-          onClose={closeMobileDrawer}
-          classes={{ paper: classes.drawerPaper }}
-          ModalProps={{ keepMounted: true }}
-        >
-          <IconButton
-            onClick={closeMobileDrawer}
-            className={classes.closeMenuButton}
-            aria-label="Close drawer"
-          >
-            <CloseIcon />
-          </IconButton>
-          {drawerContent}
-        </Drawer>
-      </Hidden>
-      <Hidden xsDown implementation="css">
-        <Drawer
-          className={classes.drawer}
-          variant="permanent"
-          classes={{ paper: classes.drawerPaper }}
-        >
-          <div className={classes.toolbar} />
-          {drawerContent}
-        </Drawer>
-      </Hidden>
-    </nav>
+    <>
+      <aside className="fixed bottom-0 left-0 top-16 z-20 hidden w-48 border-r border-slate-200 bg-white sm:block">
+        {navigation}
+      </aside>
+      <Dialog
+        open={openMobileDrawer}
+        onClose={closeDrawer}
+        className="relative z-50 sm:hidden"
+      >
+        <div className="fixed inset-0 bg-slate-950/40" aria-hidden="true" />
+        <div className="fixed inset-0 flex">
+          <DialogPanel className="flex h-full w-72 max-w-[85vw] flex-col bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
+              <DialogTitle className="font-semibold text-slate-900">
+                Navigation
+              </DialogTitle>
+              <button
+                type="button"
+                aria-label="Close navigation"
+                onClick={closeDrawer}
+                className="rounded-md p-2 text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                <XMarkIcon aria-hidden="true" className="size-5" />
+              </button>
+            </div>
+            {navigation}
+          </DialogPanel>
+        </div>
+      </Dialog>
+    </>
   );
 };
 

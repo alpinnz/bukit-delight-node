@@ -7,10 +7,8 @@
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "allowJs": true,
-    "checkJs": false,
     "noEmit": true,
-    "types": ["vite/client", "vitest/globals"]
+    "types": ["vite/client", "vitest/globals", "node"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.js"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.mts"]
 }

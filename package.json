@@ -1,14 +1,7 @@
 {
   "name": "bukit-delight-monorepo",
   "private": true,
-  "packageManager": "pnpm@10.15.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/engines",
-      "esbuild",
-      "prisma"
-    ]
-  },
+  "packageManager": "pnpm@12.6.0",
   "engines": {
     "node": ">=22.12"
   },
@@ -19,7 +12,7 @@
     "build": "corepack pnpm -r build",
     "build:web": "corepack pnpm --filter @bukit-delight/web build",
     "build:api": "corepack pnpm --filter @bukit-delight/api build",
-    "test": "corepack pnpm -r test",
+    "test": "corepack pnpm -r --workspace-concurrency=1 test",
     "test:web": "corepack pnpm --filter @bukit-delight/web test",
     "test:api": "corepack pnpm --filter @bukit-delight/api test",
     "lint": "corepack pnpm -r lint",
@@ -36,6 +29,7 @@
     "@eslint/js": "^10.0.1",
     "eslint": "^10.11.0",
     "globals": "^17.12.0",
-    "prettier": "^3.0.0"
+    "prettier": "^3.9.9",
+    "typescript": "7.0.2"
   }
 }

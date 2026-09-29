@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+import TextCustom from "../../../../components/common/text.custom";
 import { useSelector } from "react-redux";
 import CountdownCustom from "../../../../components/common/countdown.custom";
 
@@ -8,7 +8,7 @@ type Transaction = {
   _id: string;
   status: string;
   createdAt: string | number | Date;
-  id_order: { estimasi: string | number | Date };
+  id_order: { estimatedReadyAt: string | number | Date };
 };
 type CartState = { order: CartOrder | null; transaction: Transaction | null };
 type CustomerCartOverviewState = {
@@ -24,92 +24,28 @@ const TableQueueView = ({
   table?: string;
   queue?: number;
 }) => (
-  <div
-    style={{
-      display: "flex",
-      width: "100%",
-      justifyContent: "center",
-      alignItems: "center",
-    }}
-  >
-    <div
-      style={{
-        minWidth: "6rem",
-        backgroundColor: "#D95C17",
-        height: 130,
-        marginRight: "0.25rem",
-        borderRadius: 9,
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#632F11",
-          padding: "0.25rem",
-          height: 28,
-          borderTopLeftRadius: 9,
-          borderTopRightRadius: 9,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Typography style={{ color: "#FFFFFF" }} align="center">
-          No. Meja
-        </Typography>
+  <div className="flex w-full items-center justify-center">
+    <div className="mr-1 h-[130px] min-w-24 rounded-[9px] bg-brand-rust">
+      <div className="flex h-7 items-center justify-center rounded-t-[9px] bg-brand-brown p-1">
+        <TextCustom className="text-center text-white">No. Meja</TextCustom>
       </div>
-      <div style={{ backgroundColor: "#FFFFFF", height: 4 }} />
-      <div
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          height: 88,
-          display: "flex",
-        }}
-      >
-        <Typography variant="h3" style={{ color: "#FFFFFF" }} align="center">
+      <div className="h-1 bg-white" />
+      <div className="flex h-[88px] items-center justify-center">
+        <TextCustom variant="h3" className="text-center text-white">
           {table || "- -"}
-        </Typography>
+        </TextCustom>
       </div>
     </div>
-    <div style={{ minWidth: "1rem" }} />
-    <div
-      style={{
-        backgroundColor: "#FF833D",
-        minWidth: "10rem",
-        height: 130,
-        marginLeft: "0.25rem",
-        borderRadius: 9,
-        position: "relative",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#632F11",
-          padding: "0.25rem",
-          height: 28,
-          borderTopLeftRadius: 9,
-          borderTopRightRadius: 9,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        <Typography style={{ color: "#FFFFFF" }} align="center">
-          No. Antrian
-        </Typography>
+    <div className="w-4" />
+    <div className="relative ml-1 h-[130px] min-w-40 rounded-[9px] bg-[#FF833D]">
+      <div className="flex h-7 items-center justify-center rounded-t-[9px] bg-brand-brown p-1">
+        <TextCustom className="text-center text-white">No. Antrian</TextCustom>
       </div>
-      <div style={{ backgroundColor: "#FFFFFF", height: 4 }} />
-      <div
-        style={{
-          alignItems: "center",
-          justifyContent: "center",
-          height: 88,
-          display: "flex",
-        }}
-      >
-        <Typography variant="h3" style={{ color: "#FFFFFF" }} align="center">
+      <div className="h-1 bg-white" />
+      <div className="flex h-[88px] items-center justify-center">
+        <TextCustom variant="h3" className="text-center text-white">
           {queue || "- -"}
-        </Typography>
+        </TextCustom>
       </div>
     </div>
   </div>
@@ -126,18 +62,11 @@ const CustomerCartOverview = () => {
 
   if (cart.order && table) {
     return (
-      <div style={{ paddingTop: 15 }}>
-        <div
-          style={{
-            height: "3rem",
-            alignItems: "center",
-            justifyContent: "center",
-            display: "flex",
-          }}
-        >
-          <Typography variant="h6" style={{ color: "#288806" }} align="center">
+      <div className="pt-[15px]">
+        <div className="flex h-12 items-center justify-center">
+          <TextCustom variant="h6" className="text-center text-brand-success">
             Selesaikan pembayaran dikasir
-          </Typography>
+          </TextCustom>
         </div>
         <CountdownCustom date={cart.order.expires} />
         <TableQueueView table={table.name} />
@@ -160,43 +89,29 @@ const CustomerCartOverview = () => {
       ) + 1;
     const statusMessage = {
       pending: "Pesanan sedang antri",
-      proses: "Pesanan sedang dibuatkan",
+      processing: "Pesanan sedang dibuatkan",
       done: "Pesanan siap disajikan",
     }[cart.transaction.status];
 
     return (
-      <div style={{ paddingTop: 15 }}>
-        <div
-          style={{
-            height: "3rem",
-            alignItems: "center",
-            justifyContent: "center",
-            display: "flex",
-          }}
-        >
-          <Typography variant="h6" style={{ color: "#288806" }} align="center">
+      <div className="pt-[15px]">
+        <div className="flex h-12 items-center justify-center">
+          <TextCustom variant="h6" className="text-center text-brand-success">
             {statusMessage}
-          </Typography>
+          </TextCustom>
         </div>
-        <CountdownCustom date={cart.transaction.id_order.estimasi} />
+        <CountdownCustom date={cart.transaction.id_order.estimatedReadyAt} />
         <TableQueueView queue={queue} table={table.name} />
       </div>
     );
   }
 
   return (
-    <div style={{ paddingTop: 15 }}>
-      <div
-        style={{
-          height: "3rem",
-          alignItems: "center",
-          justifyContent: "center",
-          display: "flex",
-        }}
-      >
-        <Typography variant="h6" style={{ color: "#288806" }} align="center">
+    <div className="pt-[15px]">
+      <div className="flex h-12 items-center justify-center">
+        <TextCustom variant="h6" className="text-center text-brand-success">
           Bukit Delight
-        </Typography>
+        </TextCustom>
       </div>
       <CountdownCustom />
       <TableQueueView />

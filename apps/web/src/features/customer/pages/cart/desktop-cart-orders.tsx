@@ -1,12 +1,12 @@
-import { Button, Typography } from "@material-ui/core";
 import { useDispatch } from "react-redux";
 import Actions from "../../../../actions";
 import CustomerCartItemList, { type CartLine } from "./cart-item-list";
 import CustomerCartRecipe from "./recipe";
-import CustomerPaymentDialog from "./payment-dialog";
+import TextCustom from "../../../../components/common/text.custom";
+import type { AppDispatch } from "../../../../store";
 
 const CustomerDesktopCartOrders = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const onEditItem = (item: CartLine) => {
     dispatch(
       Actions.Cart.selectedEdit(item.menu, item._id, item.quality, item.note),
@@ -15,39 +15,20 @@ const CustomerDesktopCartOrders = () => {
 
   return (
     <div>
-      <Typography
-        style={{ color: "#D95C17", margin: "1rem" }}
-        variant="h6"
-        align="center"
-      >
+      <TextCustom className="m-4 text-brand-rust" variant="h6" align="center">
         Sudah siap pesan ?
-      </Typography>
+      </TextCustom>
       <CustomerCartItemList onEditItem={onEditItem} />
       <CustomerCartRecipe />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
-        <Button
-          style={{
-            paddingLeft: 125,
-            paddingRight: 125,
-            borderRadius: 9,
-            backgroundColor: "#A42121",
-            color: "#FFFFFF",
-          }}
-          variant="contained"
+      <div className="my-4 flex items-center justify-center">
+        <button
+          type="button"
+          className="rounded-lg bg-brand-danger px-12 py-2 text-white hover:bg-red-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
           onClick={() => dispatch(Actions.Cart.dialogPaymentOpen())}
         >
-          <Typography style={{ color: "#FFFFFF" }}>Pesan</Typography>
-        </Button>
+          Pesan
+        </button>
       </div>
-      <CustomerPaymentDialog />
     </div>
   );
 };

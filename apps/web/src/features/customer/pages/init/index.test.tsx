@@ -1,7 +1,7 @@
 import { act, render, screen } from "@testing-library/react";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
-import { MemoryRouter, Route, useLocation } from "react-router-dom";
+import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import RootReducer from "../../../../reducers";
 import CustomerInitPage from "./index";
@@ -32,9 +32,12 @@ describe("CustomerInitPage", () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={["/customer/init/A1"]}>
-          <Route path="/customer/init/:name_table">
-            <CustomerInitPage />
-          </Route>
+          <Routes>
+            <Route
+              path="/customer/init/:tableName"
+              element={<CustomerInitPage />}
+            />
+          </Routes>
           <LocationPath />
         </MemoryRouter>
       </Provider>,

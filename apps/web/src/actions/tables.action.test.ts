@@ -64,15 +64,20 @@ describe("TablesAction table write requests", () => {
       () => TablesAction.onUpdate("table-1", { name: "Patio" }),
       "Patio",
     ],
-  ])("serializes the table name on %s", async (_operation, createAction, name) => {
-    vi.mocked(axios).mockResolvedValue({ data: { name: "success" } } as never);
-    const dispatch = vi.fn();
+  ])(
+    "serializes the table name on %s",
+    async (_operation, createAction, name) => {
+      vi.mocked(axios).mockResolvedValue({
+        data: { name: "success" },
+      } as never);
+      const dispatch = vi.fn();
 
-    await createAction()(dispatch as never, (() => ({})) as never, undefined);
+      await createAction()(dispatch as never, (() => ({})) as never, undefined);
 
-    const request = vi.mocked(axios).mock.calls[0][0] as unknown as {
-      data: FormData;
-    };
-    expect(request.data.get("name")).toBe(name);
-  });
+      const request = vi.mocked(axios).mock.calls[0][0] as unknown as {
+        data: FormData;
+      };
+      expect(request.data.get("name")).toBe(name);
+    },
+  );
 });

@@ -48,7 +48,7 @@ prismaApiRouteTest(
       });
       assert.ok(
         cashierRole,
-        "local target database must contain the kasir role",
+        "local target database must contain the cashier role",
       );
 
       await database.category.create({
@@ -138,6 +138,7 @@ prismaApiRouteTest(
       const orderCreate = await orderCreateResponse.json();
       orderId.value = orderCreate.data._id;
       assert.match(orderId.value, /^[0-9a-f]{24}$/);
+      assert.ok(Number.isFinite(Date.parse(orderCreate.data.estimatedReadyAt)));
 
       const itemCreateResponse = await fetch(`${baseUrl}/api/v1/item-orders`, {
         method: "POST",
@@ -188,13 +189,13 @@ prismaApiRouteTest(
             "content-type": "application/json",
             "x-access-token": cashierToken,
           },
-          body: JSON.stringify({ status: "proses" }),
+          body: JSON.stringify({ status: "processing" }),
         },
       );
       assert.equal(transactionStatusResponse.status, 200);
       assert.equal(
         (await transactionStatusResponse.json()).data.status,
-        "proses",
+        "processing",
       );
 
       const forbiddenOrderStatus = await fetch(

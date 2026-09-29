@@ -104,7 +104,7 @@ vi.mock("../../../../components/hooks/use.validate", () => ({
 
 const createState = () => ({
   Accounts: { loading: false },
-  Roles: { data: [{ _id: "role-1", name: "Kasir" }] },
+  Roles: { data: [{ _id: "role-1", name: "Cashier" }] },
   Service: { form_dialog: { open: true, type: "create", row: {} } },
 });
 
@@ -155,7 +155,7 @@ describe("AccountForm", () => {
   it("loads the current role and updates without password fields", async () => {
     mocks.reduxState = {
       Accounts: { loading: false },
-      Roles: { data: [{ _id: "role-1", name: "Kasir" }] },
+      Roles: { data: [{ _id: "role-1", name: "Cashier" }] },
       Service: {
         form_dialog: {
           open: true,

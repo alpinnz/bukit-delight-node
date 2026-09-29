@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { Hidden } from "@material-ui/core";
 import Mobile from "./mobile";
 import Desktop from "../laptop.page";
 
@@ -10,15 +9,12 @@ const CustomerMenuPage = () => {
 
   return (
     <div>
-      <Hidden smUp>
+      <div className="md:hidden">
         <Mobile />
-      </Hidden>
-      <Hidden xsDown mdUp>
-        <Mobile />
-      </Hidden>
-      <Hidden smDown>
+      </div>
+      <div className="hidden md:block">
         <Desktop />
-      </Hidden>
+      </div>
     </div>
   );
 };

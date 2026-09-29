@@ -9,21 +9,17 @@ type SlideCustomProps = {
 
 const SlideCustom = ({ data = [], height }: SlideCustomProps) => {
   return (
-    <div
-      style={{
-        paddingLeft: "0.5rem",
-        paddingRight: "0.5rem",
-        paddingTop: "0.5rem",
-        alignItems: "center",
-      }}
-    >
+    <div className="flex items-center px-2 pt-2">
       <Fade autoplay arrows={false}>
         {data.map((image, index) => (
-          <div key={index} style={{ width: "100%" }}>
+          <div key={index} className="w-full">
             <img
-              style={{ height: height || 173, borderRadius: 8, width: "100%" }}
+              className={`w-full rounded-lg ${height ? "" : "h-[173px]"}`}
+              style={height ? { height } : undefined}
               src={image}
               alt={`${index}`}
+              loading={index === 0 ? "eager" : "lazy"}
+              decoding="async"
             />
           </div>
         ))}

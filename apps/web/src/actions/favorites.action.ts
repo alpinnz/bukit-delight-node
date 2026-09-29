@@ -75,7 +75,7 @@ const onLoadSelectors = (): FavoriteThunk => {
 const loadFavorites = (isInitialLoad: boolean): FavoriteThunk => {
   const URL_PATH = "api/v1/machine/favorite";
   return (dispatch) => {
-    if (!isInitialLoad) dispatch(loading(true));
+    dispatch(loading(true));
 
     axios({
       method: "GET",
@@ -88,7 +88,7 @@ const loadFavorites = (isInitialLoad: boolean): FavoriteThunk => {
         if (body.name && `${body.name}`.toLowerCase() === "success") {
           if (!isFavoriteAnalysis(body.data)) {
             dispatch(Actions.Service.pushErrorNotification("error"));
-            if (!isInitialLoad) dispatch(loading(false));
+            dispatch(loading(false));
             return;
           }
           dispatch(setFavorites(body.data));
@@ -105,11 +105,11 @@ const loadFavorites = (isInitialLoad: boolean): FavoriteThunk => {
         } else {
           dispatch(Actions.Service.pushErrorNotification("error"));
         }
-        if (!isInitialLoad) dispatch(loading(false));
+        dispatch(loading(false));
       })
       .catch((cause: unknown) => {
         dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
-        if (!isInitialLoad) dispatch(loading(false));
+        dispatch(loading(false));
       });
   };
 };

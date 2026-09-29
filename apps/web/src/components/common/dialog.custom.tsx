@@ -1,26 +1,13 @@
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import type { ComponentProps, ReactNode } from "react";
-import { forwardRef } from "react";
-import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Slide from "@material-ui/core/Slide";
 import ButtonCustom from "./button.custom";
-
-const Transition = forwardRef<unknown, ComponentProps<typeof Slide>>(
-  function Transition(props, ref) {
-    return <Slide direction="up" ref={ref} {...props} />;
-  },
-);
 
 type DialogCustomProps = {
   open: boolean;
   onClose: () => void;
   title?: ReactNode;
   children?: ReactNode;
-  onSubmit?: ComponentProps<typeof Button>["onClick"];
+  onSubmit?: ComponentProps<"button">["onClick"];
   loading?: boolean;
 };
 
@@ -33,30 +20,33 @@ export default function AlertDialogSlide({
   loading,
 }: DialogCustomProps) {
   return (
-    <div>
-      <Dialog
-        open={open}
-        TransitionComponent={Transition}
-        keepMounted
-        onClose={onClose}
-      >
-        <DialogTitle>{title || "title"}</DialogTitle>
-        <DialogContent dividers>
-          {children || <DialogContentText>DialogContent</DialogContentText>}
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} variant="text" color="primary">
-            Cancel
-          </Button>
-
-          <ButtonCustom
-            loading={loading}
-            disabled={loading}
-            onClick={onSubmit}
-            label="Submit"
-          />
-        </DialogActions>
-      </Dialog>
-    </div>
+    <Dialog open={open} onClose={onClose} className="relative z-50">
+      <div className="fixed inset-0 bg-slate-950/40" aria-hidden="true" />
+      <div className="fixed inset-0 flex items-center justify-center p-4">
+        <DialogPanel className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+          <DialogTitle className="text-lg font-semibold text-slate-900">
+            {title ?? "title"}
+          </DialogTitle>
+          <div className="mt-4 border-y border-slate-200 py-4">
+            {children ?? <p>DialogContent</p>}
+          </div>
+          <div className="mt-5 flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+            >
+              Cancel
+            </button>
+            <ButtonCustom
+              loading={loading}
+              disabled={loading}
+              onClick={onSubmit}
+              label="Submit"
+            />
+          </div>
+        </DialogPanel>
+      </div>
+    </Dialog>
   );
 }

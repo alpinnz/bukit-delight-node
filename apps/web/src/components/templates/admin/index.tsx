@@ -1,5 +1,4 @@
 import { useEffect, useState, type ReactNode } from "react";
-import { makeStyles } from "@material-ui/core";
 import AppBarAdmin from "./appBar";
 import DrawerAdmin from "./drawer";
 import Copyright from "../copyright";
@@ -9,31 +8,15 @@ type AdminTemplateProps = {
   children?: ReactNode;
 };
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-  },
-  toolbar: theme.mixins.toolbar,
-  content: {
-    flexGrow: 1,
-    padding: theme.spacing(2),
-  },
-  children: { minHeight: "80vh" },
-  footer: {
-    paddingTop: theme.spacing(2),
-  },
-}));
-
 const AdminTemplate = ({ title, children }: AdminTemplateProps) => {
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
-  const classes = useStyles();
 
   useEffect(() => {
     document.title = title || "Title";
   }, [title]);
 
   return (
-    <div className={classes.root}>
+    <div className="flex min-h-screen">
       <AppBarAdmin
         openMobileDrawer={isMobileDrawerOpen}
         setOpenMobileDrawer={setIsMobileDrawerOpen}
@@ -42,10 +25,9 @@ const AdminTemplate = ({ title, children }: AdminTemplateProps) => {
         openMobileDrawer={isMobileDrawerOpen}
         setOpenMobileDrawer={setIsMobileDrawerOpen}
       />
-      <main className={classes.content}>
-        <div className={classes.toolbar} />
-        <section className={classes.children}>{children}</section>
-        <footer className={classes.footer}>
+      <main className="min-w-0 flex-1 p-4 pt-20 sm:ml-48 sm:p-6 sm:pt-20">
+        <section className="min-h-[80vh]">{children}</section>
+        <footer className="pt-4">
           <Copyright />
         </footer>
       </main>

@@ -1,50 +1,31 @@
-import { Button, Typography } from "@material-ui/core";
 import { useDispatch } from "react-redux";
 import Actions from "../../../../actions";
 import MenuDialog from "../../components/menu-dialog";
-import PaymentDialog from "./payment-dialog";
 import Recipe from "./recipe";
 import ListItemVertical from "./cart-item-list";
+import TextCustom from "../../../../components/common/text.custom";
+import type { AppDispatch } from "../../../../store";
 
 const CustomerCartOrders = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   return (
     <div>
-      <Typography
-        style={{ color: "#D95C17", margin: "1rem" }}
-        variant="h6"
-        align="center"
-      >
+      <TextCustom className="m-4 text-brand-rust" variant="h6" align="center">
         Sudah siap pesan ?
-      </Typography>
+      </TextCustom>
       <ListItemVertical />
       <Recipe />
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          marginTop: "1rem",
-          marginBottom: "1rem",
-        }}
-      >
-        <Button
-          style={{
-            paddingLeft: 125,
-            paddingRight: 125,
-            borderRadius: 9,
-            backgroundColor: "#A42121",
-            color: "#FFFFFF",
-          }}
-          variant="contained"
+      <div className="my-4 flex items-center justify-center">
+        <button
+          type="button"
+          className="rounded-lg bg-brand-danger px-12 py-2 text-white hover:bg-red-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-800"
           onClick={() => dispatch(Actions.Cart.dialogPaymentOpen())}
         >
-          <Typography style={{ color: "#FFFFFF" }}>Pesan</Typography>
-        </Button>
+          Pesan
+        </button>
       </div>
       <MenuDialog />
-      <PaymentDialog />
     </div>
   );
 };

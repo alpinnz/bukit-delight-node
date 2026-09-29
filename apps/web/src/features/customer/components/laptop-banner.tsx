@@ -12,16 +12,7 @@ const CustomerLaptopBanner = () => {
   ];
 
   return (
-    <div
-      style={{
-        height: "20vh",
-        position: "relative",
-        backgroundColor: "#FFA472",
-        padding: "1vh 1vw",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <div className="relative flex h-[20vh] items-center justify-center bg-brand-accent px-[1vw] py-[1vh]">
       <SlideCustom height="15vh" data={banners} />
     </div>
   );

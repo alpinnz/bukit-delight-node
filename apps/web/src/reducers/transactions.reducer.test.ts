@@ -32,7 +32,7 @@ describe("TransactionsReducer", () => {
     });
     expect(loading.loading).toBe(true);
 
-    const transaction = { _id: "transaction-1", status: "proses" };
+    const transaction = { _id: "transaction-1", status: "processing" };
     const selected = TransactionsReducer(loading, {
       type: SET_TRANSACTION,
       payload: transaction,

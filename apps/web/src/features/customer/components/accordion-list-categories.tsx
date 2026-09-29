@@ -1,11 +1,9 @@
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Typography,
-  makeStyles,
-} from "@material-ui/core";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from "@headlessui/react";
+import { ChevronDownIcon } from "@heroicons/react/20/solid";
 import Convert from "../../../helpers/convert";
 
 type OrderedMenu = {
@@ -22,75 +20,40 @@ type OrderedItem = {
 };
 export type OrderedCategory = { name: string; itemOrders: OrderedItem[] };
 
-const useStyles = makeStyles((theme) => ({
-  root: { width: "100%", marginBottom: "1rem" },
-  heading: {
-    fontSize: theme.typography.pxToRem(15),
-    fontWeight: 400,
-  },
-}));
-
 const OrderedItemView = ({ item }: { item: OrderedItem }) => {
   const hasPromo = Number(item.promo ?? 0) > 0;
 
   return (
-    <div style={{ width: "100%", display: "flex", paddingBottom: "1rem" }}>
-      <div
-        style={{
-          width: "10%",
-          display: "flex",
-          alignItems: "self-start",
-          justifyContent: "flex-start",
-        }}
-      >
-        <Typography style={{ color: "#333333" }} align="left">
-          {item.quality}
-        </Typography>
+    <div className="flex w-full items-start pb-4">
+      <div className="flex w-[10%] justify-start">
+        <span className="text-[#333333]">{item.quality}</span>
       </div>
-      <div style={{ width: "60%" }}>
-        <Typography style={{ color: "#333333" }}>
-          {item.id_menu.name}
-        </Typography>
+      <div className="w-[60%]">
+        <p className="text-[#333333]">{item.id_menu.name}</p>
         {hasPromo ? (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <Typography
-              style={{
-                color: "#CF672E",
-                width: "5rem",
-                textDecorationLine: "line-through",
-              }}
-              variant="caption"
-            >
+          <div className="flex items-center">
+            <span className="w-20 text-xs text-brand-primary line-through">
               {`@${Convert.RpIndonesia(
                 Number(item.id_menu.price) - Number(item.id_menu.promo ?? 0),
               )}`}
-            </Typography>
-            <Typography style={{ color: "#CF672E" }} variant="caption">
+            </span>
+            <span className="text-xs text-brand-primary">
               {`@${Convert.RpIndonesia(item.id_menu.price)}`}
-            </Typography>
+            </span>
           </div>
         ) : (
-          <Typography style={{ color: "#CF672E" }} variant="caption">
+          <span className="text-xs text-brand-primary">
             {`@${Convert.RpIndonesia(item.id_menu.price)}`}
-          </Typography>
+          </span>
         )}
         {item.note && item.note !== "null" && (
-          <Typography style={{ color: "#9da4ba" }} variant="subtitle2">
-            {item.note}
-          </Typography>
+          <p className="text-sm text-[#9da4ba]">{item.note}</p>
         )}
       </div>
-      <div
-        style={{
-          width: "30%",
-          display: "flex",
-          alignItems: "self-start",
-          justifyContent: "flex-end",
-        }}
-      >
-        <Typography style={{ color: "#333333" }} align="right">
+      <div className="flex w-[30%] justify-end">
+        <span className="text-right text-[#333333]">
           {Convert.RpIndonesia(item.total_price)}
-        </Typography>
+        </span>
       </div>
     </div>
   );
@@ -101,32 +64,31 @@ const CustomerAccordionListCategories = ({
 }: {
   data: OrderedCategory[];
 }) => {
-  const classes = useStyles();
-
   return (
-    <div className={classes.root}>
+    <div className="mb-4 w-full">
       {data.map((category, categoryIndex) => (
-        <Accordion
-          elevation={0}
-          style={{ backgroundColor: "transparent" }}
+        <section
           key={`Accordion-${categoryIndex}`}
+          className="border-b border-slate-200"
         >
-          <AccordionSummary
-            expandIcon={<ExpandMoreIcon />}
-            aria-controls={`panel${categoryIndex}a-content`}
-            id={`panel${categoryIndex}a-header`}
-          >
-            <Typography className={classes.heading}>{category.name}</Typography>
-          </AccordionSummary>
-          <AccordionDetails style={{ display: "block" }}>
-            {category.itemOrders.map((item, itemIndex) => (
-              <OrderedItemView
-                key={`AccordionDetails-${categoryIndex}-${itemIndex}`}
-                item={item}
+          <Disclosure>
+            <DisclosureButton className="group flex w-full items-center justify-between py-3 text-left text-[15px] font-normal text-slate-900">
+              {category.name}
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="size-5 transition-transform group-aria-expanded:rotate-180"
               />
-            ))}
-          </AccordionDetails>
-        </Accordion>
+            </DisclosureButton>
+            <DisclosurePanel className="block">
+              {category.itemOrders.map((item, itemIndex) => (
+                <OrderedItemView
+                  key={`AccordionDetails-${categoryIndex}-${itemIndex}`}
+                  item={item}
+                />
+              ))}
+            </DisclosurePanel>
+          </Disclosure>
+        </section>
       ))}
     </div>
   );

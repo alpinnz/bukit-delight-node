@@ -1,10 +1,10 @@
 import { useEffect, useState, type ChangeEvent } from "react";
-import { Grid } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import DialogCustom from "../../../../components/common/dialog.custom";
 import FormControlCustom from "../../../../components/common/form.control.custom";
 import Validate from "../../../../components/hooks/use.validate";
 import Actions from "../../../../actions";
+import type { AppDispatch } from "../../../../store";
 
 type MenuFields = Record<string, string | boolean | File>;
 type FormState = { fields: MenuFields; errors: Record<string, string> };
@@ -32,12 +32,15 @@ type MenuFormReduxState = {
 const emptyForm: FormState = { fields: {}, errors: {} };
 
 const MenuForm = () => {
-  const { Menus, Categories, Service } = useSelector(
-    (state: MenuFormReduxState) => state,
+  const menus = useSelector((state: MenuFormReduxState) => state.Menus);
+  const categories = useSelector(
+    (state: MenuFormReduxState) => state.Categories,
   );
-  const dispatch = useDispatch();
+  const dialog = useSelector(
+    (state: MenuFormReduxState) => state.Service.form_dialog,
+  );
+  const dispatch = useDispatch<AppDispatch>();
   const [form, setForm] = useState<FormState>(emptyForm);
-  const dialog = Service.form_dialog;
 
   useEffect(() => {
     if (dialog.type === "update" && dialog.row) {
@@ -112,7 +115,7 @@ const MenuForm = () => {
         title="Menus delete"
         open={dialog.open}
         onClose={closeDialog}
-        loading={Menus.loading}
+        loading={menus.loading}
         onSubmit={submitForm}
       >
         Name : {dialog.row?.name || "name"}
@@ -148,28 +151,18 @@ const MenuForm = () => {
       title={`Menus ${dialog.type}`}
       open={dialog.open}
       onClose={closeDialog}
-      loading={Menus.loading}
+      loading={menus.loading}
       onSubmit={submitForm}
     >
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
-          {textField("Name", "name", "text")}
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          {textField("Description", "desc", "text")}
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          {textField("Price", "price", "number")}
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          {textField("Promo", "promo", "number", !isCreating)}
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          {textField("Duration", "duration", "duration")}
-        </Grid>
-        <Grid item xs={12} sm={6}>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>{textField("Name", "name", "text")}</div>
+        <div>{textField("Description", "desc", "text")}</div>
+        <div>{textField("Price", "price", "number")}</div>
+        <div>{textField("Promo", "promo", "number", !isCreating)}</div>
+        <div>{textField("Duration", "duration", "duration")}</div>
+        <div>
           <FormControlCustom
-            data={Categories.data}
+            data={categories.data}
             error={form.errors.id_category}
             label="Categories"
             value={
@@ -183,8 +176,8 @@ const MenuForm = () => {
             type="select"
             required
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <FormControlCustom
             error={form.errors.image}
             label="Image"
@@ -194,8 +187,8 @@ const MenuForm = () => {
             type="file"
             required
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <FormControlCustom
             error={form.errors.isAvailable}
             label="Available"
@@ -206,8 +199,8 @@ const MenuForm = () => {
             ) => updateField("isAvailable", checked)}
             type="switch"
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <FormControlCustom
             error={form.errors.isFavorite}
             label="Favorite"
@@ -218,8 +211,8 @@ const MenuForm = () => {
             ) => updateField("isFavorite", checked)}
             type="switch"
           />
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </DialogCustom>
   );
 };

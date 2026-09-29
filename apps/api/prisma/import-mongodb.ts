@@ -186,7 +186,7 @@ const collections: CollectionPlan[] = [
       totalPrice: requiredNumber(row.total_price, "total_price"),
       note: optionalString(row.note),
       status: requiredString(row.status, "status").toUpperCase(),
-      estimasi: migrationDate(row.estimasi, "estimasi"),
+      estimatedReadyAt: migrationDate(row.estimasi, "estimasi"),
       expires: migrationDate(row.expires, "expires"),
       ...timestamps(row),
     }),
@@ -217,7 +217,7 @@ const collections: CollectionPlan[] = [
       note: optionalString(row.note),
       status: requiredString(row.status, "status")
         .toUpperCase()
-        .replace("PROSES", "PROCESS"),
+        .replace("PROSES", "PROCESSING"),
       ...timestamps(row),
     }),
   },

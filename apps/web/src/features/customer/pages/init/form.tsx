@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Grid, Box, makeStyles } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import ContainerCustom from "../../../../components/common/container.custom";
 import ButtonCustom from "../../../../components/common/button.custom";
 import FormControlCustom from "../../../../components/common/form.control.custom";
@@ -9,6 +8,7 @@ import TextCustom from "../../../../components/common/text.custom";
 import Copyright from "../../../../components/templates/copyright";
 import Validate from "../../../../components/hooks/use.validate";
 import Actions from "../../../../actions";
+import type { AppDispatch } from "../../../../store";
 
 type CustomerFormState = {
   fields: Record<string, string>;
@@ -25,15 +25,6 @@ type CustomerFormProps = {
   table?: boolean;
 };
 
-const useStyles = makeStyles({
-  paper: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
-
 const Form = ({ username, table }: CustomerFormProps) => {
   const [state, setState] = useState<CustomerFormState>({
     fields: {},
@@ -43,9 +34,8 @@ const Form = ({ username, table }: CustomerFormProps) => {
     (state: CustomerFormReduxState) => state.Customers,
   );
   const Tables = useSelector((state: CustomerFormReduxState) => state.Tables);
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const history = useHistory();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
 
   const handleChange = (field: string, value: string) => {
     setState({ ...state, fields: { ...state.fields, [field]: value } });
@@ -71,7 +61,7 @@ const Form = ({ username, table }: CustomerFormProps) => {
           dispatch(Actions.Customers.onCreate(state.fields));
           // dispatch(Actions.Customers.setCustomer(state.fields.customer));
           // dispatch(Actions.Tables.setTable(state.fields.table));
-          history.push(`/customer/init/${table.name}`);
+          navigate(`/customer/init/${table.name}`);
         } else {
           dispatch(Actions.Service.pushInfoNotification("Table not found"));
         }
@@ -81,7 +71,7 @@ const Form = ({ username, table }: CustomerFormProps) => {
         const table = Tables.data.find((e) => e["name"] === state.fields.table);
         if (table) {
           // dispatch(Actions.Tables.setTable(state.fields.table));
-          history.push(`/customer/init/${table.name}`);
+          navigate(`/customer/init/${table.name}`);
         } else {
           dispatch(Actions.Service.pushInfoNotification("Table not found"));
         }
@@ -91,16 +81,9 @@ const Form = ({ username, table }: CustomerFormProps) => {
 
   return (
     <ContainerCustom title="Customer" maxWidth="xs">
-      <Grid
-        container
-        spacing={0}
-        direction="column"
-        alignItems="center"
-        justify="center"
-        style={{ minHeight: "100vh" }}
-      >
-        <Grid item xs={12}>
-          <div className={classes.paper}>
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <div className="w-full">
+          <div className="flex flex-col items-center justify-center">
             <TextCustom component="h1" variant="h5">
               Customer
             </TextCustom>
@@ -135,11 +118,11 @@ const Form = ({ username, table }: CustomerFormProps) => {
               />
             </div>
           </div>
-          <Box mt={8}>
+          <div className="mt-8">
             <Copyright />
-          </Box>
-        </Grid>
-      </Grid>
+          </div>
+        </div>
+      </div>
     </ContainerCustom>
   );
 };

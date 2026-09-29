@@ -1,7 +1,8 @@
-import { Button, Typography } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
 import Convert from "../../../../helpers/convert";
+import TextCustom from "../../../../components/common/text.custom";
+import type { AppDispatch } from "../../../../store";
 
 type CartMenu = { name?: string; promo?: number | string };
 export type CartLine = {
@@ -21,7 +22,7 @@ const CartItem = ({
   item: CartLine;
   onEditItem?: (item: CartLine) => void;
 }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const onEdit = () => {
     if (onEditItem) {
       onEditItem(item);
@@ -35,104 +36,47 @@ const CartItem = ({
   };
 
   return (
-    <div
-      style={{
-        marginTop: "1rem",
-        marginBottom: "1rem",
-        backgroundColor: "#FFFFFF66",
-        borderRadius: 8,
-        display: "flex",
-        justifyItems: "center",
-        padding: "0.25rem",
-      }}
-    >
-      <div style={{ width: "20%", padding: "0 0.25rem" }}>
-        <div
-          style={{
-            backgroundColor: "#FFBC03",
-            width: 35,
-            height: 35,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography style={{ color: "#FFFFFF" }} align="center">
+    <div className="my-4 flex items-center rounded-lg bg-[#FFFFFF66] p-1">
+      <div className="w-1/5 px-1">
+        <div className="flex size-[35px] items-center justify-center bg-[#FFBC03]">
+          <TextCustom className="text-center text-white">
             {`${item.quality || 0}x`}
-          </Typography>
+          </TextCustom>
         </div>
-        <Button
+        <button
+          type="button"
           aria-label={`Edit ${item.menu.name || "item"}`}
-          style={{
-            marginTop: "0.5rem",
-            minWidth: 0,
-            padding: 0,
-            width: 40,
-            height: 40,
-          }}
+          className="mt-2 size-10 min-w-0 p-0"
           onClick={onEdit}
         >
-          <Typography variant="h6" style={{ color: "#CF672E" }} align="center">
+          <TextCustom variant="h6" className="text-center text-brand-primary">
             Edit
-          </Typography>
-        </Button>
+          </TextCustom>
+        </button>
       </div>
-      <div
-        style={{
-          width: "80%",
-          textAlign: "right",
-          padding: "0 0.25rem",
-          position: "relative",
-        }}
-      >
-        <Typography variant="h6" style={{ color: "#00000" }}>
+      <div className="relative w-4/5 px-1 text-right">
+        <TextCustom variant="h6" className="text-black">
           {item.menu.name || "name"}
-        </Typography>
+        </TextCustom>
         {item.note && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
-            }}
-          >
-            <Typography style={{ color: "#AEA2A2" }}>Note</Typography>
-            <Typography style={{ color: "#000000", marginLeft: "1rem" }}>
-              {item.note}
-            </Typography>
+          <div className="flex items-end justify-end">
+            <TextCustom className="text-[#AEA2A2]">Note</TextCustom>
+            <TextCustom className="ml-4 text-black">{item.note}</TextCustom>
           </div>
         )}
         {item.menu.promo && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "flex-end",
-            }}
-          >
-            <Typography style={{ color: "#1FA845" }}>Promo</Typography>
-            <Typography
-              style={{
-                color: "#000000",
-                marginLeft: "1rem",
-                textDecorationLine: "line-through",
-              }}
-            >
+          <div className="flex items-end justify-end">
+            <TextCustom className="text-brand-success">Promo</TextCustom>
+            <TextCustom className="ml-4 text-black line-through">
               {Convert.Rp(item.total_promo ?? 0)}
-            </Typography>
+            </TextCustom>
           </div>
         )}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "flex-end",
-          }}
-        >
-          <Typography style={{ color: "#AEA2A2" }}>Total</Typography>
-          <Typography style={{ color: "#000000", marginLeft: "1rem" }}>
+        <div className="flex items-end justify-end">
+          <TextCustom className="text-[#AEA2A2]">Total</TextCustom>
+          <TextCustom className="ml-4 text-black">
             {Convert.Rp(item.total_price ?? 0)}
-          </Typography>
+          </TextCustom>
         </div>
       </div>
     </div>

@@ -1,10 +1,10 @@
 import { useEffect, useState, type ChangeEvent } from "react";
-import { Grid } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import DialogCustom from "../../../../components/common/dialog.custom";
 import FormControlCustom from "../../../../components/common/form.control.custom";
 import Validate from "../../../../components/hooks/use.validate";
 import Actions from "../../../../actions";
+import type { AppDispatch } from "../../../../store";
 
 type AccountFields = Record<string, string>;
 type FormState = { fields: AccountFields; errors: Record<string, string> };
@@ -31,12 +31,15 @@ type AccountFormReduxState = {
 const emptyForm: FormState = { fields: {}, errors: {} };
 
 const AccountForm = () => {
-  const { Accounts, Roles, Service } = useSelector(
-    (state: AccountFormReduxState) => state,
+  const accounts = useSelector(
+    (state: AccountFormReduxState) => state.Accounts,
   );
-  const dispatch = useDispatch();
+  const roles = useSelector((state: AccountFormReduxState) => state.Roles);
+  const dialog = useSelector(
+    (state: AccountFormReduxState) => state.Service.form_dialog,
+  );
+  const dispatch = useDispatch<AppDispatch>();
   const [form, setForm] = useState<FormState>(emptyForm);
-  const dialog = Service.form_dialog;
 
   useEffect(() => {
     if (dialog.type === "update" && dialog.row) {
@@ -105,7 +108,7 @@ const AccountForm = () => {
         title="Account delete"
         open={dialog.open}
         onClose={closeDialog}
-        loading={Accounts.loading}
+        loading={accounts.loading}
         onSubmit={submitForm}
       >
         Username : {dialog.row?.username || "username"}
@@ -119,11 +122,11 @@ const AccountForm = () => {
       title={`Account ${dialog.type}`}
       open={dialog.open}
       onClose={closeDialog}
-      loading={Accounts.loading}
+      loading={accounts.loading}
       onSubmit={submitForm}
     >
-      <Grid container spacing={3}>
-        <Grid item xs={12} sm={6}>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div>
           <FormControlCustom
             error={form.errors.username}
             label="Username"
@@ -134,10 +137,10 @@ const AccountForm = () => {
             type="text"
             required
           />
-        </Grid>
-        <Grid item xs={12} sm={6}>
+        </div>
+        <div>
           <FormControlCustom
-            data={Roles.data}
+            data={roles.data}
             error={form.errors.id_role}
             label="Role"
             value={form.fields.id_role}
@@ -147,8 +150,8 @@ const AccountForm = () => {
             type="select"
             required
           />
-        </Grid>
-        <Grid item xs={12}>
+        </div>
+        <div className="sm:col-span-2">
           <FormControlCustom
             error={form.errors.email}
             label="Email"
@@ -156,13 +159,14 @@ const AccountForm = () => {
             onChange={(event: ChangeEvent<HTMLInputElement>) =>
               updateField("email", event.currentTarget.value)
             }
-            type="text"
+            type="email"
+            rest={{ autoComplete: "off" }}
             required
           />
-        </Grid>
+        </div>
         {isCreating && (
           <>
-            <Grid item xs={12} sm={6}>
+            <div>
               <FormControlCustom
                 error={form.errors.password}
                 label="Password"
@@ -171,10 +175,11 @@ const AccountForm = () => {
                   updateField("password", event.currentTarget.value)
                 }
                 type="password"
+                rest={{ autoComplete: "new-password" }}
                 required
               />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            </div>
+            <div>
               <FormControlCustom
                 error={form.errors.repeat_password}
                 label="Repeat Password"
@@ -183,12 +188,13 @@ const AccountForm = () => {
                   updateField("repeat_password", event.currentTarget.value)
                 }
                 type="password"
+                rest={{ autoComplete: "new-password" }}
                 required
               />
-            </Grid>
+            </div>
           </>
         )}
-      </Grid>
+      </div>
     </DialogCustom>
   );
 };

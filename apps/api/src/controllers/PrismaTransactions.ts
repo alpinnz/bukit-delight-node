@@ -58,8 +58,7 @@ const sendError = (cause: unknown, next: NextFunction) => {
 const emitTransactionsUpdate = (req: TransactionRequest) =>
   req.app.io.emit("TransactionsUpdate", "TransactionsUpdate");
 
-const statusValue = (status: string) =>
-  status === "PROCESS" ? "proses" : status.toLowerCase();
+const statusValue = (status: string) => status.toLowerCase();
 
 const transactionOutput = (transaction: any): TransactionRecord => ({
   _id: transaction.id,
@@ -104,10 +103,13 @@ const validate = (schema: unknown, req: Request, next: NextFunction) => {
   return value;
 };
 
-const statuses: readonly TransactionStatus[] = ["pending", "proses", "done"];
+const statuses: readonly TransactionStatus[] = [
+  "pending",
+  "processing",
+  "done",
+];
 const paymentMethods: readonly TransactionPaymentMethod[] = ["cash", "virtual"];
-const serviceStatus = (status: TransactionStatus) =>
-  status === "proses" ? "PROCESS" : status.toUpperCase();
+const serviceStatus = (status: TransactionStatus) => status.toUpperCase();
 
 exports.ReadAll = async (
   _req: Request,

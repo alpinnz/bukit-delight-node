@@ -1,30 +1,34 @@
-import { z } from "zod";
+const Joi = require("joi");
 
-const environmentSchema = z.object({
-  API_KEY: z.string().min(1),
-  APP_KEY: z.string().min(1),
-  ACCESS_TOKEN_KEY: z.string().min(1),
-  ACCESS_TOKEN_TIMEOUT: z.coerce.number().int().positive(),
-  REFRESH_TOKEN_KEY: z.string().min(1),
-  REFRESH_TOKEN_TIMEOUT: z.coerce.number().int().positive(),
-  ORDERS_TIMEOUT: z.coerce.number().int().positive(),
-  CLIENT_URL: z.string().min(1),
-  PATH_UPLOADS: z.string().min(1),
-  API_PORT: z.coerce.number().int().positive().optional(),
-  DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url().optional(),
+const environmentSchema = Joi.object({
+  API_KEY: Joi.string().min(1).required(),
+  APP_KEY: Joi.string().min(1).required(),
+  ACCESS_TOKEN_KEY: Joi.string().min(1).required(),
+  ACCESS_TOKEN_TIMEOUT: Joi.number().integer().positive().required(),
+  REFRESH_TOKEN_KEY: Joi.string().min(1).required(),
+  REFRESH_TOKEN_TIMEOUT: Joi.number().integer().positive().required(),
+  ORDERS_TIMEOUT: Joi.number().integer().positive().required(),
+  CLIENT_URL: Joi.string().min(1).required(),
+  PATH_UPLOADS: Joi.string().min(1).required(),
+  API_PORT: Joi.number().integer().positive().optional(),
+  TRUST_PROXY_HOPS: Joi.number().integer().min(0).optional(),
+  DATABASE_URL: Joi.string().uri().required(),
 });
 
 exports.validate = () => {
-  const parsed = environmentSchema.safeParse(process.env);
-  if (!parsed.success) {
-    const invalidVariables = parsed.error.issues
-      .map((issue) => issue.path.join("."))
+  const { error, value } = environmentSchema.validate(process.env, {
+    abortEarly: false,
+    stripUnknown: { objects: true },
+  });
+
+  if (error) {
+    const invalidVariables = error.details
+      .map((issue: { path: Array<string | number> }) => issue.path.join("."))
       .join(", ");
     throw new Error(
       `Missing or invalid environment variables: ${invalidVariables}`,
     );
   }
 
-  return parsed.data;
+  return value;
 };

@@ -31,10 +31,6 @@ vi.mock("./cart-item-list", () => ({
   ),
 }));
 vi.mock("./recipe", () => ({ default: () => <div>cart recipe</div> }));
-vi.mock("./payment-dialog", () => ({
-  default: () => <div>payment dialog</div>,
-}));
-
 describe("CustomerDesktopCartOrders", () => {
   const dispatch = vi.fn();
 
@@ -47,7 +43,7 @@ describe("CustomerDesktopCartOrders", () => {
     render(<CustomerDesktopCartOrders />);
 
     expect(screen.getByText("cart recipe")).toBeDefined();
-    expect(screen.getByText("payment dialog")).toBeDefined();
+    expect(screen.queryByText("payment dialog")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Edit item" }));
     expect(dispatch).toHaveBeenNthCalledWith(
       1,

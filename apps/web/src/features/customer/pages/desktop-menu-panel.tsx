@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
-import { ButtonBase, Grid, Typography } from "@material-ui/core";
-import Pagination from "@material-ui/lab/Pagination";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import Actions from "../../../actions";
 import Icons from "../../../assets/icons";
 import LoadingCustom from "../../../components/common/loading.custom";
 import Convert from "../../../helpers/convert";
+import TextCustom from "../../../components/common/text.custom";
+import type { AppDispatch } from "../../../store";
 
 type DesktopMenu = {
   _id: string;
@@ -25,132 +26,83 @@ type CustomerDesktopMenuState = {
 const MENUS_PER_PAGE = 6;
 
 const DesktopMenuList = ({ menus }: { menus: DesktopMenu[] }) => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const selectedMenu = useSelector(
     (state: CustomerDesktopMenuState) => state.Cart.selected.menu,
   );
 
   return (
-    <Grid
-      container
-      spacing={0}
-      style={{
-        paddingTop: "0.5vh",
-        paddingLeft: "0.5vw",
-        paddingRight: "0.5vw",
-        paddingBottom: "0.5vh",
-        height: "75vh",
-      }}
-    >
+    <div className="grid h-[75vh] grid-cols-1 gap-2 overflow-y-auto p-2 sm:grid-cols-2 lg:grid-cols-3">
       {menus.map((menu) => {
         const isSelected = selectedMenu?._id === menu._id;
 
         return (
-          <Grid key={menu._id} item md={4} lg={4} xl={4} spacing={0}>
-            <ButtonBase
+          <div key={menu._id}>
+            <button
               type="button"
               aria-label={`Pilih ${menu.name}`}
               onClick={() => dispatch(Actions.Cart.selectedAdd(menu))}
-              style={{ width: "100%", textAlign: "left" }}
+              className="w-full text-left focus-visible:outline-2 focus-visible:outline-indigo-600"
             >
               <div
-                style={{
-                  margin: "0.5vh 0.5vw",
-                  padding: "0.5rem",
-                  backgroundColor: isSelected ? "#CF672E" : "#FFBA94",
-                  boxShadow:
-                    "-4px -4px 6px rgba(255, 255, 255, 0.04), 4px 4px 7px rgba(0, 0, 0, 0.05)",
-                  borderRadius: 20,
-                  height: "35.5vh",
-                  position: "relative",
-                  width: "100%",
-                }}
+                className={`relative mx-[0.5vw] my-[0.5vh] h-[35.5vh] w-full rounded-[20px] p-2 shadow-[-4px_-4px_6px_rgba(255,255,255,0.04),_4px_4px_7px_rgba(0,0,0,0.05)] ${isSelected ? "bg-brand-primary" : "bg-brand-soft"}`}
               >
                 <div
                   role="img"
                   aria-label={menu.name}
-                  style={{
-                    borderRadius: 15,
-                    width: "100%",
-                    height: "22vh",
-                    backgroundImage: `url(${menu.image})`,
-                    backgroundPosition: "50% 50%",
-                    backgroundSize: "cover",
-                    backgroundRepeat: "no-repeat",
-                    position: "relative",
-                  }}
+                  className="relative h-[22vh] w-full rounded-[15px] bg-[position:50%_50%] bg-cover bg-no-repeat"
+                  style={{ backgroundImage: `url(${menu.image})` }}
                 >
                   {menu.favorite ? (
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: -17,
-                        right: 0,
-                        alignContent: "center",
-                      }}
-                    >
+                    <div className="absolute -bottom-[17px] right-0 content-center">
                       <img src={Icons.star} alt="Favorit" />
                     </div>
                   ) : null}
                 </div>
-                <div style={{ padding: "0.25rem" }}>
-                  <Typography style={{ color: "#000000" }}>
-                    {menu.name}
-                  </Typography>
-                  <div
-                    style={{
-                      position: "absolute",
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      padding: "0 0.5rem 0.5rem",
-                    }}
-                  >
-                    <div style={{ display: "flex" }}>
+                <div className="p-1">
+                  <TextCustom className="text-black">{menu.name}</TextCustom>
+                  <div className="absolute inset-x-0 bottom-0 px-2 pb-2">
+                    <div className="flex">
                       {menu.promo > 0 ? (
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <Typography
-                            style={{
-                              color: "#37929E",
-                              textDecorationLine: "line-through",
-                              marginRight: "1rem",
-                            }}
+                        <div className="flex items-center">
+                          <TextCustom
+                            className="mr-4 text-brand-teal line-through"
                             align="left"
                             variant="h5"
                           >
                             {Convert.Price(menu.price)}
-                          </Typography>
-                          <Typography
-                            style={{ color: "#408A1D" }}
+                          </TextCustom>
+                          <TextCustom
+                            className="text-brand-success"
                             align="left"
                             variant="h5"
                           >
                             {Convert.Price(menu.price - menu.promo)}
-                          </Typography>
+                          </TextCustom>
                         </div>
                       ) : (
-                        <Typography
-                          style={{ color: "#37929E", width: "40%" }}
+                        <TextCustom
+                          className="w-2/5 text-brand-teal"
                           align="left"
                           variant="h5"
                         >
                           {Convert.Price(menu.price)}
-                        </Typography>
+                        </TextCustom>
                       )}
                     </div>
                   </div>
                 </div>
               </div>
-            </ButtonBase>
-          </Grid>
+            </button>
+          </div>
         );
       })}
-    </Grid>
+    </div>
   );
 };
 
 const CustomerDesktopMenuPanel = () => {
-  const { _id: categoryId } = useParams<{ _id?: string }>();
+  const { categoryId } = useParams<{ categoryId?: string }>();
   const { pathname } = useLocation();
   const isHomePage = pathname === "/customer/home";
   const menusState = useSelector(
@@ -179,50 +131,59 @@ const CustomerDesktopMenuPanel = () => {
 
   if (menusState.loading) {
     return (
-      <div
-        style={{
-          height: "80vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
+      <div className="flex h-[80vh] items-center justify-center">
         <LoadingCustom />
       </div>
     );
   }
 
   return (
-    <div style={{ height: "80vh", position: "relative" }}>
+    <div className="relative h-[80vh]">
       <DesktopMenuList menus={pages[page - 1] ?? []} />
-      <div
-        style={{
-          height: "5vh",
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Pagination
-          count={pageCount}
-          page={page}
-          onChange={(_event, nextPage) => setPage(nextPage)}
-          disabled={pageCount <= 1}
-        />
+      <div className="flex h-[5vh] w-full items-center justify-center">
+        <nav aria-label="Menu pages" className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label="Previous page"
+            disabled={page <= 1}
+            onClick={() => setPage((current) => Math.max(1, current - 1))}
+            className="rounded p-2 text-slate-700 hover:bg-black/5 disabled:opacity-40"
+          >
+            <ChevronLeftIcon aria-hidden="true" className="size-5" />
+          </button>
+          {Array.from({ length: pageCount }, (_, index) => index + 1).map(
+            (pageNumber) => (
+              <button
+                key={pageNumber}
+                type="button"
+                aria-current={pageNumber === page ? "page" : undefined}
+                aria-label={`Page ${pageNumber}`}
+                onClick={() => setPage(pageNumber)}
+                className={`size-9 rounded text-sm ${pageNumber === page ? "bg-indigo-700 text-white" : "text-slate-700 hover:bg-black/5"}`}
+              >
+                {pageNumber}
+              </button>
+            ),
+          )}
+          <button
+            type="button"
+            aria-label="Next page"
+            disabled={page >= pageCount}
+            onClick={() =>
+              setPage((current) => Math.min(pageCount, current + 1))
+            }
+            className="rounded p-2 text-slate-700 hover:bg-black/5 disabled:opacity-40"
+          >
+            <ChevronRightIcon aria-hidden="true" className="size-5" />
+          </button>
+        </nav>
       </div>
     </div>
   );
 };
 
 const CustomerDesktopMenuContent = () => (
-  <div
-    style={{
-      height: "80vh",
-      position: "relative",
-      backgroundColor: "#FFA472",
-    }}
-  >
+  <div className="relative h-[80vh] bg-brand-accent">
     <CustomerDesktopMenuPanel />
   </div>
 );

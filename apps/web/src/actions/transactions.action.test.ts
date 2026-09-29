@@ -76,7 +76,7 @@ describe("TransactionsAction", () => {
       Transactions: { transaction: { _id: "transaction-1" } },
     } as unknown as RootState;
 
-    await TransactionsAction.onUpdateStatus({ status: "proses" })(
+    await TransactionsAction.onUpdateStatus({ status: "processing" })(
       dispatch as never,
       (() => state) as never,
       undefined,
@@ -91,7 +91,7 @@ describe("TransactionsAction", () => {
     const updateRequest = vi.mocked(axios).mock.calls[0][0] as unknown as {
       data: FormData;
     };
-    expect(updateRequest.data.get("status")).toBe("proses");
+    expect(updateRequest.data.get("status")).toBe("processing");
     await vi.waitFor(() => {
       expect(dispatch).toHaveBeenCalledWith({
         type: LOADING,

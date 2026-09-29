@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import CustomerAccordionListCategories from "./accordion-list-categories";
 
@@ -30,6 +30,7 @@ describe("CustomerAccordionListCategories", () => {
       />,
     );
 
+    fireEvent.click(screen.getByRole("button", { name: "Minuman" }));
     expect(screen.getByText("Minuman")).toBeDefined();
     expect(screen.getByText("Kopi Promo")).toBeDefined();
     expect(screen.getByText("Less ice")).toBeDefined();
@@ -43,6 +44,6 @@ describe("CustomerAccordionListCategories", () => {
   it("renders no category rows for an empty category list", () => {
     const { container } = render(<CustomerAccordionListCategories data={[]} />);
 
-    expect(container.querySelector(".MuiAccordion-root")).toBeNull();
+    expect(container.querySelector("section")).toBeNull();
   });
 });

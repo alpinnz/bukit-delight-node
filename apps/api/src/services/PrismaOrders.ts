@@ -358,7 +358,7 @@ export const createOrderInTransaction = async (
       ...totals,
       note: input.note || "",
       status: "PENDING",
-      estimasi: input.expiresAt,
+      estimatedReadyAt: input.expiresAt,
       expires: input.expiresAt,
     },
   });

@@ -1,10 +1,10 @@
 import { useEffect, useState, type ChangeEvent } from "react";
-import { Grid } from "@material-ui/core";
 import { useDispatch, useSelector } from "react-redux";
 import DialogCustom from "../../../../components/common/dialog.custom";
 import FormControlCustom from "../../../../components/common/form.control.custom";
 import Validate from "../../../../components/hooks/use.validate";
 import Actions from "../../../../actions";
+import type { AppDispatch } from "../../../../store";
 
 type FormState = { fields: { name?: string }; errors: Record<string, string> };
 type DialogType = "create" | "update" | "delete";
@@ -23,12 +23,12 @@ type TableFormReduxState = {
 const emptyForm: FormState = { fields: {}, errors: {} };
 
 const TableForm = () => {
-  const { Tables, Service } = useSelector(
-    (state: TableFormReduxState) => state,
+  const tables = useSelector((state: TableFormReduxState) => state.Tables);
+  const dialog = useSelector(
+    (state: TableFormReduxState) => state.Service.form_dialog,
   );
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [form, setForm] = useState<FormState>(emptyForm);
-  const dialog = Service.form_dialog;
 
   useEffect(() => {
     if (dialog.type === "update" && dialog.row) {
@@ -68,7 +68,7 @@ const TableForm = () => {
         title="Tables delete"
         open={dialog.open}
         onClose={closeDialog}
-        loading={Tables.loading}
+        loading={tables.loading}
         onSubmit={submitForm}
       >
         Name : {dialog.row?.name || "name"}
@@ -81,11 +81,11 @@ const TableForm = () => {
       title={`Tables ${dialog.type}`}
       open={dialog.open}
       onClose={closeDialog}
-      loading={Tables.loading}
+      loading={tables.loading}
       onSubmit={submitForm}
     >
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="sm:col-span-2">
           <FormControlCustom
             error={form.errors.name}
             label="name"
@@ -100,8 +100,8 @@ const TableForm = () => {
             type="text"
             required
           />
-        </Grid>
-      </Grid>
+        </div>
+      </div>
     </DialogCustom>
   );
 };

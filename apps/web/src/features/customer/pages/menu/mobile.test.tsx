@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
-import { MemoryRouter, Route } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import RootReducer from "../../../../reducers";
 import CustomerCategoryMenuPage from "./mobile";
@@ -59,9 +59,12 @@ describe("CustomerCategoryMenuPage", () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={["/customer/book/drinks"]}>
-          <Route path="/customer/book/:_id">
-            <CustomerCategoryMenuPage />
-          </Route>
+          <Routes>
+            <Route
+              path="/customer/book/:categoryId"
+              element={<CustomerCategoryMenuPage />}
+            />
+          </Routes>
         </MemoryRouter>
       </Provider>,
     );

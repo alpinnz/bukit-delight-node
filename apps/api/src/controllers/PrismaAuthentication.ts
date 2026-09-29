@@ -22,6 +22,7 @@ const {
 const {
   HashPassword,
   VerifyHashPassword,
+  PasswordNeedsRehash,
   JwtAccessToken,
   JwtResetPasswordToken,
   JwtRefreshToken,
@@ -115,6 +116,13 @@ exports.Login = async (
     }
     if (!account.role)
       return next(error("Username or password is incorrect", 401));
+
+    if (PasswordNeedsRehash(account.password)) {
+      await database.account.updateMany({
+        where: { id: account.id, password: account.password },
+        data: { password: await HashPassword(body.password) },
+      });
+    }
 
     const accessToken = await JwtAccessToken(account);
     const refreshToken = await JwtRefreshToken(account);

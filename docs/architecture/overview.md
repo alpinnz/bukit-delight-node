@@ -32,19 +32,19 @@ Route authorization is applied at the version router: account/role management is
 
 ## Target dependency direction
 
-Web and API depend on `packages/shared` only for stable, serialized contracts. API modules own business behavior; persistence stays behind API data-access code. PostgreSQL is the primary store. Redis is an infrastructure option from the README and must have an identified API use before application code depends on it.
+Web and API depend on `packages/shared` only for stable, serialized contracts. API modules own business behavior; persistence stays behind API data-access code. PostgreSQL is the primary store and is provided by the separate `local-infra` Compose project on its project-scoped network. Redis is also managed there, but the API does not depend on it.
 
-## Compatibility requirements
+## Runtime contracts
 
-- Keep `/api/v1` and current domain route names during migration; introduce aliases only when needed by a known consumer.
-- Preserve authentication/authorization behavior and existing Mongo ObjectId strings in API payloads during data migration.
-- Keep the existing `/healthz` and `/readyz` checks while adding README's `/health` contract.
-- Keep uploaded image paths and production frontend serving functional when relocating applications.
+- Keep `/api/v1` and the existing domain route names stable for current clients.
+- `/health` and `/healthz` report process liveness; `/readyz` also checks PostgreSQL.
+- Preserve uploaded image paths and production frontend serving through the Nginx container.
+- The offline importer preserves legacy MongoDB ObjectId strings when importing a recovered Extended JSON snapshot.
 
 ## Migration progress
 
 - The frontend is in `apps/web`, built with Vite, and served from `dist` in production.
-- The API is in `apps/api`; its TypeScript server entry compiles, while existing domain modules still run as CommonJS JavaScript.
+- The API is in `apps/api`; runtime source, routes, controllers, services, and configuration are TypeScript compiled by `tsc`.
 - PostgreSQL/Prisma schema and an offline snapshot importer are implemented and tested against synthetic data in a local shadow database.
 - All API routes, authentication, startup, and readiness use Prisma/PostgreSQL directly. Legacy MongoDB exports can be imported from Extended JSON without a MongoDB service or Mongoose runtime dependency.
-- Local PostgreSQL/Redis are available through Docker Compose using the host ports in `.env.example`.
+- PostgreSQL is managed by the separate `local-infra` Compose project. The application Compose files attach to its external network; the API does not currently depend on Redis.

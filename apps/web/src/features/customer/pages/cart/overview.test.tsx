@@ -17,7 +17,7 @@ const cartOverviewState = {
     transaction: null as {
       _id: string;
       status: string;
-      id_order: { estimasi: string };
+      id_order: { estimatedReadyAt: string };
     } | null,
   },
   Transactions: {
@@ -25,7 +25,7 @@ const cartOverviewState = {
       _id: string;
       status: string;
       createdAt: string;
-      id_order: { estimasi: string };
+      id_order: { estimatedReadyAt: string };
     }[],
   },
 };
@@ -70,26 +70,26 @@ describe("CustomerCartOverview", () => {
     cartOverviewState.Cart.transaction = {
       _id: "tx-current",
       status: "pending",
-      id_order: { estimasi: "2026-10-01T12:30:00Z" },
+      id_order: { estimatedReadyAt: "2026-10-01T12:30:00Z" },
     };
     cartOverviewState.Transactions.data = [
       {
         _id: "tx-current",
         status: "pending",
         createdAt: "2026-09-26T10:00:00Z",
-        id_order: { estimasi: "2026-10-01T12:30:00Z" },
+        id_order: { estimatedReadyAt: "2026-10-01T12:30:00Z" },
       },
       {
         _id: "tx-first",
         status: "pending",
         createdAt: "2026-09-26T09:00:00Z",
-        id_order: { estimasi: "2026-10-01T12:20:00Z" },
+        id_order: { estimatedReadyAt: "2026-10-01T12:20:00Z" },
       },
       {
         _id: "tx-done",
         status: "done",
         createdAt: "2026-09-26T08:00:00Z",
-        id_order: { estimasi: "2026-10-01T12:10:00Z" },
+        id_order: { estimatedReadyAt: "2026-10-01T12:10:00Z" },
       },
     ];
     const originalOrder = cartOverviewState.Transactions.data.map(

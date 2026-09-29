@@ -1,27 +1,23 @@
-import type { ComponentProps } from "react";
-import {
-  OutlinedInput,
-  FormControl,
-  InputLabel,
-  FormHelperText,
-  MenuItem,
-  Select,
-  FormGroup,
-  FormControlLabel,
-  Switch,
-  InputAdornment,
-} from "@material-ui/core";
+import type { ChangeEvent, InputHTMLAttributes } from "react";
 
 type FormControlCustomProps = {
   error?: string;
   value?: string | number | boolean;
-  onChange?: (event: any, second?: any) => void;
+  onChange?: {
+    bivarianceHack(
+      event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+      checked?: boolean,
+    ): void;
+  }["bivarianceHack"];
   label: string;
   type?: string;
   required?: boolean;
   data?: Array<{ _id: string; name: string }>;
-  rest?: ComponentProps<typeof OutlinedInput>;
+  rest?: InputHTMLAttributes<HTMLInputElement>;
 };
+
+const controlClass =
+  "mt-1 block w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20";
 
 const FormControlCustom = ({
   error,
@@ -33,108 +29,88 @@ const FormControlCustom = ({
   data = [],
   rest,
 }: FormControlCustomProps) => {
-  const key = `${label}`.toLowerCase();
-  const isError = Boolean(error && error !== "");
+  const id = label.toLowerCase().replace(/\s+/g, "-");
+  const errorId = `${id}-error`;
 
   if (type === "switch") {
     return (
-      <FormControl
-        error={isError}
-        component="fieldset"
-        fullWidth
-        margin="normal"
-        variant="outlined"
-      >
-        <FormGroup aria-label="position" row>
-          <FormControlLabel
-            value="start"
-            control={
-              <Switch
-                checked={Boolean(value)}
-                onChange={onChange}
-                name={`${key}`}
-                color="primary"
-              />
-            }
-            label={label}
-            labelPlacement="start"
-          />
-        </FormGroup>
-      </FormControl>
+      <label className="my-3 flex items-center justify-between gap-4 text-sm font-medium text-slate-700">
+        {label}
+        <input
+          type="checkbox"
+          checked={Boolean(value)}
+          onChange={(event) => onChange?.(event, event.currentTarget.checked)}
+          name={id}
+          aria-describedby={error ? errorId : undefined}
+          className="size-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+        />
+      </label>
     );
   }
 
   return (
-    <FormControl error={isError} fullWidth margin="normal" variant="outlined">
-      {type !== "file" && <InputLabel htmlFor={key}>{label}</InputLabel>}
-
-      {type === "select" && (
-        <Select
-          id={`${key}`}
-          value={value || ""}
+    <div className="my-3 w-full">
+      <label htmlFor={id} className="block text-sm font-medium text-slate-700">
+        {label}
+        {required ? " *" : ""}
+      </label>
+      {type === "select" ? (
+        <select
+          id={id}
+          value={typeof value === "boolean" ? String(value) : (value ?? "")}
           onChange={onChange}
-          label="Roles"
+          required={required}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          className={controlClass}
         >
+          <option value="">Select {label}</option>
           {data.map((entry) => (
-            <MenuItem
-              key={entry._id}
-              selected={value === entry._id}
-              value={entry._id}
-            >
+            <option key={entry._id} value={entry._id}>
               {entry.name}
-            </MenuItem>
+            </option>
           ))}
-        </Select>
-      )}
-      {type === "file" && (
-        <OutlinedInput
+        </select>
+      ) : type === "file" ? (
+        <input
+          id={id}
           type="file"
-          inputProps={{ accept: "image/png, image/jpeg" }}
+          accept="image/png, image/jpeg"
           onChange={onChange}
-          fullWidth
-          required
+          required={required}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? errorId : undefined}
+          className={controlClass}
         />
-      )}
-      {type === "duration" && (
-        <OutlinedInput
-          id={`${key}`}
-          value={value || "0"}
-          onChange={onChange}
-          label={label}
-          fullWidth
-          required={required || false}
-          type="number"
-          endAdornment={<InputAdornment position="end">Minute</InputAdornment>}
-        />
-      )}
-      {type === "number" && (
-        <OutlinedInput
-          id={`${key}`}
-          value={value || "0"}
-          onChange={onChange}
-          label={label}
-          fullWidth
-          required={required || false}
-          type="number"
-          {...rest}
-        />
-      )}
-      {type !== "duration" &&
-        type !== "file" &&
-        type !== "select" &&
-        type !== "number" && (
-          <OutlinedInput
-            id={`${key}`}
-            value={value || ""}
+      ) : (
+        <div className="flex items-center gap-2">
+          <input
+            id={id}
+            value={
+              typeof value === "boolean"
+                ? String(value)
+                : (value ??
+                  (type === "duration" || type === "number" ? "0" : ""))
+            }
             onChange={onChange}
-            label={label}
-            fullWidth
-            required={required || false}
-            type={type || "text"}
+            required={required}
+            type={type === "duration" ? "number" : (type ?? "text")}
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
+            className={controlClass}
+            {...rest}
           />
-        )}
-      <FormHelperText id={`help-${key}`}>{error || ""}</FormHelperText>
-    </FormControl>
+          {type === "duration" && (
+            <span className="text-sm text-slate-500">Minute</span>
+          )}
+        </div>
+      )}
+      {error && (
+        <p id={errorId} className="mt-1 text-sm text-red-600">
+          {error}
+        </p>
+      )}
+    </div>
   );
 };
 

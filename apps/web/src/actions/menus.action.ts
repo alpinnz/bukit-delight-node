@@ -98,7 +98,7 @@ const onLoadSelectors = (): MenuThunk => {
 const loadMenus = (isInitialLoad: boolean): MenuThunk => {
   const URL_PATH = "api/v1/menus";
   return (dispatch) => {
-    if (!isInitialLoad) dispatch(loading(true));
+    dispatch(loading(true));
     axios({
       method: "GET",
       url: URL_PATH,
@@ -110,7 +110,7 @@ const loadMenus = (isInitialLoad: boolean): MenuThunk => {
         if (body.name && `${body.name}`.toLowerCase() === "success") {
           if (!isMenuList(body.data)) {
             dispatch(Actions.Service.pushErrorNotification("error"));
-            if (!isInitialLoad) dispatch(loading(false));
+            dispatch(loading(false));
             return;
           }
           dispatch(setMenus(body.data));
@@ -125,11 +125,11 @@ const loadMenus = (isInitialLoad: boolean): MenuThunk => {
         } else {
           dispatch(Actions.Service.pushErrorNotification("error"));
         }
-        if (!isInitialLoad) dispatch(loading(false));
+        dispatch(loading(false));
       })
       .catch((cause: unknown) => {
         dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
-        if (!isInitialLoad) dispatch(loading(false));
+        dispatch(loading(false));
       });
   };
 };
