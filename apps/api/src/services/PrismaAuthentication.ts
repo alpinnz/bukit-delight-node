@@ -88,10 +88,15 @@ const assertAccountIdentityAvailable = async (
 
 export const findAccountForLogin = (
   database: AuthenticationDatabase,
-  username: string,
+  loginIdentifier: string,
 ) =>
   database.account.findFirst({
-    where: { username: { equals: username, mode: "insensitive" } },
+    where: {
+      OR: [
+        { username: { equals: loginIdentifier, mode: "insensitive" } },
+        { email: { equals: loginIdentifier, mode: "insensitive" } },
+      ],
+    },
     select: {
       id: true,
       username: true,
@@ -267,6 +272,46 @@ export const createRefreshToken = (
     createdByIp: string;
   },
 ) => database.refreshToken.create({ data: token });
+
+export const createLoginRefreshToken = (
+  database: PrismaClient,
+  token: {
+    accountId: string;
+    token: string;
+    expires: Date;
+    createdByIp: string;
+  },
+  replaceActiveSession: boolean,
+): Promise<boolean> =>
+  database.$transaction(async (transaction) => {
+    const lockKey = `account-login:${token.accountId}`;
+    await transaction.$queryRaw`
+      SELECT 'locked'::text
+      FROM pg_advisory_xact_lock(hashtext(${lockKey})::bigint)
+    `;
+
+    const now = new Date();
+    const activeSessionFilter = {
+      accountId: token.accountId,
+      revoked: null,
+      OR: [{ expires: null }, { expires: { gt: now } }],
+    };
+    const activeSession = await transaction.refreshToken.findFirst({
+      where: activeSessionFilter,
+      select: { id: true },
+    });
+
+    if (activeSession && !replaceActiveSession) return false;
+    if (replaceActiveSession) {
+      await transaction.refreshToken.updateMany({
+        where: activeSessionFilter,
+        data: { revoked: now, revokedByIp: token.createdByIp },
+      });
+    }
+
+    await transaction.refreshToken.create({ data: token });
+    return true;
+  });
 
 export const rotateRefreshTokenInTransaction = async (
   transaction: AuthenticationDatabase,

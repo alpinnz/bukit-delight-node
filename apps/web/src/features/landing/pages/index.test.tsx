@@ -1,21 +1,28 @@
-import type { ReactNode } from "react";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { createStore } from "redux";
+import { Provider } from "react-redux";
+import { MemoryRouter } from "react-router-dom";
+import { describe, expect, it } from "vitest";
+import RootReducer from "../../../reducers";
 import LandingPage from "./index";
 
-vi.mock("../../../components/templates/index/container.base", () => ({
-  default: ({ children, title }: { children: ReactNode; title: string }) => (
-    <main data-title={title}>{children}</main>
-  ),
-}));
-
 describe("LandingPage", () => {
-  it("renders the landing content inside its page container", () => {
-    render(<LandingPage />);
-
-    expect(screen.getByRole("main").getAttribute("data-title")).toBe(
-      "LandingPage",
+  it("renders onboarding with links to login and registration", () => {
+    render(
+      <Provider store={createStore(RootReducer)}>
+        <MemoryRouter>
+          <LandingPage />
+        </MemoryRouter>
+      </Provider>,
     );
-    expect(screen.getByText("LandingPage")).toBeDefined();
+
+    expect(
+      screen.getByRole("heading", { name: "Selamat Datang di Bukit Delight" }),
+    ).toBeDefined();
+    expect(screen.getByRole("link", { name: "Daftar" }).getAttribute("href"))
+      .toBe("/daftar");
+    expect(
+      screen.getByRole("link", { name: "Mulai Menggunakan" }).getAttribute("href"),
+    ).toBe("/login");
   });
 });

@@ -17,6 +17,13 @@ const CustomerBookPage = lazy(() => import("../features/customer/pages/book"));
 const CustomerMenuPage = lazy(() => import("../features/customer/pages/menu"));
 const CustomerCartPage = lazy(() => import("../features/customer/pages/cart"));
 const LoginPage = lazy(() => import("../features/auth/pages/login.page"));
+const RegisterPage = lazy(() => import("../features/auth/pages/register.page"));
+const ForgotPasswordPage = lazy(
+  () => import("../features/auth/pages/forgot-password.page"),
+);
+const ResetPasswordPage = lazy(
+  () => import("../features/auth/pages/reset-password.page"),
+);
 const CashierHomePage = lazy(() => import("../features/cashier/pages/home"));
 const CashierMenusPage = lazy(() => import("../features/cashier/pages/menus"));
 const CashierOrdersPage = lazy(
@@ -52,6 +59,12 @@ const Routes = () => {
           <Route path="/" element={<LandingPage />} />
           {/* login */}
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/daftar" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route
+            path="/authentication/reset-password/:token"
+            element={<ResetPasswordPage />}
+          />
 
           {/* CUSTOMER ROUTE */}
           <Route

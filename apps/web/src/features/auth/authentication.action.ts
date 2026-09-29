@@ -12,13 +12,26 @@ export const LOADING = "AUTHENTICATION/LOADING";
 export const SET_ACCOUNT = "AUTHENTICATION/SET_ACCOUNT";
 export const REMOVE_ACCOUNT = "AUTHENTICATION/REMOVE_ACCOUNT";
 
-type AuthenticationThunk = ThunkAction<void, RootState, unknown, AnyAction>;
+type AuthenticationThunk<T = void> = ThunkAction<
+  Promise<T>,
+  RootState,
+  unknown,
+  AnyAction
+>;
 
 type AuthenticationResponse<T> = ApiResponse<T>;
 
 export type LoginCredentials = {
   username: string;
   password: string;
+};
+
+export type LoginResult = "success" | "active-session" | "failed";
+
+export type RegistrationCredentials = {
+  email: string;
+  password: string;
+  repeatPassword: string;
 };
 
 const localGetAccount = async (): Promise<AuthenticationAccount | null> => {
@@ -106,7 +119,10 @@ const onMount = (): AuthenticationThunk => {
   };
 };
 
-const onLogin = (credentials: LoginCredentials): AuthenticationThunk => {
+const onLogin = (
+  credentials: LoginCredentials,
+  replaceActiveSession = false,
+): AuthenticationThunk<LoginResult> => {
   const URL_PATH = "api/v1/authentication/login";
   return async (dispatch) => {
     dispatch(loading(true));
@@ -122,45 +138,178 @@ const onLogin = (credentials: LoginCredentials): AuthenticationThunk => {
     const formData = new FormData();
     formData.append("username", credentials.username);
     formData.append("password", credentials.password);
+    formData.append("replaceSession", String(replaceActiveSession));
 
-    axios({
-      method: "post",
-      url: URL_PATH,
-      data: formData,
-      baseURL: Const.BASE_URL,
-      headers,
-    })
-      .then((response) => {
-        const body =
-          response.data as AuthenticationResponse<AuthenticationAccount>;
-        if (body.name && `${body.name}`.toLowerCase() === "success") {
-          const loggedInAccount = body.data;
-          if (!loggedInAccount) {
-            dispatch(loading(false));
-            dispatch(Actions.Service.pushErrorNotification("error"));
-            return;
-          }
-
-          void localSetAccount(loggedInAccount);
-          dispatch(setAccount(loggedInAccount));
-          dispatch(Actions.Service.pushSuccessNotification("Login"));
-          return;
-        }
-
-        if (body.name) {
-          dispatch(loading(false));
-          dispatch(
-            Actions.Service.pushInfoNotification(body.message ?? "error"),
-          );
-        } else {
+    try {
+      const response = await axios({
+        method: "post",
+        url: URL_PATH,
+        data: formData,
+        baseURL: Const.BASE_URL,
+        headers,
+      });
+      const body =
+        response.data as AuthenticationResponse<AuthenticationAccount>;
+      if (body.name && `${body.name}`.toLowerCase() === "success") {
+        const loggedInAccount = body.data;
+        if (!loggedInAccount) {
           dispatch(loading(false));
           dispatch(Actions.Service.pushErrorNotification("error"));
+          return "failed";
         }
-      })
-      .catch((cause: unknown) => {
-        dispatch(loading(false));
-        dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
+
+        await localSetAccount(loggedInAccount);
+        dispatch(setAccount(loggedInAccount));
+        dispatch(Actions.Service.pushSuccessNotification("Login"));
+        return "success";
+      }
+
+      dispatch(loading(false));
+      if (body.name) {
+        dispatch(
+          Actions.Service.pushInfoNotification(body.message ?? "error"),
+        );
+      } else {
+        dispatch(Actions.Service.pushErrorNotification("error"));
+      }
+      return "failed";
+    } catch (cause: unknown) {
+      dispatch(loading(false));
+      if (axios.isAxiosError(cause)) {
+        const responseBody = cause.response?.data as
+          | { code?: string; error?: { code?: string } }
+          | undefined;
+        if (
+          responseBody?.code === "ACTIVE_SESSION" ||
+          responseBody?.error?.code === "ACTIVE_SESSION"
+        ) {
+          return "active-session";
+        }
+      }
+      dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
+      return "failed";
+    }
+  };
+};
+
+const onRegister = (
+  credentials: RegistrationCredentials,
+): AuthenticationThunk<boolean> => {
+  const URL_PATH = "api/v1/authentication/register";
+  return async (dispatch) => {
+    dispatch(loading(true));
+    const email = credentials.email.trim().toLowerCase();
+    const formData = new FormData();
+    formData.append("username", email);
+    formData.append("email", email);
+    formData.append("password", credentials.password);
+    formData.append("repeat_password", credentials.repeatPassword);
+
+    try {
+      const response = await axios({
+        method: "post",
+        url: URL_PATH,
+        data: formData,
+        baseURL: Const.BASE_URL,
+        headers: {
+          "x-api-key": Const.X_API_KEY,
+          "x-app-key": Const.X_APP_KEY,
+          "Content-Type": "multipart/form-data",
+        },
       });
+      const body = response.data as AuthenticationResponse<unknown>;
+      if (body.name && `${body.name}`.toLowerCase() === "success") {
+        dispatch(loading(false));
+        dispatch(Actions.Service.pushSuccessNotification("Pendaftaran berhasil"));
+        return true;
+      }
+
+      dispatch(loading(false));
+      dispatch(Actions.Service.pushInfoNotification(body.message ?? "error"));
+      return false;
+    } catch (cause: unknown) {
+      dispatch(loading(false));
+      dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
+      return false;
+    }
+  };
+};
+
+const onForgotPassword = (email: string): AuthenticationThunk<boolean> => {
+  const URL_PATH = "api/v1/authentication/forgot-password";
+  return async (dispatch) => {
+    dispatch(loading(true));
+    const formData = new FormData();
+    formData.append("email", email);
+
+    try {
+      const response = await axios({
+        method: "post",
+        url: URL_PATH,
+        data: formData,
+        baseURL: Const.BASE_URL,
+        headers: {
+          "x-api-key": Const.X_API_KEY,
+          "x-app-key": Const.X_APP_KEY,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      const body = response.data as AuthenticationResponse<unknown>;
+      if (body.name && `${body.name}`.toLowerCase() === "success") {
+        dispatch(loading(false));
+        return true;
+      }
+
+      dispatch(loading(false));
+      dispatch(Actions.Service.pushInfoNotification(body.message ?? "error"));
+      return false;
+    } catch (cause: unknown) {
+      dispatch(loading(false));
+      dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
+      return false;
+    }
+  };
+};
+
+const onResetPassword = (
+  token: string,
+  password: string,
+  repeatPassword: string,
+): AuthenticationThunk<boolean> => {
+  const URL_PATH = "api/v1/authentication/reset-password";
+  return async (dispatch) => {
+    dispatch(loading(true));
+    const formData = new FormData();
+    formData.append("token", token);
+    formData.append("password", password);
+    formData.append("repeat_password", repeatPassword);
+
+    try {
+      const response = await axios({
+        method: "post",
+        url: URL_PATH,
+        data: formData,
+        baseURL: Const.BASE_URL,
+        headers: {
+          "x-api-key": Const.X_API_KEY,
+          "x-app-key": Const.X_APP_KEY,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      const body = response.data as AuthenticationResponse<unknown>;
+      if (body.name && `${body.name}`.toLowerCase() === "success") {
+        dispatch(loading(false));
+        return true;
+      }
+
+      dispatch(loading(false));
+      dispatch(Actions.Service.pushInfoNotification(body.message ?? "error"));
+      return false;
+    } catch (cause: unknown) {
+      dispatch(loading(false));
+      dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
+      return false;
+    }
   };
 };
 
@@ -219,9 +368,12 @@ const removeAccount = () => ({ type: REMOVE_ACCOUNT });
 const loading = (isLoading: boolean) => ({ type: LOADING, payload: isLoading });
 
 const AuthenticationAction = {
+  onRegister,
   onLogin,
   onLogout,
   onMount,
+  onForgotPassword,
+  onResetPassword,
 };
 
 export default AuthenticationAction;

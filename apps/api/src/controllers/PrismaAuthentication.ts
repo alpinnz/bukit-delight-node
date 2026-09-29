@@ -3,6 +3,7 @@ import type {
   Request,
   Response as ExpressResponse,
 } from "express";
+import { Prisma } from "../generated/prisma/client";
 
 const { randomBytes } = require("node:crypto");
 const Joi = require("joi");
@@ -12,6 +13,7 @@ const { prisma } = require("./../config/Prisma");
 const logger = require("./../utils/logger");
 const {
   createAccount,
+  createLoginRefreshToken,
   createRefreshToken,
   findAccountForLogin,
   findAccountForToken,
@@ -30,8 +32,8 @@ const {
   VerifyResetPasswordToken,
 } = require("./../services/Authentication");
 
-const error = (message: string, status = 500) =>
-  Object.assign(new Error(message), { status });
+const error = (message: string, status = 500, code?: string) =>
+  Object.assign(new Error(message), { status, code });
 
 const requirePrisma = () => {
   if (!prisma) throw error("PostgreSQL authentication is not configured");
@@ -64,7 +66,10 @@ exports.Register = async (
     Joi.object({
       username: Joi.string().required(),
       email: Joi.string().required().email(),
-      password: Joi.string().required(),
+      password: Joi.string()
+        .min(8)
+        .pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/)
+        .required(),
       repeat_password: Joi.string().valid(Joi.ref("password")).required(),
     }),
     req,
@@ -100,6 +105,7 @@ exports.Login = async (
     Joi.object({
       username: Joi.string().required(),
       password: Joi.string().required(),
+      replaceSession: Joi.boolean().default(false),
     }),
     req,
     next,
@@ -116,6 +122,12 @@ exports.Login = async (
     }
     if (!account.role)
       return next(error("Username or password is incorrect", 401));
+    const isStaffAccount = ["admin", "cashier"].includes(
+      account.role.name.toLowerCase(),
+    );
+    if (!isStaffAccount) {
+      return next(error("Username or password is incorrect", 401));
+    }
 
     if (PasswordNeedsRehash(account.password)) {
       await database.account.updateMany({
@@ -126,12 +138,29 @@ exports.Login = async (
 
     const accessToken = await JwtAccessToken(account);
     const refreshToken = await JwtRefreshToken(account);
-    await createRefreshToken(database, {
+    const now = new Date();
+    const refreshTokenRecord = {
       accountId: account.id,
       token: refreshToken,
-      expires: new Date(Date.now() + Number(process.env.REFRESH_TOKEN_TIMEOUT)),
+      expires: new Date(
+        now.getTime() + Number(process.env.REFRESH_TOKEN_TIMEOUT),
+      ),
       createdByIp: req.ip,
-    });
+    };
+    const sessionCreated = await createLoginRefreshToken(
+      database,
+      refreshTokenRecord,
+      body.replaceSession,
+    );
+    if (!sessionCreated) {
+      return next(
+        error(
+          "This account is already signed in on another device",
+          409,
+          "ACTIVE_SESSION",
+        ),
+      );
+    }
     return Response.Success(res, "Login", 0, 200, {
       _id: account.id,
       username: account.username,
@@ -233,7 +262,7 @@ exports.ForgotPassword = async (
   try {
     const database = requirePrisma();
     const account = await database.account.findUnique({
-      where: { email: body.email },
+      where: { email: body.email.trim().toLowerCase() },
       select: { id: true, email: true },
     });
     if (!account) return genericResponse();
@@ -257,7 +286,10 @@ exports.ResetPassword = async (
   const body = validate(
     Joi.object({
       token: Joi.string().required(),
-      password: Joi.string().required(),
+      password: Joi.string()
+        .min(8)
+        .pattern(/^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/)
+        .required(),
       repeat_password: Joi.string().valid(Joi.ref("password")).required(),
     }),
     req,
@@ -268,17 +300,23 @@ exports.ResetPassword = async (
     const decoded = await VerifyResetPasswordToken(body.token);
     if (!decoded?.id) return next(error("Invalid token", 401));
     const database = requirePrisma();
-    const account = await database.account.findUnique({
-      where: { id: decoded.id },
-      select: { id: true, resetLink: true },
-    });
-    if (!account || account.resetLink !== body.token) {
-      return next(error("Failed account not found", 404));
-    }
-    await database.account.update({
-      where: { id: account.id },
-      data: { resetLink: null, password: await HashPassword(body.password) },
-    });
+    const password = await HashPassword(body.password);
+    const reset = await database.$transaction(
+      async (transaction: Prisma.TransactionClient) => {
+        const updated = await transaction.account.updateMany({
+          where: { id: decoded.id, resetLink: body.token },
+          data: { resetLink: Prisma.DbNull, password },
+        });
+        if (updated.count !== 1) return false;
+
+        await transaction.refreshToken.updateMany({
+          where: { accountId: decoded.id, revoked: null },
+          data: { revoked: new Date(), revokedByIp: req.ip },
+        });
+        return true;
+      },
+    );
+    if (!reset) return next(error("Invalid token", 401));
     return Response.Success(res, "Reset password");
   } catch (cause) {
     return sendError(cause, next);
