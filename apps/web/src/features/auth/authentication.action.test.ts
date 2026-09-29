@@ -27,6 +27,36 @@ describe("AuthenticationAction.onMount", () => {
     expect(axios).not.toHaveBeenCalled();
     expect(dispatch).toHaveBeenCalledWith({ type: MOUNT });
   });
+
+  it("restores customer profile from the user record", async () => {
+    const account = {
+      _id: "account-1",
+      username: "customer@example.test",
+      email: "customer@example.test",
+      role: "customer",
+      accessToken: "customer-access",
+      refreshToken: "customer-refresh",
+    };
+    localStorage.setItem("account", JSON.stringify(account));
+    vi.mocked(axios).mockResolvedValue({
+      data: { name: "success", data: account },
+    } as never);
+    const dispatch = vi.fn();
+
+    await AuthenticationAction.onMount()(
+      dispatch as never,
+      (() => ({})) as never,
+      undefined,
+    );
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "CUSTOMERS/SET_CUSTOMER",
+      payload: { _id: "account-1", username: "customer@example.test" },
+    });
+    expect(JSON.parse(localStorage.getItem("account") ?? "null")).toEqual(
+      account,
+    );
+  });
 });
 
 describe("AuthenticationAction.onLogin", () => {
@@ -50,5 +80,33 @@ describe("AuthenticationAction.onLogin", () => {
     })(dispatch as never, (() => ({})) as never, undefined);
 
     expect(result).toBe("active-session");
+  });
+
+  it("sets the linked customer profile when a customer signs in", async () => {
+    vi.mocked(axios).mockResolvedValue({
+      data: {
+        name: "success",
+        data: {
+          _id: "account-1",
+          username: "customer@example.test",
+          email: "customer@example.test",
+          role: "customer",
+          accessToken: "customer-access",
+          refreshToken: "customer-refresh",
+        },
+      },
+    } as never);
+    const dispatch = vi.fn();
+
+    const result = await AuthenticationAction.onLogin({
+      username: "customer@example.test",
+      password: "Customer123!",
+    })(dispatch as never, (() => ({})) as never, undefined);
+
+    expect(result).toBe("success");
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "CUSTOMERS/SET_CUSTOMER",
+      payload: { _id: "account-1", username: "customer@example.test" },
+    });
   });
 });

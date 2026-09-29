@@ -2,25 +2,25 @@ import { useSelector } from "react-redux";
 import TableCustom from "../../../../components/common/table.custom";
 import AccountForm from "./form";
 
-type Account = {
+type User = {
   _id: string;
   username: string;
   email: string;
-  role_name: string;
+  role_names: string;
   password?: string;
 };
-type AccountsState = { data?: Account[]; loading: boolean };
+type UsersState = { data?: User[]; loading: boolean };
 
-const AccountTable = () => {
-  const accounts = useSelector(
-    (state: { Accounts: AccountsState }) => state.Accounts,
+const UserTable = () => {
+  const users = useSelector(
+    (state: { Users: UsersState }) => state.Users,
   );
-  if (!accounts.data) return null;
+  if (!users.data) return null;
 
   const columns = [
     { id: "username", numeric: false, disablePadding: true, label: "Username" },
     { id: "email", numeric: false, disablePadding: false, label: "Email" },
-    { id: "role_name", numeric: false, disablePadding: false, label: "Role" },
+    { id: "role_names", numeric: false, disablePadding: false, label: "Roles" },
     {
       id: "password",
       numeric: false,
@@ -32,10 +32,10 @@ const AccountTable = () => {
   return (
     <div>
       <TableCustom
-        title="Accounts"
+        title="Users"
         columns={columns}
-        rows={accounts.data}
-        loading={accounts.loading}
+        rows={users.data}
+        loading={users.loading}
         add
         update
         remove
@@ -46,4 +46,4 @@ const AccountTable = () => {
   );
 };
 
-export default AccountTable;
+export default UserTable;

@@ -13,8 +13,8 @@ on the external Docker network
 `local-infra_local-infra` (the Compose network for project `local-infra`) and enables source watching in the API plus Vite hot module
 replacement in the web app. Set `LOCAL_INFRA_NETWORK` if the network has a
 different name. PostgreSQL must resolve as `postgres:5432`. It seeds the local
-`admin`/`admin` and `cashier`/`cashier` accounts. Those credentials are for
-local development only. Create the development database once on the external
+`owner`/`Owner123!`, `cashier`/`cashier`, and `customer`/`Customer123!` users.
+Those credentials are for local development only. Create the development database once on the external
 PostgreSQL server before starting the stack:
 
 ```sh

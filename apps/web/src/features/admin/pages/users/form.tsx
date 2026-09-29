@@ -6,7 +6,13 @@ import Validate from "../../../../components/hooks/use.validate";
 import Actions from "../../../../actions";
 import type { AppDispatch } from "../../../../store";
 
-type AccountFields = Record<string, string>;
+type AccountFields = {
+  username?: string;
+  email?: string;
+  id_roles?: string[];
+  password?: string;
+  repeat_password?: string;
+};
 type FormState = { fields: AccountFields; errors: Record<string, string> };
 type DialogType = "create" | "update" | "delete";
 type Role = { _id: string; name: string };
@@ -14,10 +20,10 @@ type AccountRecord = {
   _id: string;
   username?: string;
   email?: string;
-  id_role?: string | { _id?: string };
+  id_roles?: { _id?: string }[];
 };
 type AccountFormReduxState = {
-  Accounts: { loading: boolean };
+  Users: { loading: boolean };
   Roles: { data: Role[] };
   Service: {
     form_dialog: {
@@ -31,8 +37,8 @@ type AccountFormReduxState = {
 const emptyForm: FormState = { fields: {}, errors: {} };
 
 const AccountForm = () => {
-  const accounts = useSelector(
-    (state: AccountFormReduxState) => state.Accounts,
+  const users = useSelector(
+    (state: AccountFormReduxState) => state.Users,
   );
   const roles = useSelector((state: AccountFormReduxState) => state.Roles);
   const dialog = useSelector(
@@ -43,15 +49,11 @@ const AccountForm = () => {
 
   useEffect(() => {
     if (dialog.type === "update" && dialog.row) {
-      const roleId =
-        typeof dialog.row.id_role === "string"
-          ? dialog.row.id_role
-          : (dialog.row.id_role?._id ?? "");
       setForm({
         fields: {
           username: dialog.row.username ?? "",
           email: dialog.row.email ?? "",
-          id_role: roleId,
+          id_roles: dialog.row.id_roles?.flatMap((role) => role._id ?? []) ?? [],
         },
         errors: {},
       });
@@ -60,9 +62,11 @@ const AccountForm = () => {
     if (!dialog.open || !dialog.type) setForm(emptyForm);
   }, [dialog.open, dialog.row, dialog.type]);
 
-  const updateField = (field: string, value: string) => {
+  const updateField = (field: string, value: string | string[]) => {
+    const fieldValue =
+      field === "id_roles" && typeof value === "string" ? [value] : value;
     setForm((current) => ({
-      fields: { ...current.fields, [field]: value },
+      fields: { ...current.fields, [field]: fieldValue } as AccountFields,
       errors: { ...current.errors, [field]: "" },
     }));
   };
@@ -71,7 +75,7 @@ const AccountForm = () => {
   const submitForm = async () => {
     const accountId = dialog.row?._id;
     if (dialog.type === "delete" && accountId) {
-      dispatch(Actions.Accounts.onDelete(accountId));
+      dispatch(Actions.Users.onDelete(accountId));
       return;
     }
     if (dialog.type !== "create" && dialog.type !== "update") return;
@@ -80,7 +84,7 @@ const AccountForm = () => {
     const validation = [
       { key: "username", validate: ["required"] },
       { key: "email", validate: ["required", "email"] },
-      { key: "id_role", validate: ["required"] },
+      { key: "id_roles", validate: ["required"] },
       ...(dialog.type === "create"
         ? [
             { key: "password", validate: ["required", "match-passowrd"] },
@@ -95,10 +99,10 @@ const AccountForm = () => {
     if (!isValid) return;
 
     if (dialog.type === "create") {
-      dispatch(Actions.Accounts.onCreate(form.fields));
+      dispatch(Actions.Users.onCreate(form.fields));
       return;
     }
-    dispatch(Actions.Accounts.onUpdate(accountId, form.fields));
+    dispatch(Actions.Users.onUpdate(accountId, form.fields));
   };
 
   if (!dialog.open || !dialog.type) return null;
@@ -108,7 +112,7 @@ const AccountForm = () => {
         title="Account delete"
         open={dialog.open}
         onClose={closeDialog}
-        loading={accounts.loading}
+        loading={users.loading}
         onSubmit={submitForm}
       >
         Username : {dialog.row?.username || "username"}
@@ -122,7 +126,7 @@ const AccountForm = () => {
       title={`Account ${dialog.type}`}
       open={dialog.open}
       onClose={closeDialog}
-      loading={accounts.loading}
+      loading={users.loading}
       onSubmit={submitForm}
     >
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -141,13 +145,17 @@ const AccountForm = () => {
         <div>
           <FormControlCustom
             data={roles.data}
-            error={form.errors.id_role}
-            label="Role"
-            value={form.fields.id_role}
-            onChange={(event: ChangeEvent<HTMLInputElement>) =>
-              updateField("id_role", event.target.value)
+            error={form.errors.id_roles}
+            label="Roles"
+            value={form.fields.id_roles}
+            onChange={(event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+              updateField(
+                "id_roles",
+                Array.from((event.target as HTMLSelectElement).selectedOptions, (option) => option.value),
+              )
             }
             type="select"
+            multiple
             required
           />
         </div>

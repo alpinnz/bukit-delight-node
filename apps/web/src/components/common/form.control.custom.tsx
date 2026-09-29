@@ -2,7 +2,7 @@ import type { ChangeEvent, InputHTMLAttributes } from "react";
 
 type FormControlCustomProps = {
   error?: string;
-  value?: string | number | boolean;
+  value?: string | string[] | number | boolean;
   onChange?: {
     bivarianceHack(
       event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -12,6 +12,7 @@ type FormControlCustomProps = {
   label: string;
   type?: string;
   required?: boolean;
+  multiple?: boolean;
   data?: Array<{ _id: string; name: string }>;
   rest?: InputHTMLAttributes<HTMLInputElement>;
 };
@@ -26,6 +27,7 @@ const FormControlCustom = ({
   label,
   type,
   required,
+  multiple = false,
   data = [],
   rest,
 }: FormControlCustomProps) => {
@@ -57,7 +59,14 @@ const FormControlCustom = ({
       {type === "select" ? (
         <select
           id={id}
-          value={typeof value === "boolean" ? String(value) : (value ?? "")}
+          multiple={multiple}
+          value={
+            multiple
+              ? (Array.isArray(value) ? value : [])
+              : typeof value === "boolean"
+                ? String(value)
+                : (value ?? "")
+          }
           onChange={onChange}
           required={required}
           aria-invalid={Boolean(error)}

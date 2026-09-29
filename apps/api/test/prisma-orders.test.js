@@ -26,9 +26,7 @@ prismaTest(
       adapter: new PrismaPg({ connectionString: databaseUrl }),
     });
     const suffix = randomUUID();
-    const roleId = `phase4-order-${suffix}-role`;
-    const accountId = `phase4-order-${suffix}-account`;
-    const customerId = `phase4-order-${suffix}-customer`;
+    const userId = `phase4-order-${suffix}-user`;
     const categoryId = `phase4-order-${suffix}-category`;
     const menuId = `phase4-order-${suffix}-menu`;
     const tableId = `phase4-order-${suffix}-table`;
@@ -38,20 +36,20 @@ prismaTest(
     try {
       await assert.rejects(
         prisma.$transaction(async (transaction) => {
-          await transaction.role.create({
-            data: { id: roleId, name: `phase4-order-role-${suffix}` },
+          const customerRole = await transaction.role.findUnique({
+            where: { name: "customer" },
           });
-          await transaction.account.create({
+          assert.ok(customerRole, "local database must contain customer role");
+          await transaction.user.create({
             data: {
-              id: accountId,
+              id: userId,
               username: `phase4-order-${suffix}`,
               email: `phase4-order-${suffix}@example.invalid`,
               password: "fixture-only",
-              roleId,
             },
           });
-          await transaction.customer.create({
-            data: { id: customerId, username: `phase4-customer-${suffix}` },
+          await transaction.userRole.create({
+            data: { userId, roleId: customerRole.id },
           });
           await transaction.category.create({
             data: {
@@ -79,7 +77,7 @@ prismaTest(
           });
 
           const input = {
-            customerId,
+            customerId: userId,
             tableId,
             note: "first note",
             menus: [{ id: menuId, quality: "2", note: "no ice" }],
@@ -125,7 +123,7 @@ prismaTest(
                 select: { customerId: true },
               })
             ).customerId,
-            customerId,
+            userId,
           );
           const paidOrder = await updateOrderStatusInTransaction(
             transaction,
@@ -137,7 +135,7 @@ prismaTest(
           await transaction.transaction.create({
             data: {
               id: transactionId,
-              accountId,
+              userId,
               orderId: createdOrder.id,
               status: "PENDING",
             },
@@ -174,7 +172,7 @@ prismaTest(
       );
 
       assert.equal(
-        (await prisma.order.findMany({ where: { customerId } })).length,
+        (await prisma.order.findMany({ where: { customerId: userId } })).length,
         0,
       );
       assert.equal(await prisma.orderItem.count({ where: { menuId } }), 0);
@@ -182,18 +180,7 @@ prismaTest(
         await prisma.menu.findUnique({ where: { id: menuId } }),
         null,
       );
-      assert.equal(
-        await prisma.role.findUnique({ where: { id: roleId } }),
-        null,
-      );
-      assert.equal(
-        await prisma.account.findUnique({ where: { id: accountId } }),
-        null,
-      );
-      assert.equal(
-        await prisma.customer.findUnique({ where: { id: customerId } }),
-        null,
-      );
+      assert.equal(await prisma.user.findUnique({ where: { id: userId } }), null);
       assert.equal(
         await prisma.category.findUnique({ where: { id: categoryId } }),
         null,

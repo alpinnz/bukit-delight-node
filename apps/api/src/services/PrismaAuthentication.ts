@@ -2,48 +2,47 @@ import type { PrismaClient } from "../generated/prisma/client";
 
 type AuthenticationDatabase = Pick<
   PrismaClient,
-  "account" | "customer" | "role" | "refreshToken"
+  "user" | "userRole" | "role" | "refreshToken"
 >;
 type AuthenticationTransaction = AuthenticationDatabase &
   Pick<PrismaClient, "$queryRaw">;
 
-type AccountIdentity = {
+export type UserIdentity = {
   id: string;
   username: string;
   email: string;
   password: string;
-  roleId: string;
+  roleIds: string[];
 };
 
-type AccountIdentityUpdate = Omit<AccountIdentity, "id" | "password"> & {
+type UserIdentityUpdate = Omit<UserIdentity, "id" | "password"> & {
   password?: string;
 };
 
-type RefreshTokenRotation = {
+export type RefreshTokenRotation = {
   currentToken: string;
   nextToken: string;
-  accountId: string;
+  userId: string;
   ipAddress: string;
   expiresAt: Date;
   now?: Date;
 };
 
-const accountSelection = {
+const userSelection = {
   id: true,
   username: true,
   email: true,
-  roleId: true,
-  role: { select: { id: true, name: true } },
+  roles: { select: { role: { select: { id: true, name: true } } } },
 } as const;
 
-const lockAccountIdentity = async (
+const lockUserIdentity = async (
   transaction: AuthenticationTransaction,
   username: string,
   email: string,
 ): Promise<void> => {
   const lockKeys = [
-    `account-email:${email.toLowerCase()}`,
-    `account-username:${username.toLowerCase()}`,
+    `user-email:${email.toLowerCase()}`,
+    `user-username:${username.toLowerCase()}`,
   ].sort();
 
   for (const lockKey of lockKeys) {
@@ -54,19 +53,17 @@ const lockAccountIdentity = async (
   }
 };
 
-const assertAccountIdentityAvailable = async (
+const assertUserIdentityAvailable = async (
   database: AuthenticationDatabase,
   username: string,
   email: string,
-  exceptAccountId?: string,
+  exceptUserId?: string,
 ): Promise<void> => {
-  const accountIdFilter = exceptAccountId
-    ? { not: exceptAccountId }
-    : undefined;
-  const usernameMatch = await database.account.findFirst({
+  const userIdFilter = exceptUserId ? { not: exceptUserId } : undefined;
+  const usernameMatch = await database.user.findFirst({
     where: {
       username: { equals: username, mode: "insensitive" },
-      ...(accountIdFilter ? { id: accountIdFilter } : {}),
+      ...(userIdFilter ? { id: userIdFilter } : {}),
     },
     select: { id: true },
   });
@@ -74,10 +71,10 @@ const assertAccountIdentityAvailable = async (
     throw Object.assign(new Error("Username is already"), { status: 409 });
   }
 
-  const emailMatch = await database.account.findFirst({
+  const emailMatch = await database.user.findFirst({
     where: {
       email: { equals: email, mode: "insensitive" },
-      ...(accountIdFilter ? { id: accountIdFilter } : {}),
+      ...(userIdFilter ? { id: userIdFilter } : {}),
     },
     select: { id: true },
   });
@@ -86,11 +83,11 @@ const assertAccountIdentityAvailable = async (
   }
 };
 
-export const findAccountForLogin = (
+export const findUserForLogin = async (
   database: AuthenticationDatabase,
   loginIdentifier: string,
-) =>
-  database.account.findFirst({
+) => {
+  const user = await database.user.findFirst({
     where: {
       OR: [
         { username: { equals: loginIdentifier, mode: "insensitive" } },
@@ -102,171 +99,149 @@ export const findAccountForLogin = (
       username: true,
       email: true,
       password: true,
-      roleId: true,
-      role: { select: { id: true, name: true } },
+      roles: { select: { role: { select: { id: true, name: true } } } },
     },
   });
+  return user;
+};
 
-export const findAccountForToken = (
+export const findUserForToken = async (
   database: AuthenticationDatabase,
-  accountId: string,
-) =>
-  database.account.findUnique({
-    where: { id: accountId },
-    select: {
-      id: true,
-      username: true,
-      email: true,
-      roleId: true,
-      role: { select: { id: true, name: true } },
-    },
+  userId: string,
+) => {
+  const user = await database.user.findUnique({
+    where: { id: userId },
+    select: userSelection,
   });
+  return user;
+};
 
-export const findCustomerForToken = (
-  database: AuthenticationDatabase,
-  customerId: string,
-) =>
-  database.customer.findUnique({
-    where: { id: customerId },
-    select: { id: true, username: true },
-  });
-
-export const findRoleByName = (
-  database: AuthenticationDatabase,
-  name: string,
-) =>
+// These aliases keep the existing HTTP controller names while persistence uses users.
+export const findRoleByName = (database: AuthenticationDatabase, name: string) =>
   database.role.findUnique({
     where: { name },
     select: { id: true, name: true },
   });
 
-export const findRoleById = (
-  database: AuthenticationDatabase,
-  roleId: string,
-) =>
-  database.role.findUnique({
-    where: { id: roleId },
+export const findRolesByIds = (database: AuthenticationDatabase, roleIds: string[]) =>
+  database.role.findMany({
+    where: { id: { in: [...new Set(roleIds)] } },
     select: { id: true, name: true },
   });
 
 export const listRoles = (database: AuthenticationDatabase) =>
   database.role.findMany();
 
-export const findAccountByEmail = (
-  database: AuthenticationDatabase,
-  email: string,
-) =>
-  database.account.findUnique({
+export const findUserByEmail = (database: AuthenticationDatabase, email: string) =>
+  database.user.findUnique({
     where: { email },
     select: { id: true, username: true, email: true },
   });
+export const listUsers = async (database: AuthenticationDatabase) =>
+  database.user.findMany({ select: userSelection });
 
-export const listAccounts = (database: AuthenticationDatabase) =>
-  database.account.findMany({
-    select: accountSelection,
-  });
-
-export const createAccountInTransaction = async (
+const createUserInTransaction = async (
   transaction: AuthenticationTransaction,
-  account: AccountIdentity,
+  user: UserIdentity,
 ) => {
-  const normalizedEmail = account.email.toLowerCase();
-  await lockAccountIdentity(transaction, account.username, normalizedEmail);
-  await assertAccountIdentityAvailable(
+  const normalizedEmail = user.email.toLowerCase();
+  await lockUserIdentity(transaction, user.username, normalizedEmail);
+  await assertUserIdentityAvailable(
     transaction,
-    account.username,
+    user.username,
     normalizedEmail,
   );
 
-  return transaction.account.create({
-    data: { ...account, email: normalizedEmail },
-    select: accountSelection,
+  const created = await transaction.user.create({
+    data: {
+      id: user.id,
+      username: user.username,
+      email: normalizedEmail,
+      password: user.password,
+      roles: {
+        create: user.roleIds.map((roleId) => ({ roleId })),
+      },
+    },
+    select: userSelection,
   });
+  return created;
 };
 
-export const createAccount = (
+export const createUser = (database: PrismaClient, user: UserIdentity) =>
+  database.$transaction((transaction) => createUserInTransaction(transaction, user));
+
+export const updateUser = (
   database: PrismaClient,
-  account: AccountIdentity,
+  userId: string,
+  user: UserIdentityUpdate,
 ) =>
-  database.$transaction((transaction) =>
-    createAccountInTransaction(transaction, account),
-  );
+  database.$transaction(async (transaction) => {
+    const normalizedEmail = user.email.toLowerCase();
+    await lockUserIdentity(transaction, user.username, normalizedEmail);
+    await assertUserIdentityAvailable(
+      transaction,
+      user.username,
+      normalizedEmail,
+      userId,
+    );
 
-export const updateAccountInTransaction = async (
-  transaction: AuthenticationTransaction,
-  accountId: string,
-  account: AccountIdentityUpdate,
-) => {
-  const normalizedEmail = account.email.toLowerCase();
-  await lockAccountIdentity(transaction, account.username, normalizedEmail);
-  await assertAccountIdentityAvailable(
-    transaction,
-    account.username,
-    normalizedEmail,
-    accountId,
-  );
-
-  return transaction.account.update({
-    where: { id: accountId },
-    data: { ...account, email: normalizedEmail },
-    select: accountSelection,
-  });
-};
-
-export const updateAccount = (
-  database: PrismaClient,
-  accountId: string,
-  account: AccountIdentityUpdate,
-) =>
-  database.$transaction((transaction) =>
-    updateAccountInTransaction(transaction, accountId, account),
-  );
-
-export const deleteAccount = (
-  database: AuthenticationDatabase,
-  accountId: string,
-) =>
-  database.account.delete({
-    where: { id: accountId },
-    select: accountSelection,
+    await transaction.userRole.deleteMany({ where: { userId } });
+    const updated = await transaction.user.update({
+      where: { id: userId },
+      data: {
+        username: user.username,
+        email: normalizedEmail,
+        ...(user.password ? { password: user.password } : {}),
+        roles: { create: user.roleIds.map((roleId) => ({ roleId })) },
+      },
+      select: userSelection,
+    });
+    return updated;
   });
 
-export const listCustomers = (
-  database: AuthenticationDatabase,
-  customerId?: string,
-) =>
-  database.customer.findMany({
-    where: customerId ? { id: customerId } : undefined,
+export const deleteUser = (database: AuthenticationDatabase, userId: string) =>
+  database.user.delete({ where: { id: userId }, select: userSelection });
+export const listCustomers = (database: AuthenticationDatabase) =>
+  database.user.findMany({
+    where: { roles: { some: { role: { name: "customer" } } } },
+    select: userSelection,
   });
 
-export const findCustomerById = (
-  database: AuthenticationDatabase,
-  customerId: string,
-) => database.customer.findUnique({ where: { id: customerId } });
+export const findCustomerUserById = (database: AuthenticationDatabase, userId: string) =>
+  database.user.findFirst({
+    where: {
+      id: userId,
+      roles: { some: { role: { name: "customer" } } },
+    },
+    select: userSelection,
+  });
 
-export const createCustomer = (
+export const updateCustomerUser = (
   database: AuthenticationDatabase,
-  customer: { id: string; username: string },
-) => database.customer.create({ data: customer });
-
-export const updateCustomer = (
-  database: AuthenticationDatabase,
-  customerId: string,
+  userId: string,
   username: string,
-) =>
-  database.customer.update({ where: { id: customerId }, data: { username } });
+) => database.user.update({ where: { id: userId }, data: { username } });
 
-export const deleteCustomer = (
+export const removeCustomerRole = async (
   database: AuthenticationDatabase,
-  customerId: string,
-) => database.customer.delete({ where: { id: customerId } });
+  userId: string,
+) => {
+  await database.userRole.deleteMany({
+    where: { userId, role: { name: "customer" } },
+  });
+  return findUserForToken(database, userId);
+};
+
+export const createUserWithRoles = (
+  database: PrismaClient,
+  user: UserIdentity,
+) => createUser(database, user);
 
 export const createRefreshToken = (
   database: AuthenticationDatabase,
   token: {
     id?: string;
-    accountId?: string;
-    customerId?: string;
+    userId: string;
     token: string;
     expires: Date;
     createdByIp: string;
@@ -276,7 +251,7 @@ export const createRefreshToken = (
 export const createLoginRefreshToken = (
   database: PrismaClient,
   token: {
-    accountId: string;
+    userId: string;
     token: string;
     expires: Date;
     createdByIp: string;
@@ -284,7 +259,7 @@ export const createLoginRefreshToken = (
   replaceActiveSession: boolean,
 ): Promise<boolean> =>
   database.$transaction(async (transaction) => {
-    const lockKey = `account-login:${token.accountId}`;
+    const lockKey = `user-login:${token.userId}`;
     await transaction.$queryRaw`
       SELECT 'locked'::text
       FROM pg_advisory_xact_lock(hashtext(${lockKey})::bigint)
@@ -292,7 +267,7 @@ export const createLoginRefreshToken = (
 
     const now = new Date();
     const activeSessionFilter = {
-      accountId: token.accountId,
+      userId: token.userId,
       revoked: null,
       OR: [{ expires: null }, { expires: { gt: now } }],
     };
@@ -345,7 +320,7 @@ export const rotateRefreshTokenInTransaction = async (
 
   await transaction.refreshToken.create({
     data: {
-      accountId: rotation.accountId,
+      userId: rotation.userId,
       token: rotation.nextToken,
       expires: rotation.expiresAt,
       createdByIp: rotation.ipAddress,

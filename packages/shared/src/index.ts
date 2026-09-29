@@ -116,11 +116,11 @@ export type RoleRecord = {
   updatedAt?: unknown;
   [key: string]: unknown;
 };
-export type AccountRecord = {
+export type UserRecord = {
   _id: string;
   username: string;
   email: string;
-  id_role?: Pick<RoleRecord, "_id" | "name"> | null;
+  id_roles?: Pick<RoleRecord, "_id" | "name">[];
   [key: string]: unknown;
 };
 export type TableRecord = { _id: string; name: string };
@@ -147,19 +147,11 @@ export type MenuRecord = {
   [key: string]: unknown;
 };
 
-export type CreateCustomerRequest = { username: string };
 export type UpdateCustomerRequest = { username: string };
 export type CustomerRecord = {
   _id?: string;
   username?: string;
-  accessToken?: string;
-  refreshToken?: string;
   [key: string]: unknown;
-};
-export type CreateCustomerResponse = {
-  _id: string;
-  username: string;
-  accessToken: string;
 };
 export type CreateTableRequest = { name: string };
 export type UpdateTableRequest = { name: string };
@@ -180,16 +172,16 @@ export type CreateMenuRequest = MenuRequestFields & {
 export type UpdateMenuRequest = MenuRequestFields & {
   promo: string | number;
 };
-export type CreateAccountRequest = {
+export type CreateUserRequest = {
   username: string;
   email: string;
-  id_role: string;
+  id_roles: string[];
   password: string;
   repeat_password: string;
 };
-export type UpdateAccountRequest = Pick<
-  CreateAccountRequest,
-  "username" | "email" | "id_role"
+export type UpdateUserRequest = Pick<
+  CreateUserRequest,
+  "username" | "email" | "id_roles"
 > & {
   password?: string;
   repeat_password?: string;

@@ -34,6 +34,11 @@ export type RegistrationCredentials = {
   repeatPassword: string;
 };
 
+const accountHasRole = (account: AuthenticationAccount, role: string) =>
+  (account.roles ?? [account.role]).some(
+    (accountRole) => accountRole.toLowerCase() === role,
+  );
+
 const localGetAccount = async (): Promise<AuthenticationAccount | null> => {
   const account = localStorage.getItem("account");
   return account ? (JSON.parse(account) as AuthenticationAccount) : null;
@@ -41,6 +46,7 @@ const localGetAccount = async (): Promise<AuthenticationAccount | null> => {
 
 const localRemoveAccount = (): void => {
   localStorage.removeItem("account");
+  localStorage.removeItem("customer");
 };
 
 const localSetAccount = async (
@@ -68,6 +74,8 @@ const onMount = (): AuthenticationThunk => {
   return async (dispatch) => {
     const account = await localGetAccount();
     if (!account) {
+      localStorage.removeItem("customer");
+      dispatch(Actions.Customers.cleanCustomer());
       dispatch(mount());
       return;
     }
@@ -79,43 +87,46 @@ const onMount = (): AuthenticationThunk => {
       "x-refresh-token": account.refreshToken,
     };
 
-    axios({
-      method: "post",
-      url: URL_PATH,
-      baseURL: Const.BASE_URL,
-      headers,
-    })
-      .then((response) => {
-        const body =
-          response.data as AuthenticationResponse<AuthenticationAccount>;
-        if (body.name && `${body.name}`.toLowerCase() === "success") {
-          const newAccount = body.data;
-          if (!newAccount) {
-            localRemoveAccount();
-            dispatch(removeAccount());
-            dispatch(mount());
-            return;
-          }
-
-          void localSetAccount(newAccount);
-          dispatch(setAccount(newAccount));
-          setTimeout(() => {
-            dispatch(mount());
-          }, 1000);
-          localStorage.setItem("account", JSON.stringify(newAccount));
-          return;
-        }
-
-        localRemoveAccount();
-        dispatch(removeAccount());
-        dispatch(mount());
-      })
-      .catch((cause: unknown) => {
-        localRemoveAccount();
-        dispatch(removeAccount());
-        dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
-        dispatch(mount());
+    try {
+      const response = await axios({
+        method: "post",
+        url: URL_PATH,
+        baseURL: Const.BASE_URL,
+        headers,
       });
+      const body =
+        response.data as AuthenticationResponse<AuthenticationAccount>;
+      const refreshedAccount = body.data;
+      const isSuccessful =
+        body.name && `${body.name}`.toLowerCase() === "success";
+      if (!isSuccessful || !refreshedAccount) {
+        localRemoveAccount();
+        dispatch(removeAccount());
+        dispatch(Actions.Customers.cleanCustomer());
+        dispatch(mount());
+        return;
+      }
+
+      await localSetAccount(refreshedAccount);
+      dispatch(setAccount(refreshedAccount));
+      if (accountHasRole(refreshedAccount, "customer")) {
+        dispatch(
+          Actions.Customers.setCustomer({
+            _id: refreshedAccount._id,
+            username: refreshedAccount.username,
+          }),
+        );
+      } else {
+        dispatch(Actions.Customers.cleanCustomer());
+      }
+      dispatch(mount());
+    } catch (cause: unknown) {
+      localRemoveAccount();
+      dispatch(removeAccount());
+      dispatch(Actions.Customers.cleanCustomer());
+      dispatch(Actions.Service.pushErrorNotification(errorMessage(cause)));
+      dispatch(mount());
+    }
   };
 };
 
@@ -160,6 +171,16 @@ const onLogin = (
 
         await localSetAccount(loggedInAccount);
         dispatch(setAccount(loggedInAccount));
+        if (accountHasRole(loggedInAccount, "customer")) {
+          dispatch(
+            Actions.Customers.setCustomer({
+              _id: loggedInAccount._id,
+              username: loggedInAccount.username,
+            }),
+          );
+        } else {
+          dispatch(Actions.Customers.cleanCustomer());
+        }
         dispatch(Actions.Service.pushSuccessNotification("Login"));
         return "success";
       }
@@ -337,6 +358,8 @@ const onLogout = (): AuthenticationThunk => {
         if (body.name && `${body.name}`.toLowerCase() === "success") {
           localRemoveAccount();
           dispatch(removeAccount());
+          dispatch(Actions.Customers.cleanCustomer());
+          dispatch(Actions.Tables.cleanTable());
           dispatch(Actions.Service.pushSuccessNotification("Logout"));
           return;
         }

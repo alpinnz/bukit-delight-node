@@ -17,6 +17,7 @@ export type AuthenticationAccount = {
   username: string;
   email: string;
   role: string;
+  roles?: string[];
   accessToken: string;
   refreshToken: string;
 };

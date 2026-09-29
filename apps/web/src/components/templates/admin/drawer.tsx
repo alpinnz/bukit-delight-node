@@ -14,7 +14,7 @@ const navigationItems = [
   { label: "Categories", path: "categories" },
   { label: "Menus", path: "menus" },
   { label: "Tables", path: "tables" },
-  { label: "Accounts", path: "accounts" },
+  { label: "Users", path: "users" },
   { label: "Favorites", path: "favorites" },
 ];
 

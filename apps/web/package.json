@@ -18,6 +18,7 @@
     "socket.io-client": "^4.8.4"
   },
   "scripts": {
+    "dev": "vite --host 0.0.0.0",
     "start": "vite --host 0.0.0.0",
     "build": "node ./scripts/build.mjs",
     "test": "vitest run",

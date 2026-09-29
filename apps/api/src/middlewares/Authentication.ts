@@ -2,24 +2,13 @@ import type { NextFunction, Request, Response } from "express";
 
 const jwt = require("jsonwebtoken");
 const { prisma } = require("./../config/Prisma");
-const {
-  findAccountForToken,
-  findCustomerForToken,
-} = require("./../services/PrismaAuthentication");
+const { findUserForToken } = require("./../services/PrismaAuthentication");
 
-type DecodedToken = { id: string; type: "staff" | "customer" };
-type AuthContext =
-  | {
-      type: "staff";
-      accountId: string;
-      role: string;
-      account: any;
-    }
-  | {
-      type: "customer";
-      customerId: string;
-      customer: any;
-    };
+type DecodedToken = { id: string };
+type AuthContext = {
+  userId: string;
+  roles: string[];
+};
 type AuthenticatedRequest = Request & {
   decoded?: DecodedToken;
   auth?: AuthContext;
@@ -28,14 +17,25 @@ type AuthenticatedRequest = Request & {
 const createError = (message: unknown, status = 500) =>
   Object.assign(new Error(String(message)), { status });
 
-const findStaffAccount = (accountId: string) => {
+const findUser = (userId: string) => {
   if (!prisma) throw new Error("PostgreSQL authentication is not configured");
-  return findAccountForToken(prisma, accountId);
+  return findUserForToken(prisma, userId);
 };
 
-const findCustomer = (customerId: string) => {
-  if (!prisma) throw new Error("PostgreSQL customer storage is not configured");
-  return findCustomerForToken(prisma, customerId);
+const normalizedRoles = (user: any): string[] =>
+  (user?.roles ?? []).map(({ role }: { role: { name: string } }) =>
+    role.name.toLowerCase(),
+  );
+
+const hasStaffRole = (roles: string[]) =>
+  roles.some((role) => ["owner", "cashier"].includes(role));
+
+const attachUser = (req: AuthenticatedRequest, user: any) => {
+  const roles = normalizedRoles(user);
+  req.auth = {
+    userId: user.id,
+    roles,
+  };
 };
 
 const checkApiKey = (req: Request, res: Response, next: NextFunction) => {
@@ -50,137 +50,67 @@ const checkApiKey = (req: Request, res: Response, next: NextFunction) => {
   return next();
 };
 
-const checkAccessToken = async (
+const authenticateUser = async (
   req: AuthenticatedRequest,
-  res: Response,
   next: NextFunction,
+  expected: "any" | "staff" | "customer",
 ) => {
   const accessToken = req.get("x-access-token");
-  if (!accessToken) {
-    return next(createError("Authentication required", 401));
-  }
+  if (!accessToken) return next(createError("Authentication required", 401));
 
   try {
     const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_KEY, {
       algorithms: ["HS256"],
     }) as DecodedToken;
+    if (!decoded?.id) return next(createError("Unauthorized access", 401));
 
-    if (decoded.type !== "staff") {
+    const user = await findUser(decoded.id);
+    const roles = normalizedRoles(user);
+    if (!user || roles.length === 0) {
+      return next(createError("Unauthorized access", 401));
+    }
+    if (expected === "staff" && !hasStaffRole(roles)) {
       return next(createError("Staff authentication required", 403));
     }
-
-    const account = await findStaffAccount(decoded.id);
-    if (!account?.role) {
-      return next(createError("Unauthorized access", 401));
+    if (expected === "customer" && !roles.includes("customer")) {
+      return next(createError("Customer authentication required", 403));
     }
 
     req.decoded = decoded;
-    req.auth = {
-      type: "staff",
-      accountId: account.id,
-      role: account.role.name,
-      account,
-    };
+    attachUser(req, user);
     return next();
-  } catch (error) {
+  } catch {
     return next(createError("Unauthorized access", 401));
   }
 };
+
+const checkAccessToken = (
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction,
+) => authenticateUser(req, next, "staff");
+
+const checkCustomerToken = (
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction,
+) => authenticateUser(req, next, "customer");
+
+const checkCustomerOrStaffToken = (
+  req: AuthenticatedRequest,
+  _res: Response,
+  next: NextFunction,
+) => authenticateUser(req, next, "any");
 
 const requireRoles = (...allowedRoles: string[]) => {
   const roles = allowedRoles.map((role) => role.toLowerCase());
 
-  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    const role =
-      req.auth?.type === "staff" ? req.auth.role.toLowerCase() : undefined;
-    if (!role || !roles.includes(role)) {
+  return (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
+    if (!req.auth?.roles.some((role) => roles.includes(role))) {
       return next(createError("Forbidden", 403));
     }
     return next();
   };
-};
-
-const checkCustomerOrStaffToken = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction,
-) => {
-  const accessToken = req.get("x-access-token");
-  if (!accessToken) {
-    return next(createError("Authentication required", 401));
-  }
-
-  try {
-    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_KEY, {
-      algorithms: ["HS256"],
-    }) as DecodedToken;
-
-    if (decoded.type === "customer") {
-      const customer = await findCustomer(decoded.id);
-      if (!customer) return next(createError("Unauthorized access", 401));
-      req.auth = {
-        type: "customer",
-        customerId: customer.id,
-        customer,
-      };
-      return next();
-    }
-
-    if (decoded.type !== "staff") {
-      return next(
-        createError("Staff or customer authentication required", 403),
-      );
-    }
-
-    const account = await findStaffAccount(decoded.id);
-    if (!account?.role) {
-      return next(createError("Unauthorized access", 401));
-    }
-    req.decoded = decoded;
-    req.auth = {
-      type: "staff",
-      accountId: account.id,
-      role: account.role.name,
-      account,
-    };
-    return next();
-  } catch (error) {
-    return next(createError("Unauthorized access", 401));
-  }
-};
-
-const checkCustomerToken = async (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction,
-) => {
-  const accessToken = req.get("x-access-token");
-  if (!accessToken) {
-    return next(createError("Customer authentication required", 401));
-  }
-
-  try {
-    const decoded = jwt.verify(accessToken, process.env.ACCESS_TOKEN_KEY, {
-      algorithms: ["HS256"],
-    }) as DecodedToken;
-    if (decoded.type !== "customer") {
-      return next(createError("Customer authentication required", 403));
-    }
-
-    const customer = await findCustomer(decoded.id);
-    if (!customer) {
-      return next(createError("Unauthorized access", 401));
-    }
-
-    req.auth = {
-      type: "customer",
-      customerId: customer.id,
-      customer,
-    };
-    return next();
-  } catch (error) {
-    return next(createError("Unauthorized access", 401));
-  }
 };
 
 exports.createError = createError;

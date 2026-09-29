@@ -22,8 +22,7 @@
     "db:generate": "corepack pnpm --filter @bukit-delight/api db:generate",
     "db:migrate": "corepack pnpm --filter @bukit-delight/api db:migrate",
     "db:deploy": "corepack pnpm --filter @bukit-delight/api db:deploy",
-    "db:seed": "corepack pnpm --filter @bukit-delight/api db:seed",
-    "db:import": "corepack pnpm --filter @bukit-delight/api db:import"
+    "db:seed": "corepack pnpm --filter @bukit-delight/api db:seed"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

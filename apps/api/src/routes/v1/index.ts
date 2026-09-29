@@ -5,10 +5,10 @@ const router = express.Router();
 const middlewares = require("../../middlewares");
 
 const staff = middlewares.Authentication.checkAccessToken;
-const admin = middlewares.Authentication.requireRoles("admin");
+const owner = middlewares.Authentication.requireRoles("owner");
 const staffOperations = middlewares.Authentication.requireRoles(
   "cashier",
-  "admin",
+  "owner",
 );
 const customerOrStaff = middlewares.Authentication.checkCustomerOrStaffToken;
 const customer = middlewares.Authentication.checkCustomerToken;
@@ -21,7 +21,7 @@ const requireAdminForWrites = (
   if (req.method === "GET") return next();
   return staff(req, res, (error: unknown) => {
     if (error) return next(error);
-    return admin(req, res, next);
+    return owner(req, res, next);
   });
 };
 
@@ -50,15 +50,6 @@ const requireCustomerOrderPolicy = (
   });
 };
 
-const requireCustomerReadPolicy = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  if (req.method === "POST") return next();
-  return customerOrStaff(req, res, next);
-};
-
 router.get("/", staff, (req: Request, res: Response) => {
   res.json({ index: "index" });
 });
@@ -66,8 +57,8 @@ router.get("/", staff, (req: Request, res: Response) => {
 const Authentication = require("./Authentication");
 router.use("/Authentication", Authentication);
 
-const Accounts = require("./Accounts");
-router.use("/Accounts", staff, admin, Accounts);
+const Users = require("./Users");
+router.use("/users", staff, owner, Users);
 
 const Categories = require("./Categories");
 router.use("/Categories", requireAdminForWrites, Categories);
@@ -88,12 +79,12 @@ const ItemOrders = require("./ItemOrders");
 router.use("/item-orders", staff, staffOperations, ItemOrders);
 
 const Roles = require("./Roles");
-router.use("/roles", staff, admin, Roles);
+router.use("/roles", staff, owner, Roles);
 
 const Customers = require("./Customers");
-router.use("/customers", requireCustomerReadPolicy, Customers);
+router.use("/customers", staff, owner, Customers);
 
 const Machine = require("./Machine");
-router.use("/machine", staff, admin, Machine);
+router.use("/machine", staff, owner, Machine);
 
 export = router;

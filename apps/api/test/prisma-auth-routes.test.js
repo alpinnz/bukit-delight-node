@@ -12,7 +12,7 @@ const isLocalTestDatabase =
 const prismaRouteTest = isLocalTestDatabase ? it : it.skip;
 
 prismaRouteTest(
-  "serves staff auth and account routes from Prisma",
+  "serves owner auth and user routes from Prisma",
   async () => {
     process.env.DATABASE_URL = databaseUrl;
     process.env.ACCESS_TOKEN_KEY = "phase4-prisma-access-secret";
@@ -24,7 +24,7 @@ prismaRouteTest(
     const { PrismaClient } = require("../src/generated/prisma/client");
     const { PrismaPg } = require("@prisma/adapter-pg");
     const { HashPassword } = require("../src/services/Authentication");
-    const { createAccount } = require("../src/services/PrismaAuthentication");
+    const { createUser } = require("../src/services/PrismaAuthentication");
     const prisma = new PrismaClient({
       adapter: new PrismaPg({ connectionString: databaseUrl }),
     });
@@ -36,14 +36,14 @@ prismaRouteTest(
 
     try {
       await prisma.$connect();
-      const role = await prisma.role.findUnique({ where: { name: "admin" } });
-      assert.ok(role, "local target database must contain the admin role");
-      await createAccount(prisma, {
+      const role = await prisma.role.findUnique({ where: { name: "owner" } });
+      assert.ok(role, "local target database must contain the owner role");
+      await createUser(prisma, {
         id: accountId,
         username,
         email: `${username}@example.invalid`,
         password: await HashPassword("phase4-route-password"),
-        roleId: role.id,
+        roleIds: [role.id],
       });
 
       await new Promise((resolve) => server.listen(0, resolve));
@@ -68,7 +68,7 @@ prismaRouteTest(
       const roles = await rolesResponse.json();
       assert.ok(roles.data.some((item) => item._id === role.id));
 
-      const accountsResponse = await fetch(`${baseUrl}/api/v1/Accounts`, {
+      const accountsResponse = await fetch(`${baseUrl}/api/v1/users`, {
         headers: { "x-access-token": login.data.accessToken },
       });
       assert.equal(accountsResponse.status, 200);
@@ -77,7 +77,7 @@ prismaRouteTest(
         (item) => item._id === accountId,
       );
       assert.equal(visibleAccount.username, username);
-      assert.equal(visibleAccount.id_role.name, "admin");
+      assert.deepEqual(visibleAccount.id_roles.map((item) => item.name), ["owner"]);
       assert.equal("password" in visibleAccount, false);
 
       const cashierRole = await prisma.role.findUnique({
@@ -87,7 +87,7 @@ prismaRouteTest(
         cashierRole,
         "local target database must contain the cashier role",
       );
-      const accountCreateResponse = await fetch(`${baseUrl}/api/v1/Accounts`, {
+      const accountCreateResponse = await fetch(`${baseUrl}/api/v1/users`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -96,7 +96,7 @@ prismaRouteTest(
         body: JSON.stringify({
           username: `phase4-created-${suffix}`,
           email: `phase4-created-${suffix}@example.com`,
-          id_role: cashierRole.id,
+          id_roles: [cashierRole.id],
           password: "phase4-route-password",
           repeat_password: "phase4-route-password",
         }),
@@ -108,16 +108,16 @@ prismaRouteTest(
         JSON.stringify(createdAccount),
       );
       createdAccountId = (
-        await prisma.account.findUnique({
+        await prisma.user.findUnique({
           where: { username: `phase4-created-${suffix}` },
           select: { id: true },
         })
       ).id;
       assert.match(createdAccountId, /^[0-9a-f]{24}$/);
-      assert.equal(createdAccount.data.role, "cashier");
+      assert.deepEqual(createdAccount.data.roles, ["cashier"]);
 
       const accountUpdateResponse = await fetch(
-        `${baseUrl}/api/v1/Accounts/${createdAccountId}`,
+        `${baseUrl}/api/v1/users/${createdAccountId}`,
         {
           method: "PUT",
           headers: {
@@ -127,7 +127,7 @@ prismaRouteTest(
           body: JSON.stringify({
             username: `phase4-updated-${suffix}`,
             email: `phase4-updated-${suffix}@example.com`,
-            id_role: cashierRole.id,
+            id_roles: [cashierRole.id],
           }),
         },
       );
@@ -138,7 +138,7 @@ prismaRouteTest(
       );
 
       const accountDeleteResponse = await fetch(
-        `${baseUrl}/api/v1/Accounts/${createdAccountId}`,
+        `${baseUrl}/api/v1/users/${createdAccountId}`,
         {
           method: "DELETE",
           headers: { "x-access-token": login.data.accessToken },
@@ -146,7 +146,7 @@ prismaRouteTest(
       );
       assert.equal(accountDeleteResponse.status, 200);
       assert.equal(
-        await prisma.account.findUnique({ where: { id: createdAccountId } }),
+        await prisma.user.findUnique({ where: { id: createdAccountId } }),
         null,
       );
       createdAccountId = undefined;
@@ -184,30 +184,30 @@ prismaRouteTest(
           server.close((error) => (error ? reject(error) : resolve())),
         );
       }
-      await prisma.refreshToken.deleteMany({ where: { accountId } });
-      const createdAccountFixture = await prisma.account.findUnique({
+      await prisma.refreshToken.deleteMany({ where: { userId: accountId } });
+      const createdAccountFixture = await prisma.user.findUnique({
         where: { username: `phase4-created-${suffix}` },
         select: { id: true },
       });
       const cleanupAccountId = createdAccountId ?? createdAccountFixture?.id;
       if (cleanupAccountId) {
         await prisma.refreshToken.deleteMany({
-          where: { accountId: cleanupAccountId },
+          where: { userId: cleanupAccountId },
         });
-        await prisma.account.deleteMany({ where: { id: cleanupAccountId } });
+        await prisma.user.deleteMany({ where: { id: cleanupAccountId } });
       }
-      await prisma.account.deleteMany({ where: { id: accountId } });
+      await prisma.user.deleteMany({ where: { id: accountId } });
       assert.equal(
-        await prisma.refreshToken.count({ where: { accountId } }),
-        0,
+        await prisma.refreshToken.count({ where: { userId: accountId } }),
+      0,
       );
       assert.equal(
-        await prisma.account.findUnique({ where: { id: accountId } }),
+        await prisma.user.findUnique({ where: { id: accountId } }),
         null,
       );
       if (cleanupAccountId) {
         assert.equal(
-          await prisma.account.findUnique({ where: { id: cleanupAccountId } }),
+          await prisma.user.findUnique({ where: { id: cleanupAccountId } }),
           null,
         );
       }

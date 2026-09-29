@@ -31,7 +31,7 @@ describe("HTTP health and error contracts", () => {
       const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_KEY);
 
       assert.equal(decoded.id, "prisma-account-id");
-      assert.equal(decoded.type, "staff");
+      assert.equal(decoded.type, undefined);
     } finally {
       if (previousSecret === undefined) delete process.env.ACCESS_TOKEN_KEY;
       else process.env.ACCESS_TOKEN_KEY = previousSecret;
@@ -81,5 +81,32 @@ describe("HTTP health and error contracts", () => {
     assert.equal(response.status, 400);
     assert.equal(body.success, false);
     assert.equal(body.error.code, "BAD_REQUEST");
+  });
+
+  it("requires a password policy for customer registration", async () => {
+    const response = await fetch(`${baseUrl}/api/v1/Authentication/register`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        username: "customer@example.test",
+        email: "customer@example.test",
+        password: "Password123",
+        repeat_password: "Password123",
+      }),
+    });
+    const body = await response.json();
+
+    assert.equal(response.status, 400);
+    assert.equal(body.error.code, "BAD_REQUEST");
+  });
+
+  it("does not allow unauthenticated guest customer creation", async () => {
+    const response = await fetch(`${baseUrl}/api/v1/customers`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ username: "guest" }),
+    });
+
+    assert.equal(response.status, 401);
   });
 });

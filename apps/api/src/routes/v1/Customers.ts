@@ -7,7 +7,6 @@ const { Multer } = require("../../config");
 
 router.get("/", PrismaCustomers.ReadAll);
 router.get("/:_id", CheckIdentifier, PrismaCustomers.ReadOne);
-router.post("/", Multer.none, PrismaCustomers.Create);
 router.put("/:_id", CheckIdentifier, Multer.none, PrismaCustomers.Update);
 router.delete("/:_id", CheckIdentifier, PrismaCustomers.Delete);
 

@@ -1,10 +1,10 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import AccountsAction, { LOADING } from "./accounts.action";
+import UsersAction, { LOADING } from "./users.action";
 
 vi.mock("axios", () => ({ default: vi.fn() }));
 
-describe("AccountsAction", () => {
+describe("UsersAction", () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
@@ -21,10 +21,10 @@ describe("AccountsAction", () => {
     } as never);
     const dispatch = vi.fn();
 
-    await AccountsAction.onCreate({
+    await UsersAction.onCreate({
       username: "cashier",
       email: "cashier@example.test",
-      id_role: "role-1",
+      id_roles: ["role-1", "role-2"],
       password: "secret",
       repeat_password: "secret",
     })(dispatch as never, (() => ({})) as never, undefined);
@@ -32,7 +32,7 @@ describe("AccountsAction", () => {
     expect(axios).toHaveBeenCalledWith(
       expect.objectContaining({
         method: "POST",
-        url: "api/v1/accounts/",
+        url: "api/v1/users/",
         headers: expect.objectContaining({
           "x-access-token": account.accessToken,
           "x-refresh-token": account.refreshToken,
@@ -44,7 +44,7 @@ describe("AccountsAction", () => {
     };
     expect(request.data.get("username")).toBe("cashier");
     expect(request.data.get("email")).toBe("cashier@example.test");
-    expect(request.data.get("id_role")).toBe("role-1");
+    expect(request.data.get("id_roles")).toBe("role-1,role-2");
     expect(request.data.get("password")).toBe("secret");
     await vi.waitFor(() => {
       expect(dispatch).toHaveBeenCalledWith({ type: LOADING, payload: false });
@@ -57,22 +57,22 @@ describe("AccountsAction", () => {
     } as never);
     const dispatch = vi.fn();
 
-    await AccountsAction.onUpdate("account-1", {
+    await UsersAction.onUpdate("account-1", {
       username: "cashier",
       email: "cashier@example.test",
-      id_role: "role-1",
+      id_roles: ["role-1"],
     })(dispatch as never, (() => ({})) as never, undefined);
 
     expect(axios).toHaveBeenCalledWith(
       expect.objectContaining({
         method: "PUT",
-        url: "api/v1/accounts/account-1",
+        url: "api/v1/users/account-1",
       }),
     );
     const request = vi.mocked(axios).mock.calls[0][0] as unknown as {
       data: FormData;
     };
-    expect(request.data.get("id_role")).toBe("role-1");
+    expect(request.data.get("id_roles")).toBe("role-1");
     expect(request.data.get("password")).toBeNull();
     expect(request.data.get("repeat_password")).toBeNull();
   });

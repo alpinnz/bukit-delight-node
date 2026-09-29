@@ -4,7 +4,7 @@ import { lockOrdersForMutation } from "./PrismaOrderLocks";
 
 type OrderDatabase = Pick<
   PrismaClient,
-  "customer" | "diningTable" | "menu" | "order" | "orderItem" | "transaction"
+  "user" | "diningTable" | "menu" | "order" | "orderItem" | "transaction"
 > &
   Pick<PrismaClient, "$queryRaw">;
 type OrderTransaction = OrderDatabase;
@@ -308,8 +308,11 @@ export const deleteOrderItem = (database: PrismaClient, id: string) =>
   );
 
 const findOrderInputs = async (database: OrderDatabase, input: OrderWrite) => {
-  const customer = await database.customer.findUnique({
-    where: { id: input.customerId },
+  const customer = await database.user.findFirst({
+    where: {
+      id: input.customerId,
+      roles: { some: { role: { name: "customer" } } },
+    },
     select: { id: true },
   });
   if (!customer) throw fail("customer not found", 404);

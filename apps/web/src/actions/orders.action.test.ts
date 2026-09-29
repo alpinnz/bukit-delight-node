@@ -11,10 +11,10 @@ describe("OrdersAction.onCreate", () => {
     vi.clearAllMocks();
   });
 
-  it("submits the active customer, table, cart items, and saved customer token", async () => {
+  it("submits the authenticated customer, table, and cart items", async () => {
     localStorage.setItem(
-      "customer",
-      JSON.stringify({ accessToken: "customer-access" }),
+      "account",
+      JSON.stringify({ accessToken: "customer-access", refreshToken: "refresh" }),
     );
     vi.mocked(axios).mockResolvedValue({
       data: { name: "success", data: {} },

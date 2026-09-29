@@ -33,16 +33,13 @@ const InitCheck = ({ children }: { children: ReactNode }) => {
     (state: RootState) => state.Categories.mount,
   );
   const accountsMounted = useSelector(
-    (state: RootState) => state.Accounts.mount,
+    (state: RootState) => state.Users.mount,
   );
   const ordersMounted = useSelector((state: RootState) => state.Orders.mount);
   const tablesMounted = useSelector((state: RootState) => state.Tables.mount);
   const rolesMounted = useSelector((state: RootState) => state.Roles.mount);
   const transactionsMounted = useSelector(
     (state: RootState) => state.Transactions.mount,
-  );
-  const customersMounted = useSelector(
-    (state: RootState) => state.Customers.mount,
   );
   const dispatch = useDispatch<AppDispatch>();
 
@@ -53,19 +50,36 @@ const InitCheck = ({ children }: { children: ReactNode }) => {
     await dispatch(Actions.Categories.onMount());
 
     const account = JSON.parse(localStorage.getItem("account") || "null");
-    const customer = JSON.parse(localStorage.getItem("customer") || "null");
+    localStorage.removeItem("customer");
 
     if (account) {
-      if (`${account.role}`.toLowerCase() === "admin") {
-        await dispatch(Actions.Accounts.onMount());
+      const role = `${account.role}`.toLowerCase();
+      const roles: string[] = Array.isArray(account.roles)
+        ? account.roles
+        : [role];
+      if (roles.includes("customer")) {
+        dispatch(
+          Actions.Customers.setCustomer({
+            _id: account._id,
+            username: account.username,
+          }),
+        );
+      } else {
+        dispatch(Actions.Customers.cleanCustomer());
+      }
+      if (roles.includes("owner")) {
+        await dispatch(Actions.Users.onMount());
         dispatch(Actions.Roles.onMount());
         dispatch(Actions.Favorites.onMount());
       }
-      await dispatch(Actions.Transactions.onMount());
-      await dispatch(Actions.Orders.onMount());
-    } else if (customer) {
-      await dispatch(Actions.Customers.onMount());
-      await dispatch(Actions.Orders.onMount());
+      if (roles.some((item) => ["owner", "cashier"].includes(item))) {
+        await dispatch(Actions.Transactions.onMount());
+        await dispatch(Actions.Orders.onMount());
+      } else if (roles.includes("customer")) {
+        await dispatch(Actions.Orders.onMount());
+      }
+    } else {
+      dispatch(Actions.Customers.cleanCustomer());
     }
   };
 
@@ -81,8 +95,7 @@ const InitCheck = ({ children }: { children: ReactNode }) => {
     ordersMounted ||
     tablesMounted ||
     rolesMounted ||
-    transactionsMounted ||
-    customersMounted;
+    transactionsMounted;
 
   if (!isInitialized) {
     return (
@@ -100,7 +113,7 @@ const Logic = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const socket = io(Const.BASE_URL);
-    const onAccountsUpdate = () => dispatch(Actions.Accounts.onLoad());
+    const onUsersUpdate = () => dispatch(Actions.Users.onLoad());
     const onMenusUpdate = () => dispatch(Actions.Menus.onLoad());
     const onCategoriesUpdate = () => dispatch(Actions.Categories.onLoad());
     const onOrdersUpdate = () => {
@@ -113,26 +126,23 @@ const Logic = ({ children }: { children: ReactNode }) => {
       dispatch(Actions.Orders.onLoad());
       dispatch(Actions.Transactions.onLoad());
     };
-    const onCustomersUpdate = () => dispatch(Actions.Customers.onLoad());
 
-    socket.on("AccountsUpdate", onAccountsUpdate);
+    socket.on("UsersUpdate", onUsersUpdate);
     socket.on("MenusUpdate", onMenusUpdate);
     socket.on("CategoriesUpdate", onCategoriesUpdate);
     socket.on("OrdersUpdate", onOrdersUpdate);
     socket.on("TablesUpdate", onTablesUpdate);
     socket.on("RolesUpdate", onRolesUpdate);
     socket.on("TransactionsUpdate", onTransactionsUpdate);
-    socket.on("CustomersUpdate", onCustomersUpdate);
 
     return () => {
-      socket.off("AccountsUpdate", onAccountsUpdate);
+      socket.off("UsersUpdate", onUsersUpdate);
       socket.off("MenusUpdate", onMenusUpdate);
       socket.off("CategoriesUpdate", onCategoriesUpdate);
       socket.off("OrdersUpdate", onOrdersUpdate);
       socket.off("TablesUpdate", onTablesUpdate);
       socket.off("RolesUpdate", onRolesUpdate);
       socket.off("TransactionsUpdate", onTransactionsUpdate);
-      socket.off("CustomersUpdate", onCustomersUpdate);
       socket.disconnect();
     };
   }, [dispatch]);

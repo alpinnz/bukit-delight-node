@@ -166,8 +166,13 @@ prismaTest(
             `phase4 table ${suffix}`,
           );
 
-          await transaction.customer.create({
-            data: { id: customerId, username: `phase4-catalog-${suffix}` },
+          await transaction.user.create({
+            data: {
+              id: customerId,
+              username: `phase4-catalog-${suffix}`,
+              email: `phase4-catalog-${suffix}@example.invalid`,
+              password: "fixture-only",
+            },
           });
           await transaction.order.create({
             data: {
@@ -252,7 +257,7 @@ prismaTest(
         null,
       );
       assert.equal(
-        await prisma.customer.findUnique({ where: { id: customerId } }),
+        await prisma.user.findUnique({ where: { id: customerId } }),
         null,
       );
     } finally {

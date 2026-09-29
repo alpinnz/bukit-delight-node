@@ -9,7 +9,7 @@ type PrivateRouteProps = {
 };
 
 const roleHomePaths: Record<string, string> = {
-  admin: "/admin/dashboard",
+  owner: "/admin/dashboard",
   cashier: "/cashier/home",
 };
 
@@ -25,7 +25,9 @@ const PrivateRoute = ({ role, children }: PrivateRouteProps) => {
 
   const roleName = role.toLowerCase();
   const roleAuth = `${account.role}`.toLowerCase();
-  if (roleName === roleAuth) return children;
+  const roles = account.roles ?? [roleAuth];
+  if (roles.some((userRole) => userRole.toLowerCase() === roleName))
+    return children;
 
   return (
     <Navigate

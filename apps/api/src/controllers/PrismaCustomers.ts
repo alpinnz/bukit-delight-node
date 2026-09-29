@@ -4,31 +4,19 @@ import type {
   Response as ExpressResponse,
 } from "express";
 import type {
-  CreateCustomerResponse,
-  CreateCustomerRequest,
   UpdateCustomerRequest,
 } from "@bukit-delight/shared";
 
-const { randomBytes } = require("node:crypto");
 const Joi = require("joi");
 const { Response } = require("./../middlewares");
 const { prisma } = require("./../config/Prisma");
 const logger = require("./../utils/logger");
 const {
-  createCustomer,
-  deleteCustomer,
-  findCustomerById,
+  removeCustomerRole,
+  findCustomerUserById,
   listCustomers,
-  updateCustomer,
+  updateCustomerUser,
 } = require("./../services/PrismaAuthentication");
-const { JwtCustomerToken } = require("./../services/Authentication");
-
-type CustomerRequest = Request & {
-  auth?: { type?: string; customerId?: string };
-  app: Request["app"] & {
-    io: { emit: (event: string, message: string) => void };
-  };
-};
 
 const error = (message: string, status = 500) =>
   Object.assign(new Error(message), { status });
@@ -52,16 +40,12 @@ const customerResponse = ({ id, ...customer }: Record<string, unknown>) => ({
   ...customer,
 });
 
-const isForbiddenCustomer = (req: CustomerRequest, customerId: string) =>
-  req.auth?.type === "customer" && req.auth.customerId !== customerId;
+type CustomerRequest = Request;
 
 const customerIdFromRequest = (req: CustomerRequest) => {
   const customerId = req.params._id;
   return typeof customerId === "string" ? customerId : null;
 };
-
-const emitCustomersUpdate = (req: CustomerRequest) =>
-  req.app.io.emit("CustomersUpdate", "CustomersUpdate");
 
 exports.ReadAll = async (
   req: CustomerRequest,
@@ -69,10 +53,7 @@ exports.ReadAll = async (
   next: NextFunction,
 ) => {
   try {
-    const customers = await listCustomers(
-      requirePrisma(),
-      req.auth?.type === "customer" ? req.auth.customerId : undefined,
-    );
+    const customers = await listCustomers(requirePrisma());
     return Response.Success(
       res,
       "Customers",
@@ -92,11 +73,8 @@ exports.ReadOne = async (
 ) => {
   const customerId = customerIdFromRequest(req);
   if (!customerId) return next(error("Invalid customer identifier", 400));
-  if (isForbiddenCustomer(req, customerId)) {
-    return next(error("Forbidden", 403));
-  }
   try {
-    const customer = await findCustomerById(requirePrisma(), customerId);
+    const customer = await findCustomerUserById(requirePrisma(), customerId);
     if (!customer) return next(error("Customer not found", 404));
     return Response.Success(
       res,
@@ -110,37 +88,6 @@ exports.ReadOne = async (
   }
 };
 
-exports.Create = async (
-  req: CustomerRequest,
-  res: ExpressResponse,
-  next: NextFunction,
-) => {
-  const { error: validationError, value } = Joi.object({
-    username: Joi.string().required(),
-  }).validate(req.body);
-  if (validationError) {
-    return next(error(validationError.details[0].message, 400));
-  }
-  const request = value as CreateCustomerRequest;
-
-  try {
-    const customer = await createCustomer(requirePrisma(), {
-      id: randomBytes(12).toString("hex"),
-      username: request.username,
-    });
-    const accessToken = await JwtCustomerToken(customer);
-    emitCustomersUpdate(req);
-    const customerResponse: CreateCustomerResponse = {
-      _id: customer.id,
-      username: customer.username,
-      accessToken,
-    };
-    return Response.Success(res, "Register", 0, 200, customerResponse);
-  } catch (cause) {
-    return sendError(cause, next);
-  }
-};
-
 exports.Update = async (
   req: CustomerRequest,
   res: ExpressResponse,
@@ -148,9 +95,6 @@ exports.Update = async (
 ) => {
   const customerId = customerIdFromRequest(req);
   if (!customerId) return next(error("Invalid customer identifier", 400));
-  if (isForbiddenCustomer(req, customerId)) {
-    return next(error("Forbidden", 403));
-  }
   const { error: validationError, value } = Joi.object({
     username: Joi.string().required(),
   }).validate(req.body);
@@ -161,15 +105,14 @@ exports.Update = async (
 
   try {
     const database = requirePrisma();
-    if (!(await findCustomerById(database, customerId))) {
+    if (!(await findCustomerUserById(database, customerId))) {
       return next(error("Customer not found", 404));
     }
-    const customer = await updateCustomer(
+    const customer = await updateCustomerUser(
       database,
       customerId,
       request.username,
     );
-    emitCustomersUpdate(req);
     return Response.Success(res, "Update", 0, 200, customerResponse(customer));
   } catch (cause) {
     if ((cause as { code?: string })?.code === "P2025") {
@@ -186,12 +129,8 @@ exports.Delete = async (
 ) => {
   const customerId = customerIdFromRequest(req);
   if (!customerId) return next(error("Invalid customer identifier", 400));
-  if (isForbiddenCustomer(req, customerId)) {
-    return next(error("Forbidden", 403));
-  }
   try {
-    const customer = await deleteCustomer(requirePrisma(), customerId);
-    emitCustomersUpdate(req);
+    const customer = await removeCustomerRole(requirePrisma(), customerId);
     return Response.Success(res, "Delete", 0, 200, customer);
   } catch (cause) {
     if ((cause as { code?: string })?.code === "P2003") {

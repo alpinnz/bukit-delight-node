@@ -1,6 +1,9 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
+import { createStore } from "redux";
+import { Provider } from "react-redux";
 import { MemoryRouter, useLocation } from "react-router-dom";
+import RootReducer from "../../reducers";
 import ContainerCustomerBase from "./container.customer.base";
 
 const CurrentPath = () => {
@@ -13,12 +16,14 @@ afterEach(cleanup);
 describe("ContainerCustomerBase", () => {
   it("renders the book banner and navigates through the customer bottom bar", () => {
     render(
-      <MemoryRouter initialEntries={["/customer/book"]}>
-        <ContainerCustomerBase type="book">
-          <main>Menu categories</main>
-        </ContainerCustomerBase>
-        <CurrentPath />
-      </MemoryRouter>,
+      <Provider store={createStore(RootReducer)}>
+        <MemoryRouter initialEntries={["/customer/book"]}>
+          <ContainerCustomerBase type="book">
+            <main>Menu categories</main>
+          </ContainerCustomerBase>
+          <CurrentPath />
+        </MemoryRouter>
+      </Provider>,
     );
 
     expect(screen.getByText("Menu categories")).toBeTruthy();
@@ -31,11 +36,13 @@ describe("ContainerCustomerBase", () => {
 
   it("renders the menu title and links back to the book route", () => {
     render(
-      <MemoryRouter>
-        <ContainerCustomerBase type="menu" title="Coffee">
-          <main>Menu items</main>
-        </ContainerCustomerBase>
-      </MemoryRouter>,
+      <Provider store={createStore(RootReducer)}>
+        <MemoryRouter>
+          <ContainerCustomerBase type="menu" title="Coffee">
+            <main>Menu items</main>
+          </ContainerCustomerBase>
+        </MemoryRouter>
+      </Provider>,
     );
 
     expect(screen.getByText("Coffee")).toBeTruthy();

@@ -7,7 +7,6 @@ import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import RootReducer from "../reducers";
 import { SET_ACCOUNT } from "../features/auth/authentication.action";
 import { SET_CUSTOMER } from "../actions/customers.action";
-import { SET_TABLE } from "../actions/tables.action";
 import CustomersRoute from "./customers.route";
 import PrivateRoute from "./private.route";
 
@@ -38,7 +37,7 @@ describe("route guards", () => {
       <Route
         path="/protected"
         element={
-          <PrivateRoute role="admin">
+          <PrivateRoute role="owner">
             <div>Admin</div>
           </PrivateRoute>
         }
@@ -51,12 +50,12 @@ describe("route guards", () => {
 
   it("renders a page for the matching staff role", () => {
     const store = createStore(RootReducer);
-    store.dispatch({ type: SET_ACCOUNT, payload: { role: "admin" } });
+    store.dispatch({ type: SET_ACCOUNT, payload: { role: "owner" } });
     renderRoute(
       <Route
         path="/protected"
         element={
-          <PrivateRoute role="ADMIN">
+          <PrivateRoute role="OWNER">
             <div>Admin</div>
           </PrivateRoute>
         }
@@ -68,7 +67,7 @@ describe("route guards", () => {
     expect(screen.getByText("Admin")).toBeTruthy();
   });
 
-  it("requires both a customer and a selected table", () => {
+  it("redirects unauthenticated customers to login", () => {
     renderRoute(
       <Route
         path="/protected"
@@ -81,17 +80,49 @@ describe("route guards", () => {
     );
 
     expect(screen.getByTestId("current-path").textContent).toBe(
-      "/customer/init/:tableName",
+      "/login",
     );
   });
 
-  it("renders customer content after initialization", () => {
+  it("requires a selected table before opening customer ordering routes", () => {
     const store = createStore(RootReducer);
-    store.dispatch({ type: SET_CUSTOMER, payload: { _id: "customer-1" } });
     store.dispatch({
-      type: SET_TABLE,
-      payload: { _id: "table-1", name: "Table 1" },
+      type: SET_ACCOUNT,
+      payload: {
+        _id: "account-1",
+        role: "customer",
+      },
     });
+    store.dispatch({ type: SET_CUSTOMER, payload: { _id: "account-1" } });
+    renderRoute(
+      <Route
+        path="/protected"
+        element={
+          <CustomersRoute requireTable>
+            <div>Customer</div>
+          </CustomersRoute>
+        }
+      />,
+      "/protected",
+      store,
+    );
+
+    expect(screen.getByTestId("current-path").textContent).toBe(
+      "/customer/home",
+    );
+    expect(screen.queryByText("Customer")).toBeNull();
+  });
+
+  it("renders the customer page after login without requiring a QR session", () => {
+    const store = createStore(RootReducer);
+    store.dispatch({
+      type: SET_ACCOUNT,
+      payload: {
+        _id: "account-1",
+        role: "customer",
+      },
+    });
+    store.dispatch({ type: SET_CUSTOMER, payload: { _id: "account-1" } });
     renderRoute(
       <Route
         path="/protected"

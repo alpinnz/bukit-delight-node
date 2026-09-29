@@ -22,7 +22,6 @@ export const DIALOG_REVIEW_HIDE = "ORDERS/DIALOG_REVIEW_HIDE";
 
 type OrderThunk = ThunkAction<void, RootState, unknown, AnyAction>;
 type StoredAccount = { accessToken: string; refreshToken: string };
-type StoredCustomer = { accessToken: string; _id?: string };
 type OrdersResponse = ApiResponse<OrderRecord[]>;
 type CreateOrderInput = { note?: string };
 
@@ -31,16 +30,10 @@ const localGetAccount = (): StoredAccount | null => {
   return account ? (JSON.parse(account) as StoredAccount) : null;
 };
 
-const localGetCustomer = (): StoredCustomer | null => {
-  const customer = localStorage.getItem("customer");
-  return customer ? (JSON.parse(customer) as StoredCustomer) : null;
-};
-
 const getHeaders = () => {
   const account = localGetAccount();
-  const customer = localGetCustomer();
   return {
-    "x-access-token": account?.accessToken ?? customer?.accessToken ?? "",
+    "x-access-token": account?.accessToken ?? "",
     "x-refresh-token": account?.refreshToken ?? "",
   };
 };

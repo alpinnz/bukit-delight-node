@@ -300,7 +300,7 @@ Dokumentasi hasil: docs/architecture/overview.md dan docs/architecture/decisions
 - Database lama `bukit_delight` di port 5433 tetap merupakan layanan Compose terpisah; target aktif `bukit-delight` di port 5432 memakai nama database yang diminta operator.
 - Prisma auth persistence dan jalur HTTP mencakup auth staff/customer, akun, role, normalisasi email, serta refresh-token transaksional. Tes PostgreSQL lokal sebelumnya memverifikasi login, middleware, CRUD akun, role, rotasi satu-kali, logout, dan rollback fixture.
 - Operasi order/item, katalog kategori/menu/meja, transaksi, customer, auth, dan role kini berjalan melalui Prisma saja. Mutasi order/item dan transaksi menjaga konsistensi melalui transaksi DB; fixture PostgreSQL sebelumnya memverifikasi CRUD, proteksi referensi, total, dan rollback.
-- Panduan operasional: docs/database/mongodb-to-postgres.md.
+- Migrasi database diselesaikan langsung melalui skema, migrasi, dan seed PostgreSQL; tidak ada data MongoDB yang diimpor.
 
 ## Phase 5 — Frontend dan kontrak bersama
 
@@ -621,7 +621,7 @@ Dokumentasi hasil: docs/architecture/overview.md dan docs/architecture/decisions
 - [x] Catat sinyal pemantauan API/PostgreSQL dan ambang deployment di panduan deployment.
 - [x] Dokumentasikan backup PostgreSQL dan rehearsal restore ke database recovery terpisah.
 - [x] Rehearse backup dan restore lokal pada PostgreSQL disposable; jalankan acceptance API pada hasil restore.
-- [x] Hapus kode, dependensi, dan konfigurasi Mongoose yang tidak dipakai; importer offline tetap membaca snapshot Extended JSON.
+- [x] Hapus kode, dependensi, dan konfigurasi Mongoose yang tidak dipakai; importer offline kemudian dihapus setelah dipastikan tidak ada snapshot legacy yang tersedia.
 - [x] Perbarui README dan dokumentasi arsitektur sesuai implementasi final.
 - [x] Pastikan checklist phase dan keputusan penting terdokumentasi.
 - [x] Jalankan ulang acceptance penuh auth, menu, pesanan, dan transaksi pada PostgreSQL test terisolasi setelah penghapusan scaffolding lama.

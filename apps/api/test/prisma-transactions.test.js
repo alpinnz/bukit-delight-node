@@ -24,8 +24,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
     adapter: new PrismaPg({ connectionString: databaseUrl }),
   });
   const suffix = randomUUID();
-  const accountId = `phase4-payment-${suffix}-account`;
-  const customerId = `phase4-payment-${suffix}-customer`;
+  const userId = `phase4-payment-${suffix}-user`;
   const tableId = `phase4-payment-${suffix}-table`;
   const oldOrderId = `phase4-payment-${suffix}-old-order`;
   const paidOrderId = `phase4-payment-${suffix}-paid-order`;
@@ -38,7 +37,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
     transaction.order.create({
       data: {
         id,
-        customerId,
+        customerId: userId,
         tableId,
         quality: 1,
         duration,
@@ -58,17 +57,16 @@ prismaTest("creates and updates payment transactions atomically", async () => {
           where: { name: "cashier" },
         });
         assert.ok(cashierRole, "local database must contain the cashier role");
-        await transaction.account.create({
+        await transaction.user.create({
           data: {
-            id: accountId,
+            id: userId,
             username: `phase4-payment-${suffix}`,
             email: `phase4-payment-${suffix}@example.invalid`,
             password: "fixture-only",
-            roleId: cashierRole.id,
           },
         });
-        await transaction.customer.create({
-          data: { id: customerId, username: `phase4-payment-${suffix}` },
+        await transaction.userRole.create({
+          data: { userId, roleId: cashierRole.id },
         });
         await transaction.diningTable.create({
           data: { id: tableId, name: `phase4-payment-${suffix}` },
@@ -79,21 +77,21 @@ prismaTest("creates and updates payment transactions atomically", async () => {
         await transaction.transaction.create({
           data: {
             id: oldTransactionId,
-            accountId,
+            userId,
             orderId: oldOrderId,
             status: "PROCESSING",
           },
         });
 
         const created = await createTransactionInTransaction(transaction, {
-          accountId,
+          userId,
           orderId: paidOrderId,
           payment: "VIRTUAL",
           note: "card payment",
           now,
         });
         assert.equal(created.status, "PENDING");
-        assert.equal(created.accountId, accountId);
+        assert.equal(created.userId, userId);
         assert.equal(created.orderId, paidOrderId);
         const paidOrder = await transaction.order.findUnique({
           where: { id: paidOrderId },
@@ -106,7 +104,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
 
         await assert.rejects(
           createTransactionInTransaction(transaction, {
-            accountId,
+            userId,
             orderId: paidOrderId,
             payment: "CASH",
             now,
@@ -121,7 +119,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
         );
         const laterTransaction = await createTransactionInTransaction(
           transaction,
-          { accountId, orderId: laterOrderId, payment: "CASH", now },
+          { userId, orderId: laterOrderId, payment: "CASH", now },
         );
         const laterOrder = await transaction.order.findUnique({
           where: { id: laterOrderId },
@@ -135,7 +133,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
           transaction,
           laterTransaction.id,
           {
-            accountId,
+            userId,
             orderId: laterOrderId,
             note: "cash at counter",
             status: "PROCESSING",
@@ -160,11 +158,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
     );
 
     assert.equal(
-      await prisma.account.findUnique({ where: { id: accountId } }),
-      null,
-    );
-    assert.equal(
-      await prisma.customer.findUnique({ where: { id: customerId } }),
+      await prisma.user.findUnique({ where: { id: userId } }),
       null,
     );
     assert.equal(

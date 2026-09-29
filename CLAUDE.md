@@ -30,9 +30,7 @@ details.
 - Cross-package request and response contracts belong in
   `packages/shared/src`.
 - Prisma schema, migrations, and seed live under `apps/api/prisma`.
-- `apps/api/prisma/import-mongodb.ts` is an offline compatibility tool for a
-  recovered MongoDB Extended JSON export; it is not part of application
-  startup or normal deployment.
+- The API database is managed through PostgreSQL and Prisma migrations.
 
 Keep `.env` files and credentials local. Use `.env.example` as the source for
 the documented application variables, and do not commit secrets.

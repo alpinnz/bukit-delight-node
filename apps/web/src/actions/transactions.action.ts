@@ -103,46 +103,12 @@ const onLoadSelectors = (): TransactionThunk => {
   return (dispatch, getState) => {
     const state = getState();
     const transactions = state.Transactions;
-    const customer = state.Customers.customer;
 
     if (transactions.transaction?._id) {
       const selectedTransaction = transactions.data.find(
         ({ _id }) => _id === transactions.transaction?._id,
       );
       if (selectedTransaction) dispatch(setTransaction(selectedTransaction));
-    }
-
-    if (customer?._id) {
-      const activeTransaction = transactions.data.find((transaction) => {
-        const order =
-          typeof transaction.id_order === "object"
-            ? transaction.id_order
-            : undefined;
-        const customerId =
-          typeof order?.id_customer === "object"
-            ? order.id_customer?._id
-            : undefined;
-        return customerId === customer._id && transaction.status !== "done";
-      });
-      if (activeTransaction) {
-        const order =
-          typeof activeTransaction.id_order === "object"
-            ? activeTransaction.id_order
-            : undefined;
-        const table =
-          typeof order?.id_table === "object" ? order.id_table : undefined;
-        if (table?._id && table.name) {
-          dispatch(
-            Actions.Tables.setTable({ _id: table._id, name: table.name }),
-          );
-        }
-        dispatch(Actions.Cart.setTransaction(activeTransaction));
-      } else if (state.Cart.order) {
-        dispatch(Actions.Cart.cleanTransaction());
-      } else {
-        dispatch(Actions.Tables.cleanTable());
-        dispatch(Actions.Cart.cleanTransaction());
-      }
     }
 
     setTimeout(() => {

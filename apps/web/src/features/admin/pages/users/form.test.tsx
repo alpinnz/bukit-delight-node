@@ -24,7 +24,7 @@ vi.mock("react-redux", () => ({
 }));
 vi.mock("../../../../actions", () => ({
   default: {
-    Accounts: {
+    Users: {
       onCreate: mocks.onCreate,
       onUpdate: mocks.onUpdate,
       onDelete: mocks.onDelete,
@@ -55,15 +55,38 @@ vi.mock("../../../../components/common/form.control.custom", () => ({
     value,
     onChange,
     error,
+    data,
+    multiple,
   }: {
     label: string;
-    value?: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    value?: string | string[];
+    onChange: (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
     error?: string;
+    data?: Array<{ _id: string; name: string }>;
+    multiple?: boolean;
   }) => (
     <label>
       {label}
-      <input aria-label={label} value={value ?? ""} onChange={onChange} />
+      {multiple ? (
+        <select
+          aria-label={label}
+          multiple
+          value={Array.isArray(value) ? value : []}
+          onChange={onChange}
+        >
+          {data?.map((role) => (
+            <option key={role._id} value={role._id}>
+              {role.name}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <input
+          aria-label={label}
+          value={Array.isArray(value) ? value.join(",") : (value ?? "")}
+          onChange={onChange}
+        />
+      )}
       {error && <span>{error}</span>}
     </label>
   ),
@@ -82,7 +105,7 @@ vi.mock("../../../../components/hooks/use.validate", () => ({
       if (
         rule.validate.includes("email") &&
         form.fields[rule.key] &&
-        !form.fields[rule.key].includes("@")
+        !String(form.fields[rule.key]).includes("@")
       ) {
         errors[rule.key] = "Email not valid";
       }
@@ -103,7 +126,7 @@ vi.mock("../../../../components/hooks/use.validate", () => ({
 }));
 
 const createState = () => ({
-  Accounts: { loading: false },
+  Users: { loading: false },
   Roles: { data: [{ _id: "role-1", name: "Cashier" }] },
   Service: { form_dialog: { open: true, type: "create", row: {} } },
 });
@@ -123,7 +146,7 @@ describe("AccountForm", () => {
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "operator@example.com" },
     });
-    fireEvent.change(screen.getByLabelText("Role"), {
+    fireEvent.change(screen.getByLabelText("Roles"), {
       target: { value: "role-1" },
     });
     fireEvent.change(screen.getByLabelText("Password"), {
@@ -145,7 +168,7 @@ describe("AccountForm", () => {
       expect(mocks.onCreate).toHaveBeenCalledWith({
         username: "operator",
         email: "operator@example.com",
-        id_role: "role-1",
+        id_roles: ["role-1"],
         password: "secret-1",
         repeat_password: "secret-1",
       }),
@@ -154,7 +177,7 @@ describe("AccountForm", () => {
 
   it("loads the current role and updates without password fields", async () => {
     mocks.reduxState = {
-      Accounts: { loading: false },
+      Users: { loading: false },
       Roles: { data: [{ _id: "role-1", name: "Cashier" }] },
       Service: {
         form_dialog: {
@@ -164,29 +187,30 @@ describe("AccountForm", () => {
             _id: "account-1",
             username: "operator",
             email: "operator@example.com",
-            id_role: { _id: "role-1" },
+            id_roles: [{ _id: "role-1" }],
           },
         },
       },
     };
     render(<AccountForm />);
-    expect((screen.getByLabelText("Role") as HTMLInputElement).value).toBe(
-      "role-1",
-    );
+    expect(
+      (screen.getByLabelText("Roles") as HTMLSelectElement).selectedOptions[0]
+        .value,
+    ).toBe("role-1");
     expect(screen.queryByLabelText("Password")).toBeNull();
     fireEvent.click(screen.getByText("Submit"));
     await waitFor(() =>
       expect(mocks.onUpdate).toHaveBeenCalledWith("account-1", {
         username: "operator",
         email: "operator@example.com",
-        id_role: "role-1",
+        id_roles: ["role-1"],
       }),
     );
   });
 
   it("deletes the selected account", () => {
     mocks.reduxState = {
-      Accounts: { loading: false },
+      Users: { loading: false },
       Roles: { data: [] },
       Service: {
         form_dialog: {

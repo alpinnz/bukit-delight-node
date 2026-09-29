@@ -59,8 +59,8 @@ const RegisterPage = () => {
       {isRegistered ? (
         <div className="space-y-5 text-center" role="status" aria-live="polite">
           <p className="rounded-lg bg-teal-50 px-4 py-3 text-sm leading-6 text-teal-900">
-            Akun customer berhasil dibuat. Login pada halaman berikutnya hanya
-            tersedia untuk akun admin dan kasir.
+            Akun customer berhasil dibuat. Silakan masuk untuk memilih meja dan
+            mulai memesan.
           </p>
           <Link
             to="/login"

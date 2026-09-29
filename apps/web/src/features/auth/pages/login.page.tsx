@@ -18,7 +18,7 @@ type LoginFormState = {
 
 type LoginReduxState = {
   Authentication: {
-    account: { role: string } | null;
+    account: { role: string; roles?: string[] } | null;
     loading: boolean;
   };
 };
@@ -38,9 +38,15 @@ const LoginPage = () => {
   const [showActiveSessionDialog, setShowActiveSessionDialog] = useState(false);
 
   if (account) {
-    const role = account.role.toLocaleLowerCase();
-    if (role === "admin") return <Navigate to="/admin/dashboard" replace />;
-    if (role === "cashier") return <Navigate to="/cashier/home" replace />;
+    const roles = (account.roles ?? [account.role]).map((role) =>
+      role.toLowerCase(),
+    );
+    if (roles.includes("owner"))
+      return <Navigate to="/admin/dashboard" replace />;
+    if (roles.includes("cashier"))
+      return <Navigate to="/cashier/home" replace />;
+    if (roles.includes("customer"))
+      return <Navigate to="/customer/home" replace />;
   }
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -64,7 +70,7 @@ const LoginPage = () => {
   return (
     <AuthLayout
       title="Masuk"
-      description="Masuk ke panel admin atau kasir Bukit Delight."
+      description="Masuk sebagai pemilik, kasir, atau customer Bukit Delight."
     >
       <form className="space-y-5" noValidate onSubmit={onSubmit}>
         <AuthField

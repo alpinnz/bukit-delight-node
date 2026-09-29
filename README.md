@@ -47,7 +47,7 @@ Application source and Vite configuration use TypeScript. API tests remain JavaS
 ```text
 apps/
 ├── api/
-│   ├── prisma/       schema, migrations, seed, snapshot importer
+│   ├── prisma/       schema, migrations, seed
 │   ├── src/          TypeScript config, controllers, middleware, routes, services
 │   ├── test/         API test support
 │   └── tsconfig.json
@@ -240,8 +240,7 @@ Prisma is used as the ORM.
 apps/api/prisma/
 ├── schema.prisma
 ├── migrations/
-├── seed.ts
-└── import-mongodb.ts
+└── seed.ts
 ```
 
 Example:
@@ -424,14 +423,19 @@ pnpm db:seed
 In non-production environments, the seed creates these starter accounts if
 they do not already exist:
 
-| Username  | Password  | Role      |
-| --------- | --------- | --------- |
-| `admin`   | `admin`   | `admin`   |
-| `cashier` | `cashier` | `cashier` |
+| Username   | Password        | Role       |
+| ---------- | --------------- | ---------- |
+| `owner`    | `Owner123!`     | `owner`    |
+| `cashier`  | `cashier`       | `cashier`  |
+| `customer` | `Customer123!`  | `customer` |
 
 These credentials are for local development only. The seed does not create
 them when `NODE_ENV=production` and does not reset passwords on existing
-accounts.
+users. Roles are assigned through the `user_roles` join table, so one user
+can hold multiple roles.
+
+Customers sign in with their account before choosing a dining table and
+ordering. The guest QR/table initialization flow is no longer used.
 
 ## Start Development
 
@@ -467,7 +471,7 @@ The API is mounted at `/api/v1`. Current route groups include:
 
 ```text
 /api/v1/authentication
-/api/v1/accounts
+/api/v1/users
 /api/v1/categories
 /api/v1/customers
 /api/v1/item-orders
@@ -915,7 +919,7 @@ It should not contain:
 
 ### `apps/api/prisma`
 
-PostgreSQL schema, migrations, seed data, and the one-time MongoDB importer.
+PostgreSQL schema, migrations, and seed data.
 
 ### `docker`
 

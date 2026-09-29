@@ -1,6 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import AdminAccountsPage from "./accounts";
+import AdminUsersPage from "./users";
 import AdminCategoriesPage from "./categories";
 import AdminFavoritesPage from "./favorites";
 import AdminMenusPage from "./menus";
@@ -12,8 +12,8 @@ vi.mock("../../../components/templates/admin", () => ({
     <main>{children}</main>
   ),
 }));
-vi.mock("./accounts/table", () => ({
-  default: () => <div>accounts table</div>,
+vi.mock("./users/table", () => ({
+  default: () => <div>users table</div>,
 }));
 vi.mock("./categories/table", () => ({
   default: () => <div>categories table</div>,
@@ -45,7 +45,7 @@ vi.mock("./favorites/favorite-results-table", () => ({
 
 describe("admin feature pages", () => {
   it.each([
-    ["accounts table", AdminAccountsPage],
+    ["users table", AdminUsersPage],
     ["categories table", AdminCategoriesPage],
     ["menus table", AdminMenusPage],
     ["tables table", AdminTablesPage],

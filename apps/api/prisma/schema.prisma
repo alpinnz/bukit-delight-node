@@ -7,21 +7,21 @@ datasource db {
   provider = "postgresql"
 }
 
-model Account {
+model User {
   id          String   @id @default(cuid())
   username    String   @unique
   email       String   @unique
   password    String
   activateLink Json?
   resetLink    Json?
-  roleId      String?  @map("id_role")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  role        Role?    @relation(fields: [roleId], references: [id])
+  roles       UserRole[]
   refreshTokens RefreshToken[]
+  customerOrders Order[] @relation("CustomerOrders")
   transactions Transaction[]
 
-  @@map("accounts")
+  @@map("users")
 }
 
 model Role {
@@ -29,26 +29,26 @@ model Role {
   name      String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  accounts  Account[]
+  users     UserRole[]
 
   @@map("roles")
 }
 
-model Customer {
-  id            String         @id @default(cuid())
-  username      String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  refreshTokens RefreshToken[]
-  orders        Order[]
+model UserRole {
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
-  @@map("customers")
+  @@id([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
 }
 
 model RefreshToken {
-  id             String    @id @default(cuid())
-  accountId      String?   @map("id_account")
-  customerId     String?   @map("id_customer")
+  id              String    @id @default(cuid())
+  userId          String    @map("user_id")
   token          String?
   expires        DateTime?
   created        DateTime  @default(now())
@@ -56,12 +56,10 @@ model RefreshToken {
   revoked        DateTime?
   revokedByIp    String?
   replacedByToken String?
-  account        Account?  @relation(fields: [accountId], references: [id])
-  customer       Customer? @relation(fields: [customerId], references: [id])
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([accountId])
-  @@index([customerId])
-  @@map("refreshtokens")
+  @@index([userId])
+  @@map("refresh_tokens")
 }
 
 model Category {
@@ -121,7 +119,7 @@ model Order {
   expires     DateTime
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-  customer    Customer?   @relation(fields: [customerId], references: [id])
+  customer    User?       @relation("CustomerOrders", fields: [customerId], references: [id])
   table       DiningTable? @relation(fields: [tableId], references: [id])
   items       OrderItem[]
   transaction Transaction?
@@ -153,16 +151,16 @@ model OrderItem {
 
 model Transaction {
   id        String            @id @default(cuid())
-  accountId String            @map("id_account")
+  userId    String            @map("user_id")
   orderId   String            @unique @map("id_order")
   note      String?
   status    TransactionStatus
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
-  account   Account           @relation(fields: [accountId], references: [id])
+  user      User              @relation(fields: [userId], references: [id])
   order     Order             @relation(fields: [orderId], references: [id])
 
-  @@index([accountId])
+  @@index([userId])
   @@map("transactions")
 }
 

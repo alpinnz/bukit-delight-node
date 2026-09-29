@@ -1,22 +1,24 @@
+-- CreateSchema
+CREATE SCHEMA IF NOT EXISTS "public";
+
 -- CreateEnum
 CREATE TYPE "OrderStatus" AS ENUM ('pending', 'cash', 'virtual');
 
 -- CreateEnum
-CREATE TYPE "TransactionStatus" AS ENUM ('pending', 'proses', 'done');
+CREATE TYPE "TransactionStatus" AS ENUM ('pending', 'processing', 'done');
 
 -- CreateTable
-CREATE TABLE "accounts" (
+CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
     "activateLink" JSONB,
     "resetLink" JSONB,
-    "id_role" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "accounts_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -30,20 +32,18 @@ CREATE TABLE "roles" (
 );
 
 -- CreateTable
-CREATE TABLE "customers" (
-    "id" TEXT NOT NULL,
-    "username" TEXT NOT NULL,
+CREATE TABLE "user_roles" (
+    "user_id" TEXT NOT NULL,
+    "role_id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "customers_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "user_roles_pkey" PRIMARY KEY ("user_id","role_id")
 );
 
 -- CreateTable
-CREATE TABLE "refreshtokens" (
+CREATE TABLE "refresh_tokens" (
     "id" TEXT NOT NULL,
-    "id_account" TEXT,
-    "id_customer" TEXT,
+    "user_id" TEXT NOT NULL,
     "token" TEXT,
     "expires" TIMESTAMP(3),
     "created" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -52,7 +52,7 @@ CREATE TABLE "refreshtokens" (
     "revokedByIp" TEXT,
     "replacedByToken" TEXT,
 
-    CONSTRAINT "refreshtokens_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "refresh_tokens_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -107,7 +107,7 @@ CREATE TABLE "orders" (
     "total_price" DOUBLE PRECISION NOT NULL,
     "note" TEXT,
     "status" "OrderStatus" NOT NULL,
-    "estimasi" TIMESTAMP(3) NOT NULL,
+    "estimated_ready_at" TIMESTAMP(3) NOT NULL,
     "expires" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -135,7 +135,7 @@ CREATE TABLE "itemorders" (
 -- CreateTable
 CREATE TABLE "transactions" (
     "id" TEXT NOT NULL,
-    "id_account" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "id_order" TEXT NOT NULL,
     "note" TEXT,
     "status" "TransactionStatus" NOT NULL,
@@ -146,19 +146,19 @@ CREATE TABLE "transactions" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "accounts_username_key" ON "accounts"("username");
+CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "accounts_email_key" ON "accounts"("email");
+CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "roles_name_key" ON "roles"("name");
 
 -- CreateIndex
-CREATE INDEX "refreshtokens_id_account_idx" ON "refreshtokens"("id_account");
+CREATE INDEX "user_roles_role_id_idx" ON "user_roles"("role_id");
 
 -- CreateIndex
-CREATE INDEX "refreshtokens_id_customer_idx" ON "refreshtokens"("id_customer");
+CREATE INDEX "refresh_tokens_user_id_idx" ON "refresh_tokens"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
@@ -188,22 +188,22 @@ CREATE INDEX "itemorders_id_menu_idx" ON "itemorders"("id_menu");
 CREATE UNIQUE INDEX "transactions_id_order_key" ON "transactions"("id_order");
 
 -- CreateIndex
-CREATE INDEX "transactions_id_account_idx" ON "transactions"("id_account");
+CREATE INDEX "transactions_user_id_idx" ON "transactions"("user_id");
 
 -- AddForeignKey
-ALTER TABLE "accounts" ADD CONSTRAINT "accounts_id_role_fkey" FOREIGN KEY ("id_role") REFERENCES "roles"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "refreshtokens" ADD CONSTRAINT "refreshtokens_id_account_fkey" FOREIGN KEY ("id_account") REFERENCES "accounts"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_role_id_fkey" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "refreshtokens" ADD CONSTRAINT "refreshtokens_id_customer_fkey" FOREIGN KEY ("id_customer") REFERENCES "customers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "menus" ADD CONSTRAINT "menus_id_category_fkey" FOREIGN KEY ("id_category") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "orders" ADD CONSTRAINT "orders_id_customer_fkey" FOREIGN KEY ("id_customer") REFERENCES "customers"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "orders" ADD CONSTRAINT "orders_id_customer_fkey" FOREIGN KEY ("id_customer") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "orders" ADD CONSTRAINT "orders_id_table_fkey" FOREIGN KEY ("id_table") REFERENCES "tables"("id") ON DELETE SET NULL ON UPDATE CASCADE;
@@ -215,7 +215,7 @@ ALTER TABLE "itemorders" ADD CONSTRAINT "itemorders_id_order_fkey" FOREIGN KEY (
 ALTER TABLE "itemorders" ADD CONSTRAINT "itemorders_id_menu_fkey" FOREIGN KEY ("id_menu") REFERENCES "menus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_id_account_fkey" FOREIGN KEY ("id_account") REFERENCES "accounts"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_id_order_fkey" FOREIGN KEY ("id_order") REFERENCES "orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

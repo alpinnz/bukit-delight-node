@@ -39,6 +39,7 @@ prismaApiRouteTest(
     const accountId = randomBytes(12).toString("hex");
     const orderId = { value: undefined };
     const customerId = { value: undefined };
+    const customerAccountId = { value: undefined };
     let baseUrl;
 
     try {
@@ -49,6 +50,10 @@ prismaApiRouteTest(
       assert.ok(
         cashierRole,
         "local target database must contain the cashier role",
+      );
+      assert.ok(
+        await database.role.findUnique({ where: { name: "customer" } }),
+        "local target database must contain the customer role",
       );
 
       await database.category.create({
@@ -76,14 +81,16 @@ prismaApiRouteTest(
       await database.diningTable.create({
         data: { id: tableId, name: `phase4-api-table-${suffix}` },
       });
-      await database.account.create({
+      await database.user.create({
         data: {
           id: accountId,
           username: roleUsername,
           email: `${roleUsername}@example.invalid`,
           password: "unused-route-fixture-password",
-          roleId: cashierRole.id,
         },
+      });
+      await database.userRole.create({
+        data: { userId: accountId, roleId: cashierRole.id },
       });
       const cashierToken = await JwtAccessToken({
         id: accountId,
@@ -94,28 +101,45 @@ prismaApiRouteTest(
       await new Promise((resolve) => server.listen(0, resolve));
       baseUrl = `http://127.0.0.1:${server.address().port}`;
 
-      const customerCreateResponse = await fetch(
-        `${baseUrl}/api/v1/customers`,
+      const customerRegisterResponse = await fetch(
+        `${baseUrl}/api/v1/Authentication/register`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ username: customerUsername }),
+          body: JSON.stringify({
+            username: customerUsername,
+            email: `${customerUsername}@example.invalid`,
+            password: "Phase4Customer123!",
+            repeat_password: "Phase4Customer123!",
+          }),
         },
       );
-      assert.equal(customerCreateResponse.status, 200);
-      const customerCreate = await customerCreateResponse.json();
-      customerId.value = customerCreate.data._id;
-      assert.match(customerId.value, /^[0-9a-f]{24}$/);
+      assert.equal(customerRegisterResponse.status, 200);
 
-      const customerReadResponse = await fetch(
-        `${baseUrl}/api/v1/customers/${customerId.value}`,
-        { headers: { "x-access-token": customerCreate.data.accessToken } },
+      const customerLoginResponse = await fetch(
+        `${baseUrl}/api/v1/Authentication/login`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            username: `${customerUsername}@example.invalid`,
+            password: "Phase4Customer123!",
+          }),
+        },
       );
-      assert.equal(customerReadResponse.status, 200);
-      assert.equal(
-        (await customerReadResponse.json()).data.username,
-        customerUsername,
+      assert.equal(customerLoginResponse.status, 200);
+      const customerLogin = await customerLoginResponse.json();
+      customerAccountId.value = customerLogin.data._id;
+      customerId.value = customerLogin.data._id;
+      assert.equal(customerLogin.data.role, "customer");
+      assert.ok(customerId.value);
+      assert.equal(customerId.value, customerAccountId.value);
+
+      const customerOrdersResponse = await fetch(
+        `${baseUrl}/api/v1/Orders`,
+        { headers: { "x-access-token": customerLogin.data.accessToken } },
       );
+      assert.equal(customerOrdersResponse.status, 200);
 
       const catalogResponse = await fetch(`${baseUrl}/api/v1/Menus`);
       assert.equal(catalogResponse.status, 200);
@@ -126,7 +150,7 @@ prismaApiRouteTest(
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-access-token": customerCreate.data.accessToken,
+          "x-access-token": customerLogin.data.accessToken,
         },
         body: JSON.stringify({
           id_customer: customerId.value,
@@ -240,13 +264,25 @@ prismaApiRouteTest(
         where: { id: { in: fixtureOrderIds } },
       });
       if (customerId.value) {
-        await database.customer.deleteMany({ where: { id: customerId.value } });
+        await database.user.deleteMany({ where: { id: customerId.value } });
       } else {
-        await database.customer.deleteMany({
+        await database.user.deleteMany({
           where: { username: customerUsername },
         });
       }
-      await database.account.deleteMany({ where: { id: accountId } });
+      if (customerAccountId.value) {
+        await database.refreshToken.deleteMany({
+          where: { userId: customerAccountId.value },
+        });
+        await database.user.deleteMany({
+          where: { id: customerAccountId.value },
+        });
+      } else {
+        await database.user.deleteMany({
+          where: { email: `${customerUsername}@example.invalid` },
+        });
+      }
+      await database.user.deleteMany({ where: { id: accountId } });
       await database.diningTable.deleteMany({ where: { id: tableId } });
       await database.menu.deleteMany({ where: { id: menuId } });
       await database.category.deleteMany({ where: { id: categoryId } });
@@ -273,13 +309,13 @@ prismaApiRouteTest(
         0,
       );
       assert.equal(
-        await database.customer.count({
+        await database.user.count({
           where: { username: customerUsername },
         }),
         0,
       );
       assert.equal(
-        await database.account.findUnique({ where: { id: accountId } }),
+        await database.user.findUnique({ where: { id: accountId } }),
         null,
       );
       assert.equal(

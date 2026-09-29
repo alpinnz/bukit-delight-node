@@ -98,11 +98,15 @@ const LandingPage = () => {
   const [activeSlide, setActiveSlide] = useState(0);
   const account = useSelector((state: RootState) => state.Authentication.account);
 
-  if (account?.role.toLowerCase() === "admin") {
+  const roles = account?.roles ?? (account ? [account.role] : []);
+  if (roles.some((role) => role.toLowerCase() === "owner")) {
     return <Navigate to="/admin/dashboard" replace />;
   }
-  if (account?.role.toLowerCase() === "cashier") {
+  if (roles.some((role) => role.toLowerCase() === "cashier")) {
     return <Navigate to="/cashier/home" replace />;
+  }
+  if (roles.some((role) => role.toLowerCase() === "customer")) {
+    return <Navigate to="/customer/home" replace />;
   }
 
   const slide = slides[activeSlide];

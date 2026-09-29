@@ -12,11 +12,10 @@ const { sendForgotPassword } = require("./../config/Nodemailer");
 const { prisma } = require("./../config/Prisma");
 const logger = require("./../utils/logger");
 const {
-  createAccount,
+  createUserWithRoles,
   createLoginRefreshToken,
-  createRefreshToken,
-  findAccountForLogin,
-  findAccountForToken,
+  findUserForLogin,
+  findUserForToken,
   findRoleByName,
   revokeRefreshToken,
   rotateRefreshToken,
@@ -80,16 +79,19 @@ exports.Register = async (
     const database = requirePrisma();
     const role = await findRoleByName(database, "customer");
     if (!role) return next(error("Role not found", 500));
-    const account = await createAccount(database, {
-      id: randomBytes(12).toString("hex"),
-      username: body.username,
-      email: body.email.toLowerCase(),
-      password: await HashPassword(body.password),
-      roleId: role.id,
-    });
+    const user = await createUserWithRoles(
+      database,
+      {
+        id: randomBytes(12).toString("hex"),
+        username: body.username,
+        email: body.email.toLowerCase(),
+        password: await HashPassword(body.password),
+        roleIds: [role.id],
+      },
+    );
     return Response.Success(res, "Register", 0, 200, {
-      username: account.username,
-      email: account.email,
+      username: user.username,
+      email: user.email,
     });
   } catch (cause) {
     return sendError(cause, next);
@@ -113,24 +115,24 @@ exports.Login = async (
   if (!body) return;
   try {
     const database = requirePrisma();
-    const account = await findAccountForLogin(database, body.username);
+    const account = await findUserForLogin(database, body.username);
     if (
       !account ||
       !(await VerifyHashPassword(body.password, account.password))
     ) {
       return next(error("Username or password is incorrect", 401));
     }
-    if (!account.role)
-      return next(error("Username or password is incorrect", 401));
-    const isStaffAccount = ["admin", "cashier"].includes(
-      account.role.name.toLowerCase(),
+    const roles = account.roles.map(({ role }: any) => role);
+    const roleNames = roles.map(({ name }: { name: string }) => name.toLowerCase());
+    const primaryRole = ["owner", "cashier", "customer"].find((role) =>
+      roleNames.includes(role),
     );
-    if (!isStaffAccount) {
+    if (!roleNames.some((role: string) => ["owner", "cashier", "customer"].includes(role))) {
       return next(error("Username or password is incorrect", 401));
     }
 
     if (PasswordNeedsRehash(account.password)) {
-      await database.account.updateMany({
+      await database.user.updateMany({
         where: { id: account.id, password: account.password },
         data: { password: await HashPassword(body.password) },
       });
@@ -140,7 +142,7 @@ exports.Login = async (
     const refreshToken = await JwtRefreshToken(account);
     const now = new Date();
     const refreshTokenRecord = {
-      accountId: account.id,
+      userId: account.id,
       token: refreshToken,
       expires: new Date(
         now.getTime() + Number(process.env.REFRESH_TOKEN_TIMEOUT),
@@ -165,7 +167,8 @@ exports.Login = async (
       _id: account.id,
       username: account.username,
       email: account.email,
-      role: account.role.name,
+      role: primaryRole,
+      roles: roleNames,
       accessToken,
       refreshToken,
     });
@@ -185,7 +188,7 @@ exports.RefreshToken = async (
     const database = requirePrisma();
     const storedToken = await database.refreshToken.findFirst({
       where: { token, revoked: null },
-      select: { expires: true, token: true },
+      select: { expires: true, token: true, userId: true },
     });
     if (
       !storedToken ||
@@ -195,15 +198,22 @@ exports.RefreshToken = async (
     }
     const decoded = await VerifyRefreshToken(token);
     if (!decoded?.id) return next(error("Invalid token", 401));
-    const account = await findAccountForToken(database, decoded.id);
-    if (!account?.role) return next(error("Invalid token", 401));
+    const account = await findUserForToken(database, decoded.id);
+    const roles = account?.roles.map(({ role }: any) => role) ?? [];
+    const roleNames = roles.map(({ name }: { name: string }) => name.toLowerCase());
+    const primaryRole = ["owner", "cashier", "customer"].find((role) =>
+      roleNames.includes(role),
+    );
+    if (!account || storedToken.userId !== account.id || !roleNames.some((role: string) => ["owner", "cashier", "customer"].includes(role))) {
+      return next(error("Invalid token", 401));
+    }
 
     const nextRefreshToken = await JwtRefreshToken(account);
     const now = new Date();
     const rotated = await rotateRefreshToken(database, {
       currentToken: token,
       nextToken: nextRefreshToken,
-      accountId: account.id,
+      userId: account.id,
       ipAddress: req.ip,
       expiresAt: new Date(
         now.getTime() + Number(process.env.REFRESH_TOKEN_TIMEOUT),
@@ -217,7 +227,8 @@ exports.RefreshToken = async (
       _id: account.id,
       username: account.username,
       email: account.email,
-      role: account.role.name,
+      role: primaryRole,
+      roles: roleNames,
       accessToken,
       refreshToken: nextRefreshToken,
     });
@@ -261,14 +272,14 @@ exports.ForgotPassword = async (
     );
   try {
     const database = requirePrisma();
-    const account = await database.account.findUnique({
+    const account = await database.user.findUnique({
       where: { email: body.email.trim().toLowerCase() },
       select: { id: true, email: true },
     });
     if (!account) return genericResponse();
     const token = await JwtResetPasswordToken(account);
     await sendForgotPassword(account.email, token);
-    await database.account.update({
+    await database.user.update({
       where: { id: account.id },
       data: { resetLink: token },
     });
@@ -303,14 +314,14 @@ exports.ResetPassword = async (
     const password = await HashPassword(body.password);
     const reset = await database.$transaction(
       async (transaction: Prisma.TransactionClient) => {
-        const updated = await transaction.account.updateMany({
+        const updated = await transaction.user.updateMany({
           where: { id: decoded.id, resetLink: body.token },
           data: { resetLink: Prisma.DbNull, password },
         });
         if (updated.count !== 1) return false;
 
         await transaction.refreshToken.updateMany({
-          where: { accountId: decoded.id, revoked: null },
+          where: { userId: decoded.id, revoked: null },
           data: { revoked: new Date(), revokedByIp: req.ip },
         });
         return true;

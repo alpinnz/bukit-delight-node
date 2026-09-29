@@ -27,7 +27,7 @@ const {
 } = require("./../services/PrismaOrders");
 
 type OrderRequest = Request & {
-  auth?: { type?: string; customerId?: string };
+  auth?: { userId?: string; roles?: string[] };
   app: Request["app"] & {
     io: { emit: (event: string, message: string) => void };
   };
@@ -180,7 +180,9 @@ exports.ReadAll = async (
   try {
     const orders = await listOrders(
       requirePrisma(),
-      req.auth?.type === "customer" ? req.auth.customerId : undefined,
+      !req.auth?.roles?.some((role) => ["cashier", "owner"].includes(role))
+        ? req.auth?.userId
+        : undefined,
     );
     return Response.Success(
       res,
@@ -203,8 +205,8 @@ exports.ReadOne = async (
     const order = await findOrderById(requirePrisma(), req.params._id);
     if (
       !order ||
-      (req.auth?.type === "customer" &&
-        order.customerId !== req.auth.customerId)
+      (!req.auth?.roles?.some((role) => ["cashier", "owner"].includes(role)) &&
+        order.customerId !== req.auth?.userId)
     ) {
       return next(error("load order failed", 404));
     }
@@ -222,11 +224,11 @@ exports.Create = async (
   const body = validate(orderSchema, req, next) as CreateOrderRequest | null;
   if (!body) return;
   try {
-    if (req.auth?.type === "customer") {
-      if (!req.auth.customerId) {
+    if (req.auth?.roles?.includes("customer")) {
+      if (!req.auth.userId) {
         return next(error("Customer identity is missing", 401));
       }
-      body.id_customer = req.auth.customerId;
+      body.id_customer = req.auth.userId;
     }
     const order = await createOrder(requirePrisma(), toWrite(body));
     if (!order) return next(error("Create failed"));

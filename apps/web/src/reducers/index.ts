@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 import Authentication from "../features/auth/authentication.reducer";
-import Accounts from "./accounts.reducer";
+import Users from "./users.reducer";
 import Service from "./service.reducer";
 import Tables from "./tables.reducer";
 import Categories from "./categories.reducer";
@@ -15,7 +15,7 @@ import Favorites from "./favorites.reducer";
 const RootReducer = combineReducers({
   Authentication,
   Service,
-  Accounts,
+  Users,
   Tables,
   Categories,
   Roles,

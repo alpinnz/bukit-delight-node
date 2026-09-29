@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 import type {
-  AccountRecord,
-  CreateAccountRequest,
-  UpdateAccountRequest,
+  UserRecord,
+  CreateUserRequest,
+  UpdateUserRequest,
 } from "@bukit-delight/shared";
 
 const { randomBytes } = require("node:crypto");
@@ -10,25 +10,26 @@ const Joi = require("joi");
 const { Response: ApiResponse } = require("./../middlewares");
 const { prisma } = require("./../config/Prisma");
 const {
-  createAccount,
-  deleteAccount,
-  findAccountForToken,
-  findRoleById,
-  listAccounts,
-  updateAccount,
+  createUser,
+  deleteUser,
+  findUserForToken,
+  findRolesByIds,
+  listUsers,
+  updateUser,
 } = require("./../services/PrismaAuthentication");
 const { HashPassword } = require("./../services/Authentication");
 
 const error = (message: string, status = 500) =>
   Object.assign(new Error(message), { status });
 
-const serialize = (account: any): AccountRecord => ({
+const serialize = (account: any): UserRecord => ({
   _id: account.id,
   username: account.username,
   email: account.email,
-  id_role: account.role
-    ? { _id: account.role.id, name: account.role.name }
-    : null,
+  id_roles: account.roles.map(({ role }: any) => ({
+    _id: role.id,
+    name: role.name,
+  })),
 });
 
 const validate = (schema: unknown, req: Request, next: NextFunction) => {
@@ -40,33 +41,38 @@ const validate = (schema: unknown, req: Request, next: NextFunction) => {
   return value;
 };
 
-const emitAccountsUpdate = (req: Request) => {
+const emitUsersUpdate = (req: Request) => {
   const application = req.app as Request["app"] & {
     io: { emit: (event: string, message: string) => void };
   };
-  application.io.emit("AccountsUpdate", "AccountsUpdate");
+  application.io.emit("UsersUpdate", "UsersUpdate");
 };
+
+const parseRoleIds = (roleIds: string | string[]) =>
+  (Array.isArray(roleIds) ? roleIds : roleIds.split(","))
+    .map((roleId) => roleId.trim())
+    .filter(Boolean);
 
 exports.ReadAll = async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const accounts = await listAccounts(prisma);
+    const users = await listUsers(prisma);
     return ApiResponse.Success(
       res,
-      "Accounts",
+      "Users",
       0,
       200,
-      accounts.map(serialize),
+      users.map(serialize),
     );
   } catch {
-    return next(error("Accounts could not be loaded"));
+    return next(error("Users could not be loaded"));
   }
 };
 
 exports.ReadOne = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const account = await findAccountForToken(prisma, req.params._id);
-    if (!account) return next(error("Accounts not found", 404));
-    return ApiResponse.Success(res, "Accounts", 0, 200, serialize(account));
+    const account = await findUserForToken(prisma, req.params._id);
+    if (!account) return next(error("User not found", 404));
+    return ApiResponse.Success(res, "Users", 0, 200, serialize(account));
   } catch {
     return next(error("Account could not be loaded"));
   }
@@ -77,36 +83,39 @@ exports.Create = async (req: Request, res: Response, next: NextFunction) => {
     Joi.object({
       username: Joi.string().required(),
       email: Joi.string().required().email(),
-      id_role: Joi.string().required(),
+      id_roles: Joi.alternatives()
+        .try(Joi.array().items(Joi.string()), Joi.string())
+        .required(),
       password: Joi.string().required(),
       repeat_password: Joi.string().valid(Joi.ref("password")).required(),
     }),
     req,
     next,
-  ) as CreateAccountRequest | null;
+  ) as CreateUserRequest | null;
   if (!body) return;
   try {
-    const role = await findRoleById(prisma, body.id_role);
-    if (!role) return next(error("Role not found", 404));
+    const roleIds = parseRoleIds(body.id_roles);
+    if (roleIds.length === 0) return next(error("At least one role is required", 400));
+    const roles = await findRolesByIds(prisma, roleIds);
+    if (roles.length !== new Set(roleIds).size)
+      return next(error("Role not found", 404));
     const authenticated = (req as any).auth;
-    if (
-      role.name === "admin" &&
-      authenticated?.role?.toLowerCase() !== "admin"
-    ) {
+    if (roles.some(({ name }: { name: string }) => name === "owner") &&
+        !authenticated?.roles?.includes("owner")) {
       return next(error("Forbidden", 403));
     }
-    const account = await createAccount(prisma, {
+    const account = await createUser(prisma, {
       id: randomBytes(12).toString("hex"),
       username: body.username,
       email: body.email,
       password: await HashPassword(body.password),
-      roleId: role.id,
+      roleIds: roles.map(({ id }: { id: string }) => id),
     });
-    emitAccountsUpdate(req);
+    emitUsersUpdate(req);
     return ApiResponse.Success(res, "Register", 0, 200, {
       username: account.username,
       email: account.email,
-      role: role.name,
+      roles: roles.map(({ name }: { name: string }) => name),
     });
   } catch (cause) {
     if ((cause as any)?.status === 409) return next(cause);
@@ -119,38 +128,44 @@ exports.Update = async (req: Request, res: Response, next: NextFunction) => {
     Joi.object({
       username: Joi.string().required(),
       email: Joi.string().required().email(),
-      id_role: Joi.string().required(),
+      id_roles: Joi.alternatives()
+        .try(Joi.array().items(Joi.string()), Joi.string())
+        .required(),
       password: Joi.string(),
       repeat_password: Joi.string().valid(Joi.ref("password")),
     }),
     req,
     next,
-  ) as UpdateAccountRequest | null;
+  ) as UpdateUserRequest | null;
   if (!body) return;
   try {
     const authenticated = (req as any).auth;
     if (
-      authenticated?.accountId !== req.params._id &&
-      authenticated?.role?.toLowerCase() !== "admin"
+      authenticated?.userId !== req.params._id &&
+      !authenticated?.roles?.includes("owner")
     ) {
       return next(error("Forbidden", 403));
     }
-    const role = await findRoleById(prisma, body.id_role);
-    if (!role) return next(error("Role not found", 404));
-    if (role.name === "admin" && authenticated.role.toLowerCase() !== "admin") {
+    const roleIds = parseRoleIds(body.id_roles);
+    if (roleIds.length === 0) return next(error("At least one role is required", 400));
+    const roles = await findRolesByIds(prisma, roleIds);
+    if (roles.length !== new Set(roleIds).size)
+      return next(error("Role not found", 404));
+    if (roles.some(({ name }: { name: string }) => name === "owner") &&
+        !authenticated?.roles?.includes("owner")) {
       return next(error("Forbidden", 403));
     }
-    const account = await updateAccount(prisma, req.params._id, {
+    const account = await updateUser(prisma, req.params._id, {
       username: body.username,
       email: body.email,
-      roleId: role.id,
+      roleIds: roles.map(({ id }: { id: string }) => id),
       ...(body.password ? { password: await HashPassword(body.password) } : {}),
     });
-    emitAccountsUpdate(req);
+    emitUsersUpdate(req);
     return ApiResponse.Success(res, "Update", 0, 200, {
       username: account.username,
       email: account.email,
-      id_role: role.name,
+      id_roles: roles.map(({ name }: { name: string }) => name),
     });
   } catch (cause) {
     if ((cause as any)?.status === 409) return next(cause);
@@ -162,12 +177,12 @@ exports.Update = async (req: Request, res: Response, next: NextFunction) => {
 
 exports.Delete = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const account = await deleteAccount(prisma, req.params._id);
-    emitAccountsUpdate(req);
+    const account = await deleteUser(prisma, req.params._id);
+    emitUsersUpdate(req);
     return ApiResponse.Success(res, "Delete", 0, 200, serialize(account));
   } catch (cause) {
     if ((cause as any)?.code === "P2025")
-      return next(error("Accounts not found", 404));
+      return next(error("User not found", 404));
     if ((cause as any)?.code === "P2003") {
       return next(
         error("Account is still referenced and cannot be deleted", 409),

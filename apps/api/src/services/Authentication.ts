@@ -8,20 +8,9 @@ const extractTokenAccountId = (account: TokenAccount): string => {
   return account.id;
 };
 
-const JwtAccessToken = async (account: TokenAccount) => {
+const JwtAccessToken = async (user: TokenAccount) => {
   return jwt.sign(
-    { id: extractTokenAccountId(account), type: "staff" },
-    process.env.ACCESS_TOKEN_KEY,
-    {
-      expiresIn: parseInt(process.env.ACCESS_TOKEN_TIMEOUT!),
-      algorithm: "HS256",
-    },
-  );
-};
-
-const JwtCustomerToken = async (customer: TokenAccount) => {
-  return jwt.sign(
-    { id: extractTokenAccountId(customer), type: "customer" },
+    { id: extractTokenAccountId(user) },
     process.env.ACCESS_TOKEN_KEY,
     {
       expiresIn: parseInt(process.env.ACCESS_TOKEN_TIMEOUT!),
@@ -78,7 +67,6 @@ const VerifyRefreshToken = async (refreshToken: string) => {
 
 export = {
   JwtAccessToken,
-  JwtCustomerToken,
   VerifyActivateToken,
   JwtResetPasswordToken,
   VerifyResetPasswordToken,

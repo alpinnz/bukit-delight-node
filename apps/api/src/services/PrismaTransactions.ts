@@ -6,7 +6,7 @@ import {
 
 type TransactionDatabase = Pick<
   PrismaClient,
-  "account" | "transaction" | "order"
+  "user" | "transaction" | "order"
 > &
   Pick<PrismaClient, "$queryRaw">;
 type TransactionClient = TransactionDatabase;
@@ -15,7 +15,7 @@ type TransactionStatus = "PENDING" | "PROCESSING" | "DONE";
 type PaymentType = "CASH" | "VIRTUAL";
 
 type TransactionCreateInput = {
-  accountId: string;
+  userId: string;
   orderId: string;
   note?: string;
   payment: PaymentType;
@@ -23,19 +23,19 @@ type TransactionCreateInput = {
 };
 
 type TransactionUpdateInput = {
-  accountId: string;
+  userId: string;
   orderId: string;
   note?: string;
   status: TransactionStatus;
 };
 
 const transactionRelations = {
-  account: {
+  user: {
     select: {
       id: true,
       username: true,
       email: true,
-      role: { select: { id: true, name: true } },
+      roles: { select: { role: { select: { id: true, name: true } } } },
     },
   },
   order: {
@@ -64,14 +64,17 @@ const newId = () => require("node:crypto").randomBytes(12).toString("hex");
 
 const requireCashier = async (
   database: TransactionDatabase,
-  accountId: string,
+  userId: string,
 ) => {
-  const account = await database.account.findUnique({
-    where: { id: accountId },
-    select: { id: true, role: { select: { name: true } } },
+  const user = await database.user.findUnique({
+    where: { id: userId },
+    select: { id: true, roles: { select: { role: { select: { name: true } } } } },
   });
-  if (!account) throw fail("account not found", 404);
-  if (account.role?.name !== "cashier") throw fail("account cashier only", 403);
+  if (!user) throw fail("user not found", 404);
+  const canCreateTransaction = user.roles.some(({ role }) =>
+    ["cashier", "owner"].includes(role.name),
+  );
+  if (!canCreateTransaction) throw fail("cashier or owner role required", 403);
 };
 
 const findOrder = async (database: TransactionDatabase, orderId: string) => {
@@ -102,7 +105,7 @@ export const createTransactionInTransaction = async (
   transaction: TransactionClient,
   input: TransactionCreateInput,
 ) => {
-  await requireCashier(transaction, input.accountId);
+  await requireCashier(transaction, input.userId);
   await lockOrdersForMutation(transaction, [input.orderId]);
   await lockTransactionQueueForMutation(transaction);
   const order = await findOrder(transaction, input.orderId);
@@ -132,7 +135,7 @@ export const createTransactionInTransaction = async (
   return transaction.transaction.create({
     data: {
       id: newId(),
-      accountId: input.accountId,
+      userId: input.userId,
       orderId: order.id,
       note: input.note || "",
       status: "PENDING",
@@ -163,11 +166,11 @@ export const updateTransactionInTransaction = async (
 
   await lockOrdersForMutation(transaction, [current.orderId, input.orderId]);
   await lockTransactionQueueForMutation(transaction);
-  const account = await transaction.account.findUnique({
-    where: { id: input.accountId },
+  const user = await transaction.user.findUnique({
+    where: { id: input.userId },
     select: { id: true },
   });
-  if (!account) throw fail("account not found", 404);
+  if (!user) throw fail("user not found", 404);
   await findOrder(transaction, input.orderId);
 
   const existingTransaction = await transaction.transaction.findUnique({
@@ -180,7 +183,7 @@ export const updateTransactionInTransaction = async (
   return transaction.transaction.update({
     where: { id },
     data: {
-      accountId: input.accountId,
+      userId: input.userId,
       orderId: input.orderId,
       note: input.note || "",
       status: input.status,

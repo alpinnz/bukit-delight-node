@@ -1548,7 +1548,7 @@ Use for maintaining stable, reusable Codex instructions. Only stable, broadly re
 
 ## Project Structure & Module Organization
 
-This pnpm workspace contains the React/Vite client in `apps/web`, the Express/TypeScript API in `apps/api`, and shared contracts in `packages/shared`. Feature screens live under `apps/web/src/features`; shared UI components live under `apps/web/src/components`. API routes, controllers, services, persistence models, and middleware live under `apps/api/src`. PostgreSQL schema, migrations, seed, and the offline snapshot importer live in `apps/api/prisma`.
+This pnpm workspace contains the React/Vite client in `apps/web`, the Express/TypeScript API in `apps/api`, and shared contracts in `packages/shared`. Feature screens live under `apps/web/src/features`; shared UI components live under `apps/web/src/components`. API routes, controllers, services, persistence models, and middleware live under `apps/api/src`. PostgreSQL schema, migrations, and seed live in `apps/api/prisma`.
 
 ## Build, Test, and Development Commands
 

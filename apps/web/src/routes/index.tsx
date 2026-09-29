@@ -11,7 +11,6 @@ import CustomersRoute from "./customers.route";
 import LoadingCustom from "../components/common/loading.custom";
 
 const LandingPage = lazy(() => import("../features/landing/pages"));
-const CustomerInitPage = lazy(() => import("../features/customer/pages/init"));
 const CustomerHomePage = lazy(() => import("../features/customer/pages/home"));
 const CustomerBookPage = lazy(() => import("../features/customer/pages/book"));
 const CustomerMenuPage = lazy(() => import("../features/customer/pages/menu"));
@@ -43,8 +42,8 @@ const AdminCategoriesPage = lazy(
   () => import("../features/admin/pages/categories"),
 );
 const AdminTablesPage = lazy(() => import("../features/admin/pages/tables"));
-const AdminAccountsPage = lazy(
-  () => import("../features/admin/pages/accounts"),
+const AdminUsersPage = lazy(
+  () => import("../features/admin/pages/users"),
 );
 const AdminTransactionsPage = lazy(
   () => import("../features/admin/pages/transactions"),
@@ -68,10 +67,6 @@ const Routes = () => {
 
           {/* CUSTOMER ROUTE */}
           <Route
-            path="/customer/init/:tableName"
-            element={<CustomerInitPage />}
-          />
-          <Route
             path="/customer/home"
             element={
               <CustomersRoute>
@@ -82,7 +77,7 @@ const Routes = () => {
           <Route
             path="/customer/book/:categoryId"
             element={
-              <CustomersRoute>
+              <CustomersRoute requireTable>
                 <CustomerMenuPage />
               </CustomersRoute>
             }
@@ -90,7 +85,7 @@ const Routes = () => {
           <Route
             path="/customer/book"
             element={
-              <CustomersRoute>
+              <CustomersRoute requireTable>
                 <CustomerBookPage />
               </CustomersRoute>
             }
@@ -98,14 +93,14 @@ const Routes = () => {
           <Route
             path="/customer/cart"
             element={
-              <CustomersRoute>
+              <CustomersRoute requireTable>
                 <CustomerCartPage />
               </CustomersRoute>
             }
           />
           <Route
             path="/customer/*"
-            element={<Navigate to="/customer/home" replace />}
+            element={<Navigate to="/login" replace />}
           />
 
           {/* CASHIER ROUTES */}
@@ -170,7 +165,7 @@ const Routes = () => {
           <Route
             path="/admin/menus"
             element={
-              <PrivateRoute role="admin">
+              <PrivateRoute role="owner">
                 <AdminMenusPage />
               </PrivateRoute>
             }
@@ -178,7 +173,7 @@ const Routes = () => {
           <Route
             path="/admin/categories"
             element={
-              <PrivateRoute role="admin">
+              <PrivateRoute role="owner">
                 <AdminCategoriesPage />
               </PrivateRoute>
             }
@@ -186,23 +181,23 @@ const Routes = () => {
           <Route
             path="/admin/tables"
             element={
-              <PrivateRoute role="admin">
+              <PrivateRoute role="owner">
                 <AdminTablesPage />
               </PrivateRoute>
             }
           />
           <Route
-            path="/admin/accounts"
+            path="/admin/users"
             element={
-              <PrivateRoute role="admin">
-                <AdminAccountsPage />
+              <PrivateRoute role="owner">
+                <AdminUsersPage />
               </PrivateRoute>
             }
           />
           <Route
             path="/admin/dashboard"
             element={
-              <PrivateRoute role="admin">
+              <PrivateRoute role="owner">
                 <AdminDashboardPage />
               </PrivateRoute>
             }
@@ -210,7 +205,7 @@ const Routes = () => {
           <Route
             path="/admin/transactions"
             element={
-              <PrivateRoute role="admin">
+              <PrivateRoute role="owner">
                 <AdminTransactionsPage />
               </PrivateRoute>
             }
@@ -218,7 +213,7 @@ const Routes = () => {
           <Route
             path="/admin/favorites"
             element={
-              <PrivateRoute role="admin">
+              <PrivateRoute role="owner">
                 <AdminFavoritesPage />
               </PrivateRoute>
             }

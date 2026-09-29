@@ -1,9 +1,9 @@
 import axios from "axios";
 import type {
   ApiResponse,
-  AccountRecord,
-  CreateAccountRequest,
-  UpdateAccountRequest,
+  UserRecord,
+  CreateUserRequest,
+  UpdateUserRequest,
 } from "@bukit-delight/shared";
 import type { AnyAction } from "redux";
 import type { ThunkAction } from "redux-thunk";
@@ -11,15 +11,15 @@ import Const from "../constant/const";
 import Actions from "./";
 import type { RootState } from "../reducers";
 
-export const MOUNT = "ACCOUNTS/MOUNT";
-export const LOADING = "ACCOUNTS/LOADING";
-export const SET_ACCOUNTS = "ACCOUNTS/SET_ACCOUNTS";
+export const MOUNT = "USERS/MOUNT";
+export const LOADING = "USERS/LOADING";
+export const SET_USERS = "USERS/SET_USERS";
 
 type AccountThunk = ThunkAction<void, RootState, unknown, AnyAction>;
 type StoredAccount = { accessToken: string; refreshToken: string };
-type AccountsResponse = ApiResponse<AccountRecord[]>;
+type UsersResponse = ApiResponse<UserRecord[]>;
 type AccountForm =
-  Partial<CreateAccountRequest> | Partial<UpdateAccountRequest>;
+  Partial<CreateUserRequest> | Partial<UpdateUserRequest>;
 
 const localGetAccount = (): StoredAccount | null => {
   const serializedAccount = localStorage.getItem("account");
@@ -47,14 +47,14 @@ const errorMessage = (cause: unknown): string => {
   return "error";
 };
 
-const responseBody = (response: { data: unknown }): AccountsResponse =>
-  response.data as AccountsResponse;
+const responseBody = (response: { data: unknown }): UsersResponse =>
+  response.data as UsersResponse;
 
 const mount = () => ({ type: MOUNT });
 const loading = (isLoading: boolean) => ({ type: LOADING, payload: isLoading });
 
-const loadAccounts = (isInitialLoad: boolean): AccountThunk => {
-  const URL_PATH = "api/v1/accounts/";
+const loadUsers = (isInitialLoad: boolean): AccountThunk => {
+  const URL_PATH = "api/v1/users/";
   return (dispatch) => {
     if (!isInitialLoad) dispatch(loading(true));
     axios({
@@ -71,7 +71,7 @@ const loadAccounts = (isInitialLoad: boolean): AccountThunk => {
             dispatch(loading(false));
             return;
           }
-          dispatch(setAccounts(body.data));
+          dispatch(setUsers(body.data));
           if (isInitialLoad) setTimeout(() => dispatch(mount()), 1000);
           return;
         }
@@ -91,8 +91,8 @@ const loadAccounts = (isInitialLoad: boolean): AccountThunk => {
   };
 };
 
-const onMount = (): AccountThunk => loadAccounts(true);
-const onLoad = (): AccountThunk => loadAccounts(false);
+const onMount = (): AccountThunk => loadUsers(true);
+const onLoad = (): AccountThunk => loadUsers(false);
 
 const submitAccount = (
   method: "POST" | "PUT",
@@ -105,7 +105,7 @@ const submitAccount = (
     const formData = new FormData();
     formData.append("username", input.username ?? "");
     formData.append("email", input.email ?? "");
-    formData.append("id_role", input.id_role ?? "");
+    formData.append("id_roles", input.id_roles?.join(",") ?? "");
     if (method === "POST" || (input.password && input.repeat_password)) {
       formData.append("password", input.password ?? "");
       formData.append("repeat_password", input.repeat_password ?? "");
@@ -143,21 +143,21 @@ const submitAccount = (
   };
 };
 
-const onCreate = (input: Partial<CreateAccountRequest>): AccountThunk =>
-  submitAccount("POST", "api/v1/accounts/", input, "Create Account");
+const onCreate = (input: Partial<CreateUserRequest>): AccountThunk =>
+  submitAccount("POST", "api/v1/users/", input, "Create User");
 
 const onUpdate = (
   id: string | undefined,
-  input: Partial<UpdateAccountRequest>,
+  input: Partial<UpdateUserRequest>,
 ): AccountThunk =>
-  submitAccount("PUT", `api/v1/accounts/${id}`, input, "Update Account");
+  submitAccount("PUT", `api/v1/users/${id}`, input, "Update User");
 
 const onDelete = (id: string): AccountThunk => {
   return (dispatch) => {
     dispatch(loading(true));
     axios({
       method: "DELETE",
-      url: `api/v1/accounts/${id}`,
+      url: `api/v1/users/${id}`,
       baseURL: Const.BASE_URL,
       headers: requestHeaders(localGetAccount()),
     })
@@ -165,7 +165,7 @@ const onDelete = (id: string): AccountThunk => {
         const body = responseBody(response);
         if (body.name && `${body.name}`.toLowerCase() === "success") {
           dispatch(onLoad());
-          dispatch(Actions.Service.pushSuccessNotification("Delete Account"));
+          dispatch(Actions.Service.pushSuccessNotification("Delete User"));
           dispatch(Actions.Service.hideFormDialog());
           dispatch(loading(false));
           return;
@@ -186,11 +186,11 @@ const onDelete = (id: string): AccountThunk => {
   };
 };
 
-const setAccounts = (accounts: AccountRecord[]) => ({
-  type: SET_ACCOUNTS,
-  payload: accounts,
+const setUsers = (users: UserRecord[]) => ({
+  type: SET_USERS,
+  payload: users,
 });
 
-const AccountsAction = { onMount, onLoad, onCreate, onUpdate, onDelete };
+const UsersAction = { onMount, onLoad, onCreate, onUpdate, onDelete };
 
-export default AccountsAction;
+export default UsersAction;

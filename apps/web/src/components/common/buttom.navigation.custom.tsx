@@ -1,9 +1,13 @@
 import {
   BookOpenIcon,
   HomeIcon,
+  ArrowRightOnRectangleIcon,
   ShoppingCartIcon,
 } from "@heroicons/react/24/outline";
 import { NavLink } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import Actions from "../../actions";
+import type { AppDispatch } from "../../store";
 
 const navigationItems = [
   { label: "Cart", path: "/customer/cart", icon: ShoppingCartIcon },
@@ -12,6 +16,8 @@ const navigationItems = [
 ];
 
 const BottomNavigationCustom = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
   return (
     <nav
       aria-label="Customer navigation"
@@ -57,6 +63,14 @@ const BottomNavigationCustom = () => {
             <Icon aria-hidden="true" className="size-7" />
           </NavLink>
         ))}
+        <button
+          type="button"
+          aria-label="Keluar"
+          onClick={() => dispatch(Actions.Authentication.onLogout())}
+          className="flex flex-1 justify-center rounded-full p-3 text-white outline-none focus-visible:ring-2 focus-visible:ring-white"
+        >
+          <ArrowRightOnRectangleIcon aria-hidden="true" className="size-7" />
+        </button>
       </div>
     </nav>
   );

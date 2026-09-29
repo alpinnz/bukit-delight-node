@@ -27,7 +27,7 @@ const {
 } = require("./../services/PrismaTransactions");
 
 type TransactionRequest = Request & {
-  auth?: { accountId?: string };
+  auth?: { userId?: string };
   app: Request["app"] & {
     io: { emit: (event: string, message: string) => void };
   };
@@ -62,19 +62,17 @@ const statusValue = (status: string) => status.toLowerCase();
 
 const transactionOutput = (transaction: any): TransactionRecord => ({
   _id: transaction.id,
-  id_account: transaction.account
+  id_account: transaction.user
     ? {
-        _id: transaction.account.id,
-        username: transaction.account.username,
-        email: transaction.account.email,
-        id_role: transaction.account.role
-          ? {
-              _id: transaction.account.role.id,
-              name: transaction.account.role.name,
-            }
-          : null,
+        _id: transaction.user.id,
+        username: transaction.user.username,
+        email: transaction.user.email,
+        id_roles: transaction.user.roles.map(({ role }: any) => ({
+          _id: role.id,
+          name: role.name,
+        })),
       }
-    : transaction.accountId,
+    : transaction.userId,
   id_order: transaction.order
     ? serializeOrder(transaction.order, true)
     : transaction.orderId,
@@ -86,7 +84,7 @@ const transactionOutput = (transaction: any): TransactionRecord => ({
 
 const transactionRecord = (transaction: any) => ({
   _id: transaction.id,
-  id_account: transaction.accountId,
+  id_account: transaction.userId,
   id_order: transaction.orderId,
   note: transaction.note,
   status: statusValue(transaction.status),
@@ -171,12 +169,12 @@ exports.Create = async (
     next,
   ) as CreateTransactionRequest | null;
   if (!body) return;
-  const accountId = req.auth?.accountId;
-  if (!accountId) return next(error("Authentication required", 401));
+  const userId = req.auth?.userId;
+  if (!userId) return next(error("Authentication required", 401));
 
   try {
     const transaction = await createTransaction(requirePrisma(), {
-      accountId,
+      userId,
       orderId: body.id_order,
       note: body.note,
       payment: body.payment.toUpperCase(),
@@ -219,7 +217,7 @@ exports.Update = async (
       requirePrisma(),
       req.params._id,
       {
-        accountId: body.id_account,
+        userId: body.id_account,
         orderId: body.id_order,
         note: body.note,
         status: serviceStatus(body.status),
