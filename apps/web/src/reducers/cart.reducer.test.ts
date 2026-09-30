@@ -41,7 +41,7 @@ describe("CartReducer", () => {
     const state = CartReducer(undefined, {
       type: CREATE,
       payload: {
-        menu: { _id: "menu-1", price: 1200, promo: 200 },
+        menu: { id: "menu-1", price: 1200, promo: 200 },
         quality: 2,
         note: "Less ice",
       },
@@ -52,8 +52,8 @@ describe("CartReducer", () => {
       loading: false,
       data: [
         {
-          _id: "100",
-          menu: { _id: "menu-1" },
+          id: "100",
+          menu: { id: "menu-1" },
           quality: 2,
           note: "Less ice",
           total_promo: 400,
@@ -65,7 +65,7 @@ describe("CartReducer", () => {
 
   it("updates an item without mutating the prior cart and can delete it", () => {
     const item = {
-      _id: "cart-1",
+      id: "cart-1",
       menu: { price: 1000, promo: 100 },
       quality: 1,
       note: "old",
@@ -78,7 +78,7 @@ describe("CartReducer", () => {
     const updated = CartReducer(previous, {
       type: UPDATE,
       payload: {
-        _id: "cart-1",
+        id: "cart-1",
         menu: { price: 2000, promo: 250 },
         quality: 3,
         note: "new",
@@ -100,12 +100,12 @@ describe("CartReducer", () => {
   it("tracks selected menu, quantity, note, and clears selection", () => {
     const added = CartReducer(undefined, {
       type: SELECTED_ADD,
-      payload: { _id: "menu-1", price: 1000 },
+      payload: { id: "menu-1", price: 1000 },
     });
     const edited = CartReducer(added, {
       type: SELECTED_EDIT,
       payload: {
-        menu: { _id: "menu-2" },
+        menu: { id: "menu-2" },
         id_cart: "cart-2",
         quality: 1,
         note: "warm",
@@ -138,8 +138,8 @@ describe("CartReducer", () => {
   });
 
   it("stores and clears order and transaction invoices", () => {
-    const order = { _id: "order-1" };
-    const transaction = { _id: "transaction-1" };
+    const order = { id: "order-1" };
+    const transaction = { id: "transaction-1" };
     const withOrder = CartReducer(undefined, {
       type: SET_ORDER,
       payload: order,
@@ -174,7 +174,7 @@ describe("CartReducer", () => {
 
     const dirty = CartReducer(closed, {
       type: SET_DATA,
-      payload: [{ _id: "cart-1" }],
+      payload: [{ id: "cart-1" }],
     });
     expect(CartReducer(dirty, { type: CLEAN })).toMatchObject({
       loading: false,

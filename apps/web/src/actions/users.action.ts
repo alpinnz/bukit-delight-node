@@ -7,7 +7,7 @@ import type {
 } from "@bukit-delight/shared";
 import type { AnyAction } from "redux";
 import type { ThunkAction } from "redux-thunk";
-import Const from "../constant/const";
+import apiConfig from "../config/api-config";
 import Actions from "./";
 import type { RootState } from "../reducers";
 
@@ -16,7 +16,7 @@ export const LOADING = "USERS/LOADING";
 export const SET_USERS = "USERS/SET_USERS";
 
 type AccountThunk = ThunkAction<void, RootState, unknown, AnyAction>;
-type StoredAccount = { accessToken: string; refreshToken: string };
+type StoredAccount = { access_token: string; refresh_token: string };
 type UsersResponse = ApiResponse<UserRecord[]>;
 type AccountForm =
   Partial<CreateUserRequest> | Partial<UpdateUserRequest>;
@@ -29,10 +29,10 @@ const localGetAccount = (): StoredAccount | null => {
 };
 
 const requestHeaders = (account: StoredAccount | null) => ({
-  "x-api-key": Const.X_API_KEY,
-  "x-app-key": Const.X_APP_KEY,
-  "x-access-token": account?.accessToken ?? "",
-  "x-refresh-token": account?.refreshToken ?? "",
+  "x-api-key": apiConfig.apiKey,
+  "x-app-key": apiConfig.appKey,
+  "x-access-token": account?.access_token ?? "",
+  "x-refresh-token": account?.refresh_token ?? "",
 });
 
 const errorMessage = (cause: unknown): string => {
@@ -54,13 +54,13 @@ const mount = () => ({ type: MOUNT });
 const loading = (isLoading: boolean) => ({ type: LOADING, payload: isLoading });
 
 const loadUsers = (isInitialLoad: boolean): AccountThunk => {
-  const URL_PATH = "api/v1/users/";
+  const URL_PATH = "api/v1/users";
   return (dispatch) => {
     if (!isInitialLoad) dispatch(loading(true));
     axios({
       method: "GET",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(localGetAccount()),
     })
       .then((response) => {
@@ -105,7 +105,7 @@ const submitAccount = (
     const formData = new FormData();
     formData.append("username", input.username ?? "");
     formData.append("email", input.email ?? "");
-    formData.append("id_roles", input.id_roles?.join(",") ?? "");
+    formData.append("role_ids", input.role_ids?.join(",") ?? "");
     if (method === "POST" || (input.password && input.repeat_password)) {
       formData.append("password", input.password ?? "");
       formData.append("repeat_password", input.repeat_password ?? "");
@@ -114,7 +114,7 @@ const submitAccount = (
     axios({
       method,
       url,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       data: formData,
       headers: requestHeaders(localGetAccount()),
     })
@@ -144,7 +144,7 @@ const submitAccount = (
 };
 
 const onCreate = (input: Partial<CreateUserRequest>): AccountThunk =>
-  submitAccount("POST", "api/v1/users/", input, "Create User");
+  submitAccount("POST", "api/v1/users", input, "Create User");
 
 const onUpdate = (
   id: string | undefined,
@@ -158,7 +158,7 @@ const onDelete = (id: string): AccountThunk => {
     axios({
       method: "DELETE",
       url: `api/v1/users/${id}`,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(localGetAccount()),
     })
       .then((response) => {

@@ -1,8 +1,8 @@
 import express = require("express");
 
 const router = express.Router();
-const PrismaRoles = require("../../controllers/PrismaRoles");
+const rolesController = require("../../controllers/roles.controller");
 
-router.get("/", PrismaRoles.ReadAll);
+router.get("/", rolesController.readAll);
 
 export = router;

@@ -15,10 +15,10 @@ import {
 export type { TransactionRecord } from "@bukit-delight/shared";
 
 type ApiTransactionRecord = {
-  id_account: { _id: string; username: string };
-  id_order: {
-    id_customer: { _id: string; username: string };
-    id_table: { _id: string; name: string };
+  user_id: { id: string; username: string };
+  order_id: {
+    customer_id: { id: string; username: string };
+    table_id: { id: string; name: string };
     quality: unknown;
     promo: unknown;
     price: unknown;
@@ -62,17 +62,17 @@ const TransactionsReducer = (
       loading: false,
       data: transactions.map((transaction): TransactionRecord => ({
         ...transaction,
-        account_id: transaction.id_account._id,
-        account_username: transaction.id_account.username,
-        order_customer_id: transaction.id_order.id_customer._id,
-        order_customer_username: transaction.id_order.id_customer.username,
-        order_table_id: transaction.id_order.id_table._id,
-        order_table_name: transaction.id_order.id_table.name,
-        order_quality: transaction.id_order.quality,
-        order_promo: transaction.id_order.promo,
-        order_price: transaction.id_order.price,
-        order_total_price: transaction.id_order.total_price,
-        order_status: transaction.id_order.status,
+        user_id: transaction.user_id.id,
+        user_username: transaction.user_id.username,
+        order_customer_id: transaction.order_id.customer_id.id,
+        order_customer_username: transaction.order_id.customer_id.username,
+        order_table_id: transaction.order_id.table_id.id,
+        order_table_name: transaction.order_id.table_id.name,
+        order_quality: transaction.order_id.quality,
+        order_promo: transaction.order_id.promo,
+        order_price: transaction.order_id.price,
+        order_total_price: transaction.order_id.total_price,
+        order_status: transaction.order_id.status,
       })),
     };
   }

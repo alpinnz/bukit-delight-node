@@ -13,7 +13,7 @@ const {
   findRoleByName,
   revokeRefreshTokenInTransaction,
   rotateRefreshTokenInTransaction,
-} = require("../src/services/PrismaAuthentication");
+} = require("../src/services/authentication.service");
 
 const databaseUrl = process.env.PRISMA_TEST_DATABASE_URL;
 const parsedDatabaseUrl = databaseUrl ? new URL(databaseUrl) : null;
@@ -53,7 +53,10 @@ prismaTest("reads users and rotates refresh tokens atomically", async () => {
             email: `auth-${suffix}@example.invalid`,
             password: "fixture-only",
             roles: {
-              create: [{ roleId }, { roleId: customerRole.id }],
+              create: [
+                { role: { connect: { id: roleId } } },
+                { role: { connect: { id: customerRole.id } } },
+              ],
             },
           },
         });
@@ -61,8 +64,8 @@ prismaTest("reads users and rotates refresh tokens atomically", async () => {
           id: refreshTokenId,
           userId,
           token: currentToken,
-          expires: new Date(Date.now() + 60_000),
-          createdByIp: "127.0.0.1",
+          expires_at: new Date(Date.now() + 60_000),
+          created_by_ip: "127.0.0.1",
         });
 
         const user = await findUserForLogin(transaction, `auth-${suffix}`);
@@ -105,9 +108,9 @@ prismaTest("reads users and rotates refresh tokens atomically", async () => {
         const replacementToken = await transaction.refreshToken.findFirst({
           where: { token: nextToken },
         });
-        assert.ok(revokedToken.revoked);
-        assert.equal(revokedToken.replacedByToken, nextToken);
-        assert.equal(replacementToken.userId, userId);
+        assert.ok(revokedToken.revoked_at);
+        assert.equal(revokedToken.replaced_by_token, nextToken);
+        assert.equal(replacementToken.user_id, userId);
         assert.equal(
           await revokeRefreshTokenInTransaction(
             transaction,

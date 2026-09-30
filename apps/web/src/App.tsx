@@ -2,10 +2,10 @@ import { useEffect, type ReactNode } from "react";
 import { Provider, useDispatch, useSelector } from "react-redux";
 import { io } from "socket.io-client";
 import Actions from "./actions";
-import NotificationCustom from "./components/common/notification.custom";
-import LoadingCustom from "./components/common/loading.custom";
-import useNetwork from "./components/hooks/use.network";
-import Const from "./constant/const";
+import Toast from "./components/molecules/toast";
+import LoadingIndicator from "./components/atoms/loading-indicator";
+import useNetwork from "./hooks/use-network";
+import apiConfig from "./config/api-config";
 import type { RootState } from "./reducers";
 import Store, { type AppDispatch } from "./store";
 import Routes from "./routes";
@@ -60,7 +60,7 @@ const InitCheck = ({ children }: { children: ReactNode }) => {
       if (roles.includes("customer")) {
         dispatch(
           Actions.Customers.setCustomer({
-            _id: account._id,
+            id: account.id,
             username: account.username,
           }),
         );
@@ -100,7 +100,7 @@ const InitCheck = ({ children }: { children: ReactNode }) => {
   if (!isInitialized) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <LoadingCustom />
+        <LoadingIndicator />
       </div>
     );
   }
@@ -112,7 +112,7 @@ const Logic = ({ children }: { children: ReactNode }) => {
   const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    const socket = io(Const.BASE_URL);
+    const socket = io(apiConfig.baseUrl);
     const onUsersUpdate = () => dispatch(Actions.Users.onLoad());
     const onMenusUpdate = () => dispatch(Actions.Menus.onLoad());
     const onCategoriesUpdate = () => dispatch(Actions.Categories.onLoad());
@@ -155,7 +155,7 @@ const App = () => (
     <Provider store={Store}>
       <InitCheck>
         <NetworkStatusView />
-        <NotificationCustom />
+        <Toast />
         <Logic>
           <Routes />
         </Logic>

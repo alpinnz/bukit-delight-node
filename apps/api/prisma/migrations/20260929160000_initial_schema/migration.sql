@@ -13,10 +13,10 @@ CREATE TABLE "users" (
     "username" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "activateLink" JSONB,
-    "resetLink" JSONB,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "activate_link" JSONB,
+    "reset_link" JSONB,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
 );
@@ -25,8 +25,8 @@ CREATE TABLE "users" (
 CREATE TABLE "roles" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "roles_pkey" PRIMARY KEY ("id")
 );
@@ -35,7 +35,7 @@ CREATE TABLE "roles" (
 CREATE TABLE "user_roles" (
     "user_id" TEXT NOT NULL,
     "role_id" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "user_roles_pkey" PRIMARY KEY ("user_id","role_id")
 );
@@ -45,12 +45,12 @@ CREATE TABLE "refresh_tokens" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
     "token" TEXT,
-    "expires" TIMESTAMP(3),
-    "created" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "createdByIp" TEXT,
-    "revoked" TIMESTAMP(3),
-    "revokedByIp" TEXT,
-    "replacedByToken" TEXT,
+    "expires_at" TIMESTAMP(3),
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_by_ip" TEXT,
+    "revoked_at" TIMESTAMP(3),
+    "revoked_by_ip" TEXT,
+    "replaced_by_token" TEXT,
 
     CONSTRAINT "refresh_tokens_pkey" PRIMARY KEY ("id")
 );
@@ -61,8 +61,8 @@ CREATE TABLE "categories" (
     "name" TEXT NOT NULL,
     "desc" TEXT NOT NULL,
     "image" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
@@ -73,14 +73,14 @@ CREATE TABLE "menus" (
     "name" TEXT NOT NULL,
     "desc" TEXT,
     "image" TEXT NOT NULL,
-    "id_category" TEXT NOT NULL,
+    "category_id" TEXT NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "promo" DOUBLE PRECISION NOT NULL,
     "duration" DOUBLE PRECISION NOT NULL,
-    "isAvailable" BOOLEAN NOT NULL,
-    "isFavorite" BOOLEAN NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "is_available" BOOLEAN NOT NULL,
+    "is_favorite" BOOLEAN NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "menus_pkey" PRIMARY KEY ("id")
 );
@@ -89,8 +89,8 @@ CREATE TABLE "menus" (
 CREATE TABLE "tables" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "tables_pkey" PRIMARY KEY ("id")
 );
@@ -98,8 +98,8 @@ CREATE TABLE "tables" (
 -- CreateTable
 CREATE TABLE "orders" (
     "id" TEXT NOT NULL,
-    "id_customer" TEXT,
-    "id_table" TEXT,
+    "customer_id" TEXT,
+    "table_id" TEXT,
     "quality" DOUBLE PRECISION NOT NULL,
     "duration" DOUBLE PRECISION NOT NULL,
     "promo" DOUBLE PRECISION NOT NULL,
@@ -108,39 +108,39 @@ CREATE TABLE "orders" (
     "note" TEXT,
     "status" "OrderStatus" NOT NULL,
     "estimated_ready_at" TIMESTAMP(3) NOT NULL,
-    "expires" TIMESTAMP(3) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "expires_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "orders_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "itemorders" (
+CREATE TABLE "order_items" (
     "id" TEXT NOT NULL,
-    "id_order" TEXT NOT NULL,
-    "id_menu" TEXT NOT NULL,
+    "order_id" TEXT NOT NULL,
+    "menu_id" TEXT NOT NULL,
     "quality" DOUBLE PRECISION NOT NULL,
     "duration" DOUBLE PRECISION NOT NULL,
     "promo" DOUBLE PRECISION NOT NULL,
     "price" DOUBLE PRECISION NOT NULL,
     "total_price" DOUBLE PRECISION NOT NULL,
     "note" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "itemorders_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "order_items_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "transactions" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
-    "id_order" TEXT NOT NULL,
+    "order_id" TEXT NOT NULL,
     "note" TEXT,
     "status" "TransactionStatus" NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "transactions_pkey" PRIMARY KEY ("id")
 );
@@ -167,25 +167,25 @@ CREATE UNIQUE INDEX "categories_name_key" ON "categories"("name");
 CREATE UNIQUE INDEX "menus_name_key" ON "menus"("name");
 
 -- CreateIndex
-CREATE INDEX "menus_id_category_idx" ON "menus"("id_category");
+CREATE INDEX "menus_category_id_idx" ON "menus"("category_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "tables_name_key" ON "tables"("name");
 
 -- CreateIndex
-CREATE INDEX "orders_id_customer_idx" ON "orders"("id_customer");
+CREATE INDEX "orders_customer_id_idx" ON "orders"("customer_id");
 
 -- CreateIndex
-CREATE INDEX "orders_id_table_idx" ON "orders"("id_table");
+CREATE INDEX "orders_table_id_idx" ON "orders"("table_id");
 
 -- CreateIndex
-CREATE INDEX "itemorders_id_order_idx" ON "itemorders"("id_order");
+CREATE INDEX "order_items_order_id_idx" ON "order_items"("order_id");
 
 -- CreateIndex
-CREATE INDEX "itemorders_id_menu_idx" ON "itemorders"("id_menu");
+CREATE INDEX "order_items_menu_id_idx" ON "order_items"("menu_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "transactions_id_order_key" ON "transactions"("id_order");
+CREATE UNIQUE INDEX "transactions_order_id_key" ON "transactions"("order_id");
 
 -- CreateIndex
 CREATE INDEX "transactions_user_id_idx" ON "transactions"("user_id");
@@ -200,22 +200,22 @@ ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_role_id_fkey" FOREIGN KEY ("
 ALTER TABLE "refresh_tokens" ADD CONSTRAINT "refresh_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "menus" ADD CONSTRAINT "menus_id_category_fkey" FOREIGN KEY ("id_category") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "menus" ADD CONSTRAINT "menus_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "categories"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "orders" ADD CONSTRAINT "orders_id_customer_fkey" FOREIGN KEY ("id_customer") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "orders" ADD CONSTRAINT "orders_customer_id_fkey" FOREIGN KEY ("customer_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "orders" ADD CONSTRAINT "orders_id_table_fkey" FOREIGN KEY ("id_table") REFERENCES "tables"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "orders" ADD CONSTRAINT "orders_table_id_fkey" FOREIGN KEY ("table_id") REFERENCES "tables"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "itemorders" ADD CONSTRAINT "itemorders_id_order_fkey" FOREIGN KEY ("id_order") REFERENCES "orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "itemorders" ADD CONSTRAINT "itemorders_id_menu_fkey" FOREIGN KEY ("id_menu") REFERENCES "menus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "order_items" ADD CONSTRAINT "order_items_menu_id_fkey" FOREIGN KEY ("menu_id") REFERENCES "menus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_id_order_fkey" FOREIGN KEY ("id_order") REFERENCES "orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_order_id_fkey" FOREIGN KEY ("order_id") REFERENCES "orders"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

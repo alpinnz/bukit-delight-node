@@ -24,8 +24,8 @@ describe("TablesReducer", () => {
       payload: true,
     });
     const tables = [
-      { _id: "table-1", name: "A1" },
-      { _id: "table-2", name: "A2" },
+      { id: "table-1", name: "A1" },
+      { id: "table-2", name: "A2" },
     ];
     const listState = TablesReducer(loadingState, {
       type: SET_TABLES,

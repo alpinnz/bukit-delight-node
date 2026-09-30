@@ -15,8 +15,8 @@ import {
 export type { OrderRecord } from "@bukit-delight/shared";
 
 type ApiOrderRecord = {
-  id_customer: { username: string };
-  id_table: { name: string };
+  customer_id: { username: string };
+  table_id: { name: string };
   [key: string]: unknown;
 };
 
@@ -52,8 +52,8 @@ const OrdersReducer = (
       ...state,
       data: orders.map((order): OrderRecord => ({
         ...order,
-        customer_username: order.id_customer.username,
-        table_name: order.id_table.name,
+        customer_username: order.customer_id.username,
+        table_name: order.table_id.name,
       })),
     };
   }

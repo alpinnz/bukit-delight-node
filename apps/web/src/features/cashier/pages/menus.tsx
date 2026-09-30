@@ -1,7 +1,7 @@
-import ContainerBase from "../../../components/templates/cashier/container.base";
+import CashierLayout from "../../../components/templates/cashier/layout";
 
 const CashierMenusPage = () => (
-  <ContainerBase title="Menus">Menus</ContainerBase>
+  <CashierLayout title="Menus">Menus</CashierLayout>
 );
 
 export default CashierMenusPage;

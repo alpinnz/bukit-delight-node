@@ -12,10 +12,10 @@ describe("FavoritesAction.onLoad", () => {
 
   it("loads favorite analysis using staff credentials", async () => {
     const account = {
-      accessToken: "staff-access",
-      refreshToken: "staff-refresh",
+      access_token: "staff-access",
+      refresh_token: "staff-refresh",
     };
-    const favorites = { menu_favorit: [{ _id: "menu-1" }] };
+    const favorites = { favorite_menus: [{ id: "menu-1" }] };
     localStorage.setItem("account", JSON.stringify(account));
     vi.mocked(axios).mockResolvedValue({
       data: { name: "success", data: favorites },
@@ -32,10 +32,10 @@ describe("FavoritesAction.onLoad", () => {
     expect(axios).toHaveBeenCalledWith(
       expect.objectContaining({
         method: "GET",
-        url: "api/v1/machine/favorite",
+        url: "api/v1/recommendations/favorites",
         headers: expect.objectContaining({
-          "x-access-token": account.accessToken,
-          "x-refresh-token": account.refreshToken,
+          "x-access-token": account.access_token,
+          "x-refresh-token": account.refresh_token,
         }),
       }),
     );

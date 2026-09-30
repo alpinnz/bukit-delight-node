@@ -6,7 +6,7 @@ import type {
   TransactionPaymentMethod,
   TransactionStatus,
 } from "@bukit-delight/shared";
-import Const from "../constant/const";
+import apiConfig from "../config/api-config";
 import Actions from "./";
 import type { RootState } from "../reducers";
 
@@ -21,7 +21,7 @@ export const DIALOG_REVIEW_OPEN = "TRANSACTIONS/DIALOG_REVIEW_OPEN";
 export const DIALOG_REVIEW_HIDE = "TRANSACTIONS/DIALOG_REVIEW_HIDE";
 
 type TransactionThunk = ThunkAction<void, RootState, unknown, AnyAction>;
-type StoredAccount = { accessToken: string; refreshToken: string };
+type StoredAccount = { access_token: string; refresh_token: string };
 type TransactionsResponse = ApiResponse<TransactionRecord[]>;
 type CreateTransactionInput = {
   note?: string;
@@ -34,10 +34,10 @@ const localGetAccount = (): StoredAccount | null => {
 };
 
 const requestHeaders = (account: StoredAccount | null) => ({
-  "x-api-key": Const.X_API_KEY,
-  "x-app-key": Const.X_APP_KEY,
-  "x-access-token": account?.accessToken ?? "",
-  "x-refresh-token": account?.refreshToken ?? "",
+  "x-api-key": apiConfig.apiKey,
+  "x-app-key": apiConfig.appKey,
+  "x-access-token": account?.access_token ?? "",
+  "x-refresh-token": account?.refresh_token ?? "",
 });
 
 const errorMessage = (cause: unknown): string => {
@@ -65,7 +65,7 @@ const loadTransactions = (isInitialLoad: boolean): TransactionThunk => {
     axios({
       method: "GET",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(localGetAccount()),
     })
       .then((response) => {
@@ -104,9 +104,9 @@ const onLoadSelectors = (): TransactionThunk => {
     const state = getState();
     const transactions = state.Transactions;
 
-    if (transactions.transaction?._id) {
+    if (transactions.transaction?.id) {
       const selectedTransaction = transactions.data.find(
-        ({ _id }) => _id === transactions.transaction?._id,
+        ({ id }) => id === transactions.transaction?.id,
       );
       if (selectedTransaction) dispatch(setTransaction(selectedTransaction));
     }
@@ -123,26 +123,24 @@ const onCreate = (input: CreateTransactionInput): TransactionThunk => {
   return (dispatch, getState) => {
     dispatch(loading(true));
     const state = getState();
-    const accountId = state.Authentication.account?._id;
-    const orderId = state.Orders.order?._id;
-    if (!accountId || !orderId) {
+    const orderId = state.Orders.order?.id;
+    if (!orderId) {
       dispatch(
-        Actions.Service.pushErrorNotification("Account and order are required"),
+        Actions.Service.pushErrorNotification("Order is required"),
       );
       dispatch(loading(false));
       return;
     }
 
     const formData = new FormData();
-    formData.append("id_account", accountId);
-    formData.append("id_order", orderId);
+    formData.append("order_id", orderId);
     if (input.note) formData.append("note", input.note);
     formData.append("payment", input.payment);
 
     axios({
       method: "POST",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       data: formData,
       headers: requestHeaders(localGetAccount()),
     })
@@ -179,7 +177,7 @@ const onUpdateStatus = (input: {
 }): TransactionThunk => {
   return (dispatch, getState) => {
     dispatch(loading(true));
-    const transactionId = getState().Transactions.transaction?._id;
+    const transactionId = getState().Transactions.transaction?.id;
     if (!transactionId) {
       dispatch(
         Actions.Service.pushErrorNotification("Transaction is required"),
@@ -191,9 +189,9 @@ const onUpdateStatus = (input: {
     const formData = new FormData();
     formData.append("status", input.status);
     axios({
-      method: "PUT",
-      url: `api/v1/transactions/status/${transactionId}`,
-      baseURL: Const.BASE_URL,
+      method: "PATCH",
+      url: `api/v1/transactions/${transactionId}/status`,
+      baseURL: apiConfig.baseUrl,
       data: formData,
       headers: requestHeaders(localGetAccount()),
     })

@@ -12,8 +12,8 @@ describe("UsersAction", () => {
 
   it("creates an account with staff credentials and required account fields", async () => {
     const account = {
-      accessToken: "admin-access",
-      refreshToken: "admin-refresh",
+      access_token: "owner-access",
+      refresh_token: "owner-refresh",
     };
     localStorage.setItem("account", JSON.stringify(account));
     vi.mocked(axios).mockResolvedValue({
@@ -24,7 +24,7 @@ describe("UsersAction", () => {
     await UsersAction.onCreate({
       username: "cashier",
       email: "cashier@example.test",
-      id_roles: ["role-1", "role-2"],
+      role_ids: ["role-1", "role-2"],
       password: "secret",
       repeat_password: "secret",
     })(dispatch as never, (() => ({})) as never, undefined);
@@ -32,10 +32,10 @@ describe("UsersAction", () => {
     expect(axios).toHaveBeenCalledWith(
       expect.objectContaining({
         method: "POST",
-        url: "api/v1/users/",
+        url: "api/v1/users",
         headers: expect.objectContaining({
-          "x-access-token": account.accessToken,
-          "x-refresh-token": account.refreshToken,
+          "x-access-token": account.access_token,
+          "x-refresh-token": account.refresh_token,
         }),
       }),
     );
@@ -44,7 +44,7 @@ describe("UsersAction", () => {
     };
     expect(request.data.get("username")).toBe("cashier");
     expect(request.data.get("email")).toBe("cashier@example.test");
-    expect(request.data.get("id_roles")).toBe("role-1,role-2");
+    expect(request.data.get("role_ids")).toBe("role-1,role-2");
     expect(request.data.get("password")).toBe("secret");
     await vi.waitFor(() => {
       expect(dispatch).toHaveBeenCalledWith({ type: LOADING, payload: false });
@@ -60,7 +60,7 @@ describe("UsersAction", () => {
     await UsersAction.onUpdate("account-1", {
       username: "cashier",
       email: "cashier@example.test",
-      id_roles: ["role-1"],
+      role_ids: ["role-1"],
     })(dispatch as never, (() => ({})) as never, undefined);
 
     expect(axios).toHaveBeenCalledWith(
@@ -72,7 +72,7 @@ describe("UsersAction", () => {
     const request = vi.mocked(axios).mock.calls[0][0] as unknown as {
       data: FormData;
     };
-    expect(request.data.get("id_roles")).toBe("role-1");
+    expect(request.data.get("role_ids")).toBe("role-1");
     expect(request.data.get("password")).toBeNull();
     expect(request.data.get("repeat_password")).toBeNull();
   });

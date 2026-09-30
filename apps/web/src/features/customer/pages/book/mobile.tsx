@@ -1,10 +1,10 @@
-import ContainerBase from "../../../../components/common/container.customer.base";
+import CustomerLayout from "../../../../components/templates/customer/layout";
 import CustomerCategoryList from "./category-list";
 
 const CustomerBookMobilePage = () => (
-  <ContainerBase type="book" title={undefined}>
+  <CustomerLayout type="book" title={undefined}>
     <CustomerCategoryList />
-  </ContainerBase>
+  </CustomerLayout>
 );
 
 export default CustomerBookMobilePage;

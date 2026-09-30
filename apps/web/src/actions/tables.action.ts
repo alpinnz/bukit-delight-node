@@ -7,7 +7,7 @@ import type {
 } from "@bukit-delight/shared";
 import type { AnyAction } from "redux";
 import type { ThunkAction } from "redux-thunk";
-import Const from "../constant/const";
+import apiConfig from "../config/api-config";
 import Actions from "./";
 
 export const MOUNT = "TABLES/MOUNT";
@@ -17,7 +17,7 @@ export const SET_TABLE = "TABLES/SET_TABLE";
 export const CLEAN_TABLE = "TABLES/CLEAN_TABLE";
 
 type TableThunk = ThunkAction<void, unknown, unknown, AnyAction>;
-type StoredAccount = { accessToken: string; refreshToken: string };
+type StoredAccount = { access_token: string; refresh_token: string };
 type TableForm = Partial<CreateTableRequest>;
 type TablesResponse = ApiResponse<TableRecord[]>;
 
@@ -29,10 +29,10 @@ const localGetAccount = (): StoredAccount | null => {
 };
 
 const requestHeaders = (account: StoredAccount | null) => ({
-  "x-api-key": Const.X_API_KEY,
-  "x-app-key": Const.X_APP_KEY,
-  "x-access-token": account?.accessToken ?? "",
-  "x-refresh-token": account?.refreshToken ?? "",
+  "x-api-key": apiConfig.apiKey,
+  "x-app-key": apiConfig.appKey,
+  "x-access-token": account?.access_token ?? "",
+  "x-refresh-token": account?.refresh_token ?? "",
 });
 
 const errorMessage = (cause: unknown): string => {
@@ -59,7 +59,7 @@ const onMount = (): TableThunk => {
     axios({
       method: "GET",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(account),
     })
       .then((response) => {
@@ -96,7 +96,7 @@ const onLoad = (): TableThunk => {
     axios({
       method: "GET",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(account),
     })
       .then((response) => {
@@ -134,9 +134,9 @@ const onLoadSelectors = (): TableThunk => {
       Tables: { table: TableRecord | null; data: TableRecord[] };
     };
     const selectedTable = state.Tables.table;
-    if (!selectedTable?._id) return;
+    if (!selectedTable?.id) return;
     const table = state.Tables.data.find(
-      ({ _id }) => _id === selectedTable._id,
+      ({ id }) => id === selectedTable.id,
     );
     if (table) dispatch(Actions.Tables.setTable(table));
   };
@@ -159,7 +159,7 @@ const saveTable = (
     axios({
       method,
       url,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       data: formData,
       headers: requestHeaders(account),
     })
@@ -202,7 +202,7 @@ const onDelete = (id: string): TableThunk => {
     axios({
       method: "DELETE",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(account),
     })
       .then((response) => {

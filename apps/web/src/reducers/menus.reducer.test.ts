@@ -22,9 +22,9 @@ describe("MenusReducer", () => {
 
   it("adds category fields without mutating API menu records", () => {
     const menu = {
-      _id: "menu-1",
+      id: "menu-1",
       name: "Latte",
-      id_category: { _id: "category-1", name: "Coffee" },
+      category_id: { id: "category-1", name: "Coffee" },
     };
     const loaded = MenusReducer(
       { mount: true, loading: true, data: [] },

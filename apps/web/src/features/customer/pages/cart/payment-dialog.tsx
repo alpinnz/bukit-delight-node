@@ -1,7 +1,7 @@
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
-import Icons from "../../../../assets/icons";
+import icons from "../../../../assets/icons";
 import type { AppDispatch } from "../../../../store";
 
 type PaymentDialogState = {
@@ -37,7 +37,7 @@ const CustomerPaymentDialog = () => {
               className="block flex-1 rounded-xl bg-[#D6A4A4] p-1 disabled:opacity-50"
             >
               <div className="flex items-center justify-center p-2">
-                <img className="size-16" src={Icons.cashier} alt="cashier" />
+                <img className="size-16" src={icons.cashier} alt="cashier" />
               </div>
               <span className="block py-1 text-center font-semibold text-black">
                 Tunai
@@ -50,7 +50,7 @@ const CustomerPaymentDialog = () => {
               className="block flex-1 rounded-xl bg-[#D6A4A4] p-1 disabled:opacity-50"
             >
               <div className="flex items-center justify-center p-2">
-                <img className="size-16" src={Icons.e_money} alt="e money" />
+                <img className="size-16" src={icons.eMoney} alt="e money" />
               </div>
               <span className="block py-1 text-center font-semibold text-black">
                 E-Money

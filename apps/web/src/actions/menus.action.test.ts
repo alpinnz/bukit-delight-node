@@ -14,8 +14,8 @@ describe("MenuAction", () => {
     localStorage.setItem(
       "account",
       JSON.stringify({
-        accessToken: "staff-access",
-        refreshToken: "staff-refresh",
+        access_token: "staff-access",
+        refresh_token: "staff-refresh",
       }),
     );
     vi.mocked(axios).mockResolvedValue({
@@ -33,9 +33,9 @@ describe("MenuAction", () => {
       price: "12000",
       duration: "5",
       promo: "1000",
-      id_category: "category-1",
-      isAvailable: true,
-      isFavorite: false,
+      category_id: "category-1",
+      is_available: true,
+      is_favorite: false,
     })(dispatch as never, (() => ({})) as never, undefined);
 
     expect(axios).toHaveBeenCalledWith(
@@ -55,9 +55,9 @@ describe("MenuAction", () => {
     expect(request.data.get("image")).toBe(image);
     expect(request.data.get("price")).toBe("12000");
     expect(request.data.get("promo")).toBe("1000");
-    expect(request.data.get("id_category")).toBe("category-1");
-    expect(request.data.get("isAvailable")).toBe("true");
-    expect(request.data.get("isFavorite")).toBe("false");
+    expect(request.data.get("category_id")).toBe("category-1");
+    expect(request.data.get("is_available")).toBe("true");
+    expect(request.data.get("is_favorite")).toBe("false");
     await vi.waitFor(() => {
       expect(dispatch).toHaveBeenCalledWith({ type: LOADING, payload: false });
     });
@@ -74,9 +74,9 @@ describe("MenuAction", () => {
       desc: "Updated description",
       price: "13000",
       duration: "6",
-      id_category: "category-1",
-      isAvailable: true,
-      isFavorite: true,
+      category_id: "category-1",
+      is_available: true,
+      is_favorite: true,
     })(dispatch as never, (() => ({})) as never, undefined);
 
     expect(axios).toHaveBeenCalledWith(

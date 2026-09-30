@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Mobile from "./mobile";
-import Desktop from "../laptop.page";
+import Desktop from "../desktop-ordering-page";
 import PaymentDialog from "./payment-dialog";
 
 const CustomerCartPage = () => {

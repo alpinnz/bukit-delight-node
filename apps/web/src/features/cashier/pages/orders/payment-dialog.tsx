@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 import type { TransactionPaymentMethod } from "@bukit-delight/shared";
 import Actions from "../../../../actions";
 import type { AppDispatch } from "../../../../store";
-import CustomerInvoiceOverview, {
+import OrderInvoiceOverview, {
   type InvoiceRecord,
-} from "../../../customer/components/invoice-overview";
+} from "../../../orders/components/order-invoice-overview";
 
 type CashierPaymentState = {
   Orders: {
@@ -87,7 +87,7 @@ const CashierOrderPaymentDialog = () => {
             </button>
           </header>
           <div className="p-3">
-            <CustomerInvoiceOverview data={order} change={change} />
+            <OrderInvoiceOverview data={order} change={change} />
             <section className="mt-4">
               <h2 className="font-semibold">Pembayaran Tunai</h2>
               <div className="mt-2 grid grid-cols-2 gap-3">

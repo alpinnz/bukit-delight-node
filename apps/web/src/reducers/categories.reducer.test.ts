@@ -20,7 +20,7 @@ describe("CategoriesReducer", () => {
   });
 
   it("stores loaded categories and clears loading", () => {
-    const categories = [{ _id: "category-1", name: "Coffee" }];
+    const categories = [{ id: "category-1", name: "Coffee" }];
     expect(
       CategoriesReducer(
         { mount: true, loading: true, data: [] },

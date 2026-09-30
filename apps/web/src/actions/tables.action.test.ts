@@ -12,11 +12,11 @@ describe("TablesAction.onLoad", () => {
 
   it("loads table records with the saved staff credentials", async () => {
     const account = {
-      accessToken: "test-access-token",
-      refreshToken: "test-refresh-token",
+      access_token: "test-access-token",
+      refresh_token: "test-refresh-token",
     };
     localStorage.setItem("account", JSON.stringify(account));
-    const tables = [{ _id: "table-1", name: "Terrace" }];
+    const tables = [{ id: "table-1", name: "Terrace" }];
     vi.mocked(axios).mockResolvedValue({
       data: { name: "success", data: tables },
     } as never);
@@ -43,8 +43,8 @@ describe("TablesAction.onLoad", () => {
         method: "GET",
         url: "api/v1/tables",
         headers: expect.objectContaining({
-          "x-access-token": account.accessToken,
-          "x-refresh-token": account.refreshToken,
+          "x-access-token": account.access_token,
+          "x-refresh-token": account.refresh_token,
         }),
       }),
     );

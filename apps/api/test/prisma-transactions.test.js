@@ -8,7 +8,7 @@ const {
   deleteTransactionInTransaction,
   updateTransactionInTransaction,
   updateTransactionStatusInTransaction,
-} = require("../src/services/PrismaTransactions");
+} = require("../src/services/transactions.service");
 
 const databaseUrl = process.env.PRISMA_TEST_DATABASE_URL;
 const parsedDatabaseUrl = databaseUrl ? new URL(databaseUrl) : null;
@@ -25,7 +25,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
   });
   const suffix = randomUUID();
   const userId = `phase4-payment-${suffix}-user`;
-  const tableId = `phase4-payment-${suffix}-table`;
+  const table_id = `phase4-payment-${suffix}-table`;
   const oldOrderId = `phase4-payment-${suffix}-old-order`;
   const paidOrderId = `phase4-payment-${suffix}-paid-order`;
   const laterOrderId = `phase4-payment-${suffix}-later-order`;
@@ -37,16 +37,16 @@ prismaTest("creates and updates payment transactions atomically", async () => {
     transaction.order.create({
       data: {
         id,
-        customerId: userId,
-        tableId,
+        customer_id: userId,
+        table_id,
         quality: 1,
         duration,
         promo: 0,
         price: 10,
-        totalPrice: 10,
+        total_price: 10,
         status,
-        estimatedReadyAt: now,
-        expires: new Date(now.getTime() + 60_000),
+        estimated_ready_at: now,
+        expires_at: new Date(now.getTime() + 60_000),
       },
     });
 
@@ -66,10 +66,10 @@ prismaTest("creates and updates payment transactions atomically", async () => {
           },
         });
         await transaction.userRole.create({
-          data: { userId, roleId: cashierRole.id },
+          data: { user_id: userId, role_id: cashierRole.id },
         });
         await transaction.diningTable.create({
-          data: { id: tableId, name: `phase4-payment-${suffix}` },
+          data: { id: table_id, name: `phase4-payment-${suffix}` },
         });
         await createFixtureOrder(transaction, oldOrderId, 6, "CASH");
         await createFixtureOrder(transaction, paidOrderId, 4, "PENDING");
@@ -78,34 +78,34 @@ prismaTest("creates and updates payment transactions atomically", async () => {
           data: {
             id: oldTransactionId,
             userId,
-            orderId: oldOrderId,
+            order_id: oldOrderId,
             status: "PROCESSING",
           },
         });
 
         const created = await createTransactionInTransaction(transaction, {
           userId,
-          orderId: paidOrderId,
+          order_id: paidOrderId,
           payment: "VIRTUAL",
           note: "card payment",
           now,
         });
         assert.equal(created.status, "PENDING");
-        assert.equal(created.userId, userId);
-        assert.equal(created.orderId, paidOrderId);
+        assert.equal(created.user_id, userId);
+        assert.equal(created.order_id, paidOrderId);
         const paidOrder = await transaction.order.findUnique({
           where: { id: paidOrderId },
         });
         assert.equal(paidOrder.status, "VIRTUAL");
         assert.equal(
-          paidOrder.estimatedReadyAt.getTime(),
+          paidOrder.estimated_ready_at.getTime(),
           now.getTime() + 10 * 60_000,
         );
 
         await assert.rejects(
           createTransactionInTransaction(transaction, {
             userId,
-            orderId: paidOrderId,
+            order_id: paidOrderId,
             payment: "CASH",
             now,
           }),
@@ -119,13 +119,13 @@ prismaTest("creates and updates payment transactions atomically", async () => {
         );
         const laterTransaction = await createTransactionInTransaction(
           transaction,
-          { userId, orderId: laterOrderId, payment: "CASH", now },
+          { userId, order_id: laterOrderId, payment: "CASH", now },
         );
         const laterOrder = await transaction.order.findUnique({
           where: { id: laterOrderId },
         });
         assert.equal(
-          laterOrder.estimatedReadyAt.getTime(),
+          laterOrder.estimated_ready_at.getTime(),
           now.getTime() + 8 * 60_000,
         );
 
@@ -134,7 +134,7 @@ prismaTest("creates and updates payment transactions atomically", async () => {
           laterTransaction.id,
           {
             userId,
-            orderId: laterOrderId,
+            order_id: laterOrderId,
             note: "cash at counter",
             status: "PROCESSING",
           },

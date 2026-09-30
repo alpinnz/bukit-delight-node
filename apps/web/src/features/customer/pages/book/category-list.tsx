@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-type CustomerCategory = { _id: string; name: string; image?: string };
+type CustomerCategory = { id: string; name: string; image?: string };
 type CustomerBookState = { Categories: { data: CustomerCategory[] } };
 
 const CATEGORY_COLOR_CLASSES = [
@@ -24,11 +24,11 @@ const CustomerCategoryList = () => {
     <div className="mx-1">
       <div className="grid grid-cols-2 sm:grid-cols-3">
         {categories.map((category, index) => (
-          <div key={category._id}>
+          <div key={category.id}>
             <div className="mx-1 mb-2">
               <Link
                 aria-label={`Pilih kategori ${category.name}`}
-                to={`/customer/book/${category._id}`}
+                to={`/customer/book/${category.id}`}
               >
                 <div
                   role={category.image ? "img" : undefined}

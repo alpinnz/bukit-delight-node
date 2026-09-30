@@ -4,7 +4,7 @@ const path = require("path");
 const compiledDirectory = path.basename(path.dirname(__dirname)) === "dist";
 const workspaceDirectory = path.resolve(
   __dirname,
-  compiledDirectory ? "../../../../" : "../../../",
+  compiledDirectory ? "../../.../" : "../../../",
 );
 require("dotenv").config({ path: path.join(workspaceDirectory, ".env") });
 const express = require("express");
@@ -13,10 +13,10 @@ const socketIo = require("socket.io");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
-const { Environment } = require("./config");
-const { prisma } = require("./config/Prisma");
+const { environment } = require("./config");
+const { prisma } = require("./config/prisma");
 const index = require("./routes");
-const { Response } = require("./middlewares");
+const { response } = require("./middlewares");
 const logger = require("./utils/logger");
 
 const port = process.env.API_PORT || process.env.PORT || 3000;
@@ -97,7 +97,7 @@ app.use((_request: Request, _response: Response, next: NextFunction) => {
   next(error);
 });
 
-app.use(Response.Error);
+app.use(response.error);
 
 const io = socketIo(server, {
   cors: {
@@ -108,7 +108,7 @@ const io = socketIo(server, {
 app.io = io;
 
 const start = async () => {
-  Environment.validate();
+  environment.validate();
   if (!prisma) throw new Error("DATABASE_URL is required");
   await prisma.$connect();
   return new Promise((resolve) => {

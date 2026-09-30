@@ -9,12 +9,12 @@ const mocks = vi.hoisted(() => ({
     Transactions: {
       dialog_review: { open: true },
       transaction: {
-        _id: "transaction-1",
+        id: "transaction-1",
         status: "waiting",
-        id_account: { username: "cashier" },
-        id_order: {
-          _id: "order-1",
-          categories: [{ name: "Food", itemOrders: [] }],
+        user_id: { username: "cashier" },
+        order_id: {
+          id: "order-1",
+          categories: [{ name: "Food", items: [] }],
         },
       },
     },
@@ -36,10 +36,10 @@ vi.mock("../../../../actions", () => ({
     },
   },
 }));
-vi.mock("../../../customer/components/invoice-overview", () => ({
+vi.mock("../../../orders/components/order-invoice-overview", () => ({
   default: () => <div>Transaction summary</div>,
 }));
-vi.mock("../../../customer/components/accordion-list-categories", () => ({
+vi.mock("../../../orders/components/order-category-accordion", () => ({
   default: () => <div>Transaction items</div>,
 }));
 
@@ -49,12 +49,12 @@ describe("CashierTransactionReviewDialog", () => {
     vi.clearAllMocks();
     mocks.state.Transactions.dialog_review.open = true;
     mocks.state.Transactions.transaction = {
-      _id: "transaction-1",
+      id: "transaction-1",
       status: "waiting",
-      id_account: { username: "cashier" },
-      id_order: {
-        _id: "order-1",
-        categories: [{ name: "Food", itemOrders: [] }],
+      user_id: { username: "cashier" },
+      order_id: {
+        id: "order-1",
+        categories: [{ name: "Food", items: [] }],
       },
     };
   });

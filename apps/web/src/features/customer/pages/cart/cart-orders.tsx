@@ -1,9 +1,9 @@
 import { useDispatch } from "react-redux";
 import Actions from "../../../../actions";
 import MenuDialog from "../../components/menu-dialog";
-import Recipe from "./recipe";
+import Recipe from "./cart-summary";
 import ListItemVertical from "./cart-item-list";
-import TextCustom from "../../../../components/common/text.custom";
+import Text from "../../../../components/atoms/text";
 import type { AppDispatch } from "../../../../store";
 
 const CustomerCartOrders = () => {
@@ -11,9 +11,9 @@ const CustomerCartOrders = () => {
 
   return (
     <div>
-      <TextCustom className="m-4 text-brand-rust" variant="h6" align="center">
+      <Text className="m-4 text-brand-rust" variant="h6" align="center">
         Sudah siap pesan ?
-      </TextCustom>
+      </Text>
       <ListItemVertical />
       <Recipe />
       <div className="my-4 flex items-center justify-center">

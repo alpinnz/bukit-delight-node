@@ -21,11 +21,11 @@ describe("FavoritesReducer", () => {
 
   it("stores favorite analysis and clears loading", () => {
     const analysis = {
-      menu_favorit: [{ _id: "menu-1", name: "Latte" }],
-      DataSet: [{ name_menu: "Latte", x: 1, y: 2 }],
-      c_awal: [],
-      data_kmeans: [],
-      menu_cluster_akhir: { c1: [], c2: [], c3: [] },
+      favorite_menus: [{ id: "menu-1", name: "Latte" }],
+      data_set: [{ menu_name: "Latte", x: 1, y: 2 }],
+      initial_centroids: [],
+      kmeans_data: [],
+      final_menu_clusters: { c1: [], c2: [], c3: [] },
     };
     expect(
       FavoritesReducer(

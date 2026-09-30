@@ -9,7 +9,7 @@ type PrivateRouteProps = {
 };
 
 const roleHomePaths: Record<string, string> = {
-  owner: "/admin/dashboard",
+  owner: "/owner/dashboard",
   cashier: "/cashier/home",
 };
 

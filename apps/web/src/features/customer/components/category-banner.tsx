@@ -1,4 +1,4 @@
-import LoadingCustom from "../../../components/common/loading.custom";
+import LoadingIndicator from "../../../components/atoms/loading-indicator";
 
 type CategoryBannerProps = {
   image?: string | null;
@@ -13,7 +13,7 @@ const CategoryBanner = ({ image }: CategoryBannerProps) => (
         alt="banner-menu"
       />
     ) : (
-      <LoadingCustom className="text-brand-primary" />
+      <LoadingIndicator className="text-brand-primary" />
     )}
   </div>
 );

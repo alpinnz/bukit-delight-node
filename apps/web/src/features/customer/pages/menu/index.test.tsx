@@ -6,7 +6,7 @@ vi.mock("./mobile", () => ({
   default: () => <div>mobile menu</div>,
 }));
 
-vi.mock("../laptop.page", () => ({
+vi.mock("../desktop-ordering-page", () => ({
   default: () => <div>desktop menu</div>,
 }));
 

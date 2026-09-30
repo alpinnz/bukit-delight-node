@@ -8,7 +8,7 @@ vi.mock("react-redux", () => ({
   useDispatch: vi.fn(),
   useSelector: vi.fn(),
 }));
-vi.mock("../../../../components/common/button.custom", () => ({
+vi.mock("../../../../components/atoms/button", () => ({
   default: ({
     label,
     onClick,
@@ -118,7 +118,7 @@ describe("CustomerDesktopCartContent", () => {
   });
 
   it("shows the desktop cart overview and invoice branch", () => {
-    state = createState({ order: { _id: "order-1" } });
+    state = createState({ order: { id: "order-1" } });
 
     render(<CustomerDesktopCartContent />);
 

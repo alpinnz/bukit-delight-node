@@ -8,7 +8,7 @@ const {
   deleteOrderInTransaction,
   updateOrderInTransaction,
   updateOrderStatusInTransaction,
-} = require("../src/services/PrismaOrders");
+} = require("../src/services/orders.service");
 
 const databaseUrl = process.env.PRISMA_TEST_DATABASE_URL;
 const parsedDatabaseUrl = databaseUrl ? new URL(databaseUrl) : null;
@@ -27,9 +27,9 @@ prismaTest(
     });
     const suffix = randomUUID();
     const userId = `phase4-order-${suffix}-user`;
-    const categoryId = `phase4-order-${suffix}-category`;
-    const menuId = `phase4-order-${suffix}-menu`;
-    const tableId = `phase4-order-${suffix}-table`;
+    const category_id = `phase4-order-${suffix}-category`;
+    const menu_id = `phase4-order-${suffix}-menu`;
+    const table_id = `phase4-order-${suffix}-table`;
     const transactionId = `phase4-order-${suffix}-transaction`;
     const rollback = new Error("rollback order fixtures");
 
@@ -49,38 +49,38 @@ prismaTest(
             },
           });
           await transaction.userRole.create({
-            data: { userId, roleId: customerRole.id },
+            data: { user_id: userId, role_id: customerRole.id },
           });
           await transaction.category.create({
             data: {
-              id: categoryId,
+              id: category_id,
               name: `phase4-order-category-${suffix}`,
               desc: "fixture category",
             },
           });
           await transaction.menu.create({
             data: {
-              id: menuId,
+              id: menu_id,
               name: `phase4-order-menu-${suffix}`,
               desc: "fixture menu",
               image: "fixture.png",
-              categoryId,
+              category_id,
               price: 10.5,
               promo: 1.5,
               duration: 2,
-              isAvailable: true,
-              isFavorite: false,
+              is_available: true,
+              is_favorite: false,
             },
           });
           await transaction.diningTable.create({
-            data: { id: tableId, name: `phase4-order-table-${suffix}` },
+            data: { id: table_id, name: `phase4-order-table-${suffix}` },
           });
 
           const input = {
-            customerId: userId,
-            tableId,
+            customer_id: userId,
+            table_id,
             note: "first note",
-            menus: [{ id: menuId, quality: "2", note: "no ice" }],
+            menus: [{ id: menu_id, quality: "2", note: "no ice" }],
             expiresAt: new Date(Date.now() + 60_000),
           };
           const createdOrder = await createOrderInTransaction(
@@ -90,13 +90,13 @@ prismaTest(
           assert.equal(createdOrder.quality, 2);
           assert.equal(createdOrder.price, 21);
           assert.equal(createdOrder.promo, 3);
-          assert.equal(createdOrder.totalPrice, 18);
+          assert.equal(createdOrder.total_price, 18);
           const createdItems = await transaction.orderItem.findMany({
-            where: { orderId: createdOrder.id },
+            where: { order_id: createdOrder.id },
           });
           assert.equal(createdItems.length, 1);
           assert.equal(createdItems[0].quality, 2);
-          assert.equal(createdItems[0].menuId, menuId);
+          assert.equal(createdItems[0].menu_id, menu_id);
 
           const updatedOrder = await updateOrderInTransaction(
             transaction,
@@ -104,15 +104,15 @@ prismaTest(
             {
               ...input,
               note: "updated note",
-              menus: [{ id: menuId, quality: 1 }],
+              menus: [{ id: menu_id, quality: 1 }],
             },
           );
           assert.equal(updatedOrder.quality, 1);
           assert.equal(updatedOrder.price, 10.5);
-          assert.equal(updatedOrder.totalPrice, 9);
+          assert.equal(updatedOrder.total_price, 9);
           assert.equal(updatedOrder.note, "updated note");
           const updatedItems = await transaction.orderItem.findMany({
-            where: { orderId: createdOrder.id },
+            where: { order_id: createdOrder.id },
           });
           assert.equal(updatedItems.length, 1);
           assert.equal(updatedItems[0].quality, 1);
@@ -120,9 +120,9 @@ prismaTest(
             (
               await transaction.order.findUnique({
                 where: { id: createdOrder.id },
-                select: { customerId: true },
+                select: { customer_id: true },
               })
-            ).customerId,
+            ).customer_id,
             userId,
           );
           const paidOrder = await updateOrderStatusInTransaction(
@@ -136,7 +136,7 @@ prismaTest(
             data: {
               id: transactionId,
               userId,
-              orderId: createdOrder.id,
+              order_id: createdOrder.id,
               status: "PENDING",
             },
           });
@@ -153,7 +153,7 @@ prismaTest(
             { status: 409 },
           );
           await transaction.transaction.delete({
-            where: { orderId: createdOrder.id },
+            where: { order_id: createdOrder.id },
           });
           const deletedOrder = await deleteOrderInTransaction(
             transaction,
@@ -172,21 +172,21 @@ prismaTest(
       );
 
       assert.equal(
-        (await prisma.order.findMany({ where: { customerId: userId } })).length,
+        (await prisma.order.findMany({ where: { customer_id: userId } })).length,
         0,
       );
-      assert.equal(await prisma.orderItem.count({ where: { menuId } }), 0);
+      assert.equal(await prisma.orderItem.count({ where: { menu_id } }), 0);
       assert.equal(
-        await prisma.menu.findUnique({ where: { id: menuId } }),
+        await prisma.menu.findUnique({ where: { id: menu_id } }),
         null,
       );
       assert.equal(await prisma.user.findUnique({ where: { id: userId } }), null);
       assert.equal(
-        await prisma.category.findUnique({ where: { id: categoryId } }),
+        await prisma.category.findUnique({ where: { id: category_id } }),
         null,
       );
       assert.equal(
-        await prisma.diningTable.findUnique({ where: { id: tableId } }),
+        await prisma.diningTable.findUnique({ where: { id: table_id } }),
         null,
       );
       assert.equal(

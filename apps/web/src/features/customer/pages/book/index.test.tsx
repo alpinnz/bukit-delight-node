@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import CustomerBookPage from "./index";
 
 vi.mock("./mobile", () => ({ default: () => <div>mobile book</div> }));
-vi.mock("../laptop.page", () => ({
+vi.mock("../desktop-ordering-page", () => ({
   default: () => <div>laptop customer</div>,
 }));
 

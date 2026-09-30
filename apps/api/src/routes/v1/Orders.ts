@@ -1,20 +1,20 @@
 import express = require("express");
 
 const router = express.Router();
-const PrismaOrders = require("../../controllers/PrismaOrders");
-const { CheckIdentifier } = require("../../middlewares/Identifier");
-const { Multer } = require("../../config");
+const ordersController = require("../../controllers/orders.controller");
+const { checkIdentifier } = require("../../middlewares/identifier");
+const { multer } = require("../../config");
 
-router.get("/", PrismaOrders.ReadAll);
-router.get("/:_id", CheckIdentifier, PrismaOrders.ReadOne);
-router.post("/", Multer.none, PrismaOrders.Create);
-router.put("/:_id", CheckIdentifier, Multer.none, PrismaOrders.Update);
-router.put(
-  "/status/:_id",
-  CheckIdentifier,
-  Multer.none,
-  PrismaOrders.UpdateStatus,
+router.get("/", ordersController.readAll);
+router.get("/:id", checkIdentifier, ordersController.readOne);
+router.post("/", multer.none, ordersController.create);
+router.put("/:id", checkIdentifier, multer.none, ordersController.update);
+router.patch(
+  "/:id/status",
+  checkIdentifier,
+  multer.none,
+  ordersController.updateStatus,
 );
-router.delete("/:_id", CheckIdentifier, PrismaOrders.Delete);
+router.delete("/:id", checkIdentifier, ordersController.delete);
 
 export = router;

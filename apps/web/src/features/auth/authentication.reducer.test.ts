@@ -26,12 +26,12 @@ describe("AuthenticationReducer", () => {
     expect(loadingState).toMatchObject({ mount: true, loading: true });
 
     const account: AuthenticationAccount = {
-      _id: "account-1",
+      id: "account-1",
       username: "cashier",
       email: "cashier@example.test",
       role: "cashier",
-      accessToken: "access-token",
-      refreshToken: "refresh-token",
+      access_token: "access-token",
+      refresh_token: "refresh-token",
     };
     const authenticatedState = AuthenticationReducer(loadingState, {
       type: SET_ACCOUNT,

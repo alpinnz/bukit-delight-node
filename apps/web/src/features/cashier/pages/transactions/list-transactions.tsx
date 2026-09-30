@@ -3,17 +3,17 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { FunnelIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
-import TextCustom from "../../../../components/common/text.custom";
+import Text from "../../../../components/atoms/text";
 import type { AppDispatch } from "../../../../store";
 
 type CashierTransaction = {
-  _id: string;
+  id: string;
   status: string;
-  createdAt?: string | number | Date;
-  id_account?: { username?: string };
-  id_order?: {
-    id_table?: { name?: string };
-    id_customer?: { username?: string };
+  created_at?: string | number | Date;
+  user_id?: { username?: string };
+  order_id?: {
+    table_id?: { name?: string };
+    customer_id?: { username?: string };
   };
 };
 type TransactionsState = { Transactions: { data: CashierTransaction[] } };
@@ -29,18 +29,18 @@ const TextTitleValue = ({
 }) => (
   <div className="flex">
     <div className="w-24">
-      <TextCustom align="left" color="textSecondary">
+      <Text align="left" color="textSecondary">
         {title}
-      </TextCustom>
+      </Text>
     </div>
     <div className="mr-4">
-      <TextCustom align="left" color="textSecondary">
+      <Text align="left" color="textSecondary">
         :
-      </TextCustom>
+      </Text>
     </div>
-    <TextCustom align="left" color="textSecondary">
+    <Text align="left" color="textSecondary">
       {value ?? "—"}
-    </TextCustom>
+    </Text>
   </div>
 );
 
@@ -56,8 +56,8 @@ const CashierTransactionList = () => {
     .slice()
     .sort(
       (left, right) =>
-        new Date(left.createdAt ?? 0).getTime() -
-        new Date(right.createdAt ?? 0).getTime(),
+        new Date(left.created_at ?? 0).getTime() -
+        new Date(right.created_at ?? 0).getTime(),
     )
     .map((transaction, index) => ({
       ...transaction,
@@ -67,8 +67,8 @@ const CashierTransactionList = () => {
   const sortedTransactions = activeTransactions.slice().sort((left, right) => {
     if (sortKey === "status") return left.status.localeCompare(right.status);
     if (sortKey === "table") {
-      return (left.id_order?.id_table?.name ?? "").localeCompare(
-        right.id_order?.id_table?.name ?? "",
+      return (left.order_id?.table_id?.name ?? "").localeCompare(
+        right.order_id?.table_id?.name ?? "",
         undefined,
         { numeric: true, sensitivity: "base" },
       );
@@ -129,12 +129,12 @@ const CashierTransactionList = () => {
         </div>
       </div>
       {sortedTransactions.length === 0 ? (
-        <TextCustom color="textSecondary" align="center">
+        <Text color="textSecondary" align="center">
           Tidak ada transaksi aktif.
-        </TextCustom>
+        </Text>
       ) : (
         sortedTransactions.map((transaction) => (
-          <div key={transaction._id} className="pt-2">
+          <div key={transaction.id} className="pt-2">
             <button
               type="button"
               aria-label={`Transaksi antrian ${transaction.queueNumber}`}
@@ -148,15 +148,15 @@ const CashierTransactionList = () => {
                 />
                 <TextTitleValue
                   title="No Meja"
-                  value={transaction.id_order?.id_table?.name}
+                  value={transaction.order_id?.table_id?.name}
                 />
                 <TextTitleValue
                   title="Account"
-                  value={transaction.id_account?.username}
+                  value={transaction.user_id?.username}
                 />
                 <TextTitleValue
                   title="Customer"
-                  value={transaction.id_order?.id_customer?.username}
+                  value={transaction.order_id?.customer_id?.username}
                 />
                 <TextTitleValue title="Status" value={transaction.status} />
               </div>

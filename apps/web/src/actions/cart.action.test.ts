@@ -6,14 +6,14 @@ describe("CartAction", () => {
     const dispatch = vi.fn();
     const menus = {
       data: [
-        { _id: "menu-1", name: "Latte", price: 1200, promo: 200 },
-        { _id: "menu-2", name: "Tea", price: 800 },
+        { id: "menu-1", name: "Latte", price: 1200, promo: 200 },
+        { id: "menu-2", name: "Tea", price: 800 },
       ],
     };
     const cart = {
       data: [
-        { _id: "cart-1", id_menu: "menu-1", quality: "2", note: "Less ice" },
-        { _id: "cart-2", id_menu: "missing-menu", quality: 1 },
+        { id: "cart-1", menu_id: "menu-1", quality: "2", note: "Less ice" },
+        { id: "cart-2", menu_id: "missing-menu", quality: 1 },
       ],
     };
 
@@ -31,8 +31,8 @@ describe("CartAction", () => {
       type: SET_DATA,
       payload: [
         {
-          _id: "cart-1",
-          id_menu: "menu-1",
+          id: "cart-1",
+          menu_id: "menu-1",
           menu: menus.data[0],
           quality: 2,
           note: "Less ice",
@@ -49,14 +49,14 @@ describe("CartAction", () => {
   });
 
   it("creates and updates cart actions with stable payload shapes", () => {
-    const menu = { _id: "menu-1", price: 1000 };
+    const menu = { id: "menu-1", price: 1000 };
     expect(CartAction.onCreate(menu, 2, "warm")).toEqual({
       type: CREATE,
       payload: { menu, quality: 2, note: "warm" },
     });
     expect(CartAction.onUpdate(menu, "cart-1", 3, "hot")).toEqual({
       type: UPDATE,
-      payload: { menu, _id: "cart-1", quality: 3, note: "hot" },
+      payload: { menu, id: "cart-1", quality: 3, note: "hot" },
     });
   });
 });

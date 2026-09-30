@@ -6,7 +6,7 @@ import type {
 } from "@bukit-delight/shared";
 import type { AnyAction } from "redux";
 import type { ThunkAction } from "redux-thunk";
-import Const from "../constant/const";
+import apiConfig from "../config/api-config";
 import Actions from "./";
 import type { RootState } from "../reducers";
 
@@ -15,7 +15,7 @@ export const LOADING = "CATEGORIES/LOADING";
 export const SET_CATEGORIES = "CATEGORIES/SET_CATEGORIES";
 
 type CategoryThunk = ThunkAction<void, RootState, unknown, AnyAction>;
-type StoredAccount = { accessToken: string; refreshToken: string };
+type StoredAccount = { access_token: string; refresh_token: string };
 type CategoriesResponse = ApiResponse<CategoryRecord[]>;
 type CategoryForm = Partial<CreateCategoryRequest> & { image?: File };
 
@@ -27,10 +27,10 @@ const localGetAccount = (): StoredAccount | null => {
 };
 
 const requestHeaders = (account: StoredAccount | null) => ({
-  "x-api-key": Const.X_API_KEY,
-  "x-app-key": Const.X_APP_KEY,
-  "x-access-token": account?.accessToken ?? "",
-  "x-refresh-token": account?.refreshToken ?? "",
+  "x-api-key": apiConfig.apiKey,
+  "x-app-key": apiConfig.appKey,
+  "x-access-token": account?.access_token ?? "",
+  "x-refresh-token": account?.refresh_token ?? "",
 });
 
 const errorMessage = (cause: unknown): string => {
@@ -58,7 +58,7 @@ const loadCategories = (isInitialLoad: boolean): CategoryThunk => {
     axios({
       method: "GET",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(localGetAccount()),
     })
       .then((response) => {
@@ -108,7 +108,7 @@ const saveCategory = (
     axios({
       method,
       url,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       data: formData,
       headers: requestHeaders(localGetAccount()),
     })
@@ -138,7 +138,7 @@ const saveCategory = (
 };
 
 const onCreate = (input: CategoryForm): CategoryThunk =>
-  saveCategory("POST", "api/v1/categories/", input, "Create Categories");
+  saveCategory("POST", "api/v1/categories", input, "Create Categories");
 
 const onUpdate = (id: string | undefined, input: CategoryForm): CategoryThunk =>
   saveCategory("PUT", `api/v1/categories/${id}`, input, "Update Categories");
@@ -149,7 +149,7 @@ const onDelete = (id: string): CategoryThunk => {
     axios({
       method: "DELETE",
       url: `api/v1/categories/${id}`,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(localGetAccount()),
     })
       .then((response) => {

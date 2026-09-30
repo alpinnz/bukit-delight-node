@@ -8,13 +8,13 @@ import CartOrders from "./pages/cart/cart-orders";
 import MenuList from "./components/menu-list";
 
 vi.mock("./pages/cart/mobile", () => ({ default: () => null }));
-vi.mock("./pages/laptop.page", () => ({ default: () => null }));
+vi.mock("./pages/desktop-ordering-page", () => ({ default: () => null }));
 
 describe("customer order flow", () => {
   it("selects a menu, adds it to cart, and opens payment choices", async () => {
     const store = createStore(RootReducer);
     const menu = {
-      _id: "iced-tea-id",
+      id: "iced-tea-id",
       name: "Iced Tea",
       image: "/iced-tea.jpg",
       price: 1500,

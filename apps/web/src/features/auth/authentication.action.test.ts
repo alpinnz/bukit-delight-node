@@ -30,12 +30,12 @@ describe("AuthenticationAction.onMount", () => {
 
   it("restores customer profile from the user record", async () => {
     const account = {
-      _id: "account-1",
+      id: "account-1",
       username: "customer@example.test",
       email: "customer@example.test",
       role: "customer",
-      accessToken: "customer-access",
-      refreshToken: "customer-refresh",
+      access_token: "customer-access",
+      refresh_token: "customer-refresh",
     };
     localStorage.setItem("account", JSON.stringify(account));
     vi.mocked(axios).mockResolvedValue({
@@ -51,7 +51,7 @@ describe("AuthenticationAction.onMount", () => {
 
     expect(dispatch).toHaveBeenCalledWith({
       type: "CUSTOMERS/SET_CUSTOMER",
-      payload: { _id: "account-1", username: "customer@example.test" },
+      payload: { id: "account-1", username: "customer@example.test" },
     });
     expect(JSON.parse(localStorage.getItem("account") ?? "null")).toEqual(
       account,
@@ -87,12 +87,12 @@ describe("AuthenticationAction.onLogin", () => {
       data: {
         name: "success",
         data: {
-          _id: "account-1",
+          id: "account-1",
           username: "customer@example.test",
           email: "customer@example.test",
           role: "customer",
-          accessToken: "customer-access",
-          refreshToken: "customer-refresh",
+          access_token: "customer-access",
+          refresh_token: "customer-refresh",
         },
       },
     } as never);
@@ -106,7 +106,7 @@ describe("AuthenticationAction.onLogin", () => {
     expect(result).toBe("success");
     expect(dispatch).toHaveBeenCalledWith({
       type: "CUSTOMERS/SET_CUSTOMER",
-      payload: { _id: "account-1", username: "customer@example.test" },
+      payload: { id: "account-1", username: "customer@example.test" },
     });
   });
 });

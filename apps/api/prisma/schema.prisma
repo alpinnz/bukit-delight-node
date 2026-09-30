@@ -8,159 +8,159 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  username    String   @unique
-  email       String   @unique
-  password    String
-  activateLink Json?
-  resetLink    Json?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  roles       UserRole[]
-  refreshTokens RefreshToken[]
-  customerOrders Order[] @relation("CustomerOrders")
-  transactions Transaction[]
+  id             String         @id @default(cuid())
+  username       String         @unique
+  email          String         @unique
+  password       String
+  activate_link  Json?
+  reset_link     Json?
+  created_at     DateTime       @default(now())
+  updated_at     DateTime       @updatedAt
+  roles          UserRole[]
+  refreshTokens  RefreshToken[]
+  customerOrders Order[]        @relation("CustomerOrders")
+  transactions   Transaction[]
 
   @@map("users")
 }
 
 model Role {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  users     UserRole[]
+  id         String     @id @default(cuid())
+  name       String     @unique
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  users      UserRole[]
 
   @@map("roles")
 }
 
 model UserRole {
-  userId    String   @map("user_id")
-  roleId    String   @map("role_id")
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user_id    String
+  role_id    String
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [role_id], references: [id], onDelete: Cascade)
 
-  @@id([userId, roleId])
-  @@index([roleId])
+  @@id([user_id, role_id])
+  @@index([role_id])
   @@map("user_roles")
 }
 
 model RefreshToken {
-  id              String    @id @default(cuid())
-  userId          String    @map("user_id")
-  token          String?
-  expires        DateTime?
-  created        DateTime  @default(now())
-  createdByIp    String?
-  revoked        DateTime?
-  revokedByIp    String?
-  replacedByToken String?
-  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String    @id @default(cuid())
+  user_id           String
+  token             String?
+  expires_at        DateTime?
+  created_at        DateTime  @default(now())
+  created_by_ip     String?
+  revoked_at        DateTime?
+  revoked_by_ip     String?
+  replaced_by_token String?
+  user              User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
-  @@index([userId])
+  @@index([user_id])
   @@map("refresh_tokens")
 }
 
 model Category {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  desc      String
-  image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  menus     Menu[]
+  id         String   @id @default(cuid())
+  name       String   @unique
+  desc       String
+  image      String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  menus      Menu[]
 
   @@map("categories")
 }
 
 model Menu {
-  id          String      @id @default(cuid())
-  name        String      @unique
-  desc        String?
-  image       String
-  categoryId  String      @map("id_category")
-  price       Float
-  promo       Float
-  duration    Float
-  isAvailable Boolean
-  isFavorite  Boolean
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  category    Category    @relation(fields: [categoryId], references: [id])
-  orderItems  OrderItem[]
+  id           String      @id @default(cuid())
+  name         String      @unique
+  desc         String?
+  image        String
+  category_id  String
+  price        Float
+  promo        Float
+  duration     Float
+  is_available Boolean
+  is_favorite  Boolean
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @updatedAt
+  category     Category    @relation(fields: [category_id], references: [id])
+  orderItems   OrderItem[]
 
-  @@index([categoryId])
+  @@index([category_id])
   @@map("menus")
 }
 
 model DiningTable {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  orders    Order[]
+  id         String   @id @default(cuid())
+  name       String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  orders     Order[]
 
   @@map("tables")
 }
 
 model Order {
-  id          String      @id @default(cuid())
-  customerId  String?     @map("id_customer")
-  tableId     String?     @map("id_table")
-  quality     Float
-  duration    Float
-  promo       Float
-  price       Float
-  totalPrice  Float       @map("total_price")
-  note        String?
-  status      OrderStatus
-  estimatedReadyAt DateTime @map("estimated_ready_at")
-  expires     DateTime
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  customer    User?       @relation("CustomerOrders", fields: [customerId], references: [id])
-  table       DiningTable? @relation(fields: [tableId], references: [id])
-  items       OrderItem[]
-  transaction Transaction?
+  id                 String       @id @default(cuid())
+  customer_id        String?
+  table_id           String?
+  quality            Float
+  duration           Float
+  promo              Float
+  price              Float
+  total_price        Float
+  note               String?
+  status             OrderStatus
+  estimated_ready_at DateTime
+  expires_at         DateTime
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+  customer           User?        @relation("CustomerOrders", fields: [customer_id], references: [id])
+  table              DiningTable? @relation(fields: [table_id], references: [id])
+  items              OrderItem[]
+  transaction        Transaction?
 
-  @@index([customerId])
-  @@index([tableId])
+  @@index([customer_id])
+  @@index([table_id])
   @@map("orders")
 }
 
 model OrderItem {
-  id         String   @id @default(cuid())
-  orderId    String   @map("id_order")
-  menuId     String   @map("id_menu")
-  quality    Float
-  duration   Float
-  promo      Float
-  price      Float
-  totalPrice Float    @map("total_price")
-  note       String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  order      Order    @relation(fields: [orderId], references: [id])
-  menu       Menu     @relation(fields: [menuId], references: [id])
+  id          String   @id @default(cuid())
+  order_id    String
+  menu_id     String
+  quality     Float
+  duration    Float
+  promo       Float
+  price       Float
+  total_price Float
+  note        String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  order       Order    @relation(fields: [order_id], references: [id])
+  menu        Menu     @relation(fields: [menu_id], references: [id])
 
-  @@index([orderId])
-  @@index([menuId])
-  @@map("itemorders")
+  @@index([order_id])
+  @@index([menu_id])
+  @@map("order_items")
 }
 
 model Transaction {
-  id        String            @id @default(cuid())
-  userId    String            @map("user_id")
-  orderId   String            @unique @map("id_order")
-  note      String?
-  status    TransactionStatus
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  user      User              @relation(fields: [userId], references: [id])
-  order     Order             @relation(fields: [orderId], references: [id])
+  id         String            @id @default(cuid())
+  user_id    String
+  order_id   String            @unique
+  note       String?
+  status     TransactionStatus
+  created_at DateTime          @default(now())
+  updated_at DateTime          @updatedAt
+  user       User              @relation(fields: [user_id], references: [id])
+  order      Order             @relation(fields: [order_id], references: [id])
 
-  @@index([userId])
+  @@index([user_id])
   @@map("transactions")
 }
 
@@ -171,7 +171,7 @@ enum OrderStatus {
 }
 
 enum TransactionStatus {
-  PENDING @map("pending")
+  PENDING    @map("pending")
   PROCESSING @map("processing")
-  DONE    @map("done")
+  DONE       @map("done")
 }

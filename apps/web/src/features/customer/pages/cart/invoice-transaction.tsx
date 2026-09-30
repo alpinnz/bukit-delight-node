@@ -1,15 +1,15 @@
 import { useSelector } from "react-redux";
-import InvoiceOverview from "../../components/invoice-overview";
-import type { InvoiceRecord } from "../../components/invoice-overview";
-import type { OrderedCategory } from "../../components/accordion-list-categories";
-import AccordionListCategories from "../../components/accordion-list-categories";
+import OrderInvoiceOverview from "../../../orders/components/order-invoice-overview";
+import type { InvoiceRecord } from "../../../orders/components/order-invoice-overview";
+import type { OrderedCategory } from "../../../orders/components/order-category-accordion";
+import OrderCategoryAccordion from "../../../orders/components/order-category-accordion";
 
 type OrderInvoiceData = InvoiceRecord & { categories: OrderedCategory[] };
 type TransactionInvoiceData = {
-  _id: string;
+  id: string;
   status?: string;
-  id_account?: { username?: string };
-  id_order: OrderInvoiceData;
+  user_id?: { username?: string };
+  order_id: OrderInvoiceData;
 };
 type CustomerTransactionInvoiceState = {
   Cart: { transaction: TransactionInvoiceData };
@@ -22,13 +22,13 @@ const CustomerTransactionInvoice = () => {
 
   return (
     <div>
-      <InvoiceOverview
-        no_transaction={transaction._id}
+      <OrderInvoiceOverview
+        no_transaction={transaction.id}
         status={transaction.status}
-        account={transaction.id_account}
-        data={transaction.id_order}
+        account={transaction.user_id}
+        data={transaction.order_id}
       />
-      <AccordionListCategories data={transaction.id_order.categories} />
+      <OrderCategoryAccordion data={transaction.order_id.categories} />
     </div>
   );
 };

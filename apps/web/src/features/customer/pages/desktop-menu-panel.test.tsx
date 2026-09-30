@@ -13,7 +13,7 @@ vi.mock("react-router-dom", () => ({
   useLocation: vi.fn(),
   useParams: vi.fn(),
 }));
-vi.mock("../../../components/common/loading.custom", () => ({
+vi.mock("../../../components/atoms/loading-indicator", () => ({
   default: () => <div>loading menus</div>,
 }));
 vi.mock("../../../assets/icons", () => ({
@@ -21,22 +21,22 @@ vi.mock("../../../assets/icons", () => ({
 }));
 
 type TestMenu = {
-  _id: string;
+  id: string;
   name: string;
   image: string;
   price: number;
   promo: number;
   favorite?: boolean;
-  id_category: { _id: string };
+  category_id: { id: string };
 };
 
 const makeMenu = (id: string, changes: Partial<TestMenu> = {}): TestMenu => ({
-  _id: id,
+  id: id,
   name: `Menu ${id}`,
   image: `${id}.jpg`,
   price: 10000,
   promo: 0,
-  id_category: { _id: "category-1" },
+  category_id: { id: "category-1" },
   ...changes,
 });
 
@@ -52,7 +52,7 @@ describe("CustomerDesktopMenuContent", () => {
     menus = [
       makeMenu("tea"),
       makeMenu("coffee", { promo: 2000, favorite: true }),
-      makeMenu("lunch", { id_category: { _id: "category-2" } }),
+      makeMenu("lunch", { category_id: { id: "category-2" } }),
     ];
     isLoading = false;
     pathname = "/customer/book/category-1";
@@ -62,7 +62,7 @@ describe("CustomerDesktopMenuContent", () => {
       () => ({ pathname }) as ReturnType<typeof useLocation>,
     );
     vi.mocked(useParams).mockImplementation(
-      () => ({ categoryId }) as ReturnType<typeof useParams>,
+      () => ({ category_id: categoryId }) as ReturnType<typeof useParams>,
     );
     vi.mocked(useSelector).mockImplementation((selector) =>
       selector({

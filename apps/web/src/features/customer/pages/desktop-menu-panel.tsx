@@ -3,20 +3,20 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import Actions from "../../../actions";
-import Icons from "../../../assets/icons";
-import LoadingCustom from "../../../components/common/loading.custom";
-import Convert from "../../../helpers/convert";
-import TextCustom from "../../../components/common/text.custom";
+import icons from "../../../assets/icons";
+import LoadingIndicator from "../../../components/atoms/loading-indicator";
+import formatters from "../../../helpers/formatters";
+import Text from "../../../components/atoms/text";
 import type { AppDispatch } from "../../../store";
 
 type DesktopMenu = {
-  _id: string;
+  id: string;
   name: string;
   image: string;
   price: number;
   promo: number;
   favorite?: boolean | number;
-  id_category: { _id: string };
+  category_id: { id: string };
 };
 type CustomerDesktopMenuState = {
   Menus: { loading: boolean; data: DesktopMenu[] };
@@ -34,10 +34,10 @@ const DesktopMenuList = ({ menus }: { menus: DesktopMenu[] }) => {
   return (
     <div className="grid h-[75vh] grid-cols-1 gap-2 overflow-y-auto p-2 sm:grid-cols-2 lg:grid-cols-3">
       {menus.map((menu) => {
-        const isSelected = selectedMenu?._id === menu._id;
+        const isSelected = selectedMenu?.id === menu.id;
 
         return (
-          <div key={menu._id}>
+          <div key={menu.id}>
             <button
               type="button"
               aria-label={`Pilih ${menu.name}`}
@@ -55,39 +55,39 @@ const DesktopMenuList = ({ menus }: { menus: DesktopMenu[] }) => {
                 >
                   {menu.favorite ? (
                     <div className="absolute -bottom-[17px] right-0 content-center">
-                      <img src={Icons.star} alt="Favorit" />
+                      <img src={icons.star} alt="Favorit" />
                     </div>
                   ) : null}
                 </div>
                 <div className="p-1">
-                  <TextCustom className="text-black">{menu.name}</TextCustom>
+                  <Text className="text-black">{menu.name}</Text>
                   <div className="absolute inset-x-0 bottom-0 px-2 pb-2">
                     <div className="flex">
                       {menu.promo > 0 ? (
                         <div className="flex items-center">
-                          <TextCustom
+                          <Text
                             className="mr-4 text-brand-teal line-through"
                             align="left"
                             variant="h5"
                           >
-                            {Convert.Price(menu.price)}
-                          </TextCustom>
-                          <TextCustom
+                            {formatters.formatCompactPrice(menu.price)}
+                          </Text>
+                          <Text
                             className="text-brand-success"
                             align="left"
                             variant="h5"
                           >
-                            {Convert.Price(menu.price - menu.promo)}
-                          </TextCustom>
+                            {formatters.formatCompactPrice(menu.price - menu.promo)}
+                          </Text>
                         </div>
                       ) : (
-                        <TextCustom
+                        <Text
                           className="w-2/5 text-brand-teal"
                           align="left"
                           variant="h5"
                         >
-                          {Convert.Price(menu.price)}
-                        </TextCustom>
+                          {formatters.formatCompactPrice(menu.price)}
+                        </Text>
                       )}
                     </div>
                   </div>
@@ -102,7 +102,7 @@ const DesktopMenuList = ({ menus }: { menus: DesktopMenu[] }) => {
 };
 
 const CustomerDesktopMenuPanel = () => {
-  const { categoryId } = useParams<{ categoryId?: string }>();
+  const { category_id: categoryId } = useParams<{ category_id?: string }>();
   const { pathname } = useLocation();
   const isHomePage = pathname === "/customer/home";
   const menusState = useSelector(
@@ -112,7 +112,7 @@ const CustomerDesktopMenuPanel = () => {
   const filteredMenus = menusState.data.filter((menu) =>
     isHomePage
       ? menu.promo > 0 || Boolean(menu.favorite)
-      : menu.id_category?._id === categoryId,
+      : menu.category_id?.id === categoryId,
   );
   const pageCount = Math.max(
     1,
@@ -132,7 +132,7 @@ const CustomerDesktopMenuPanel = () => {
   if (menusState.loading) {
     return (
       <div className="flex h-[80vh] items-center justify-center">
-        <LoadingCustom />
+        <LoadingIndicator />
       </div>
     );
   }

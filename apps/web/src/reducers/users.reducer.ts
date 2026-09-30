@@ -35,9 +35,9 @@ const UsersReducer = (
       loading: false,
       data: users.map((user) => ({
         ...user,
-        ...(user.id_roles
+        ...(user.roles
           ? {
-              role_names: user.id_roles.map((role) => role.name).join(", "),
+              role_names: user.roles.map((role) => role.name).join(", "),
             }
           : {}),
         password: "******",

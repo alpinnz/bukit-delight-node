@@ -8,7 +8,7 @@ vi.mock("react-redux", () => ({ useDispatch: vi.fn() }));
 vi.mock("../../components/menu-dialog", () => ({
   default: () => <div>menu dialog</div>,
 }));
-vi.mock("./recipe", () => ({
+vi.mock("./cart-summary", () => ({
   default: () => <div>recipe</div>,
 }));
 vi.mock("./cart-item-list", () => ({

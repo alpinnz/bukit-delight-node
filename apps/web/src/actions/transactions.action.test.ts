@@ -15,8 +15,8 @@ describe("TransactionsAction", () => {
     localStorage.setItem(
       "account",
       JSON.stringify({
-        accessToken: "staff-access",
-        refreshToken: "staff-refresh",
+        access_token: "staff-access",
+        refresh_token: "staff-refresh",
       }),
     );
     vi.mocked(axios).mockResolvedValue({
@@ -24,8 +24,8 @@ describe("TransactionsAction", () => {
     } as never);
     const dispatch = vi.fn();
     const state = {
-      Authentication: { account: { _id: "account-1" } },
-      Orders: { order: { _id: "order-1" } },
+      Authentication: { account: { id: "account-1" } },
+      Orders: { order: { id: "order-1" } },
     } as unknown as RootState;
 
     await TransactionsAction.onCreate({ payment: "cash", note: "paid" })(
@@ -47,8 +47,7 @@ describe("TransactionsAction", () => {
     const createRequest = vi.mocked(axios).mock.calls[0][0] as unknown as {
       data: FormData;
     };
-    expect(createRequest.data.get("id_account")).toBe("account-1");
-    expect(createRequest.data.get("id_order")).toBe("order-1");
+    expect(createRequest.data.get("order_id")).toBe("order-1");
     expect(createRequest.data.get("payment")).toBe("cash");
     expect(createRequest.data.get("note")).toBe("paid");
     expect(dispatch).toHaveBeenNthCalledWith(1, {
@@ -66,14 +65,14 @@ describe("TransactionsAction", () => {
   it("updates the selected transaction status at the status endpoint", async () => {
     localStorage.setItem(
       "account",
-      JSON.stringify({ accessToken: "staff-access", refreshToken: "refresh" }),
+      JSON.stringify({ access_token: "staff-access", refresh_token: "refresh" }),
     );
     vi.mocked(axios).mockResolvedValue({
       data: { name: "success", data: {} },
     } as never);
     const dispatch = vi.fn();
     const state = {
-      Transactions: { transaction: { _id: "transaction-1" } },
+      Transactions: { transaction: { id: "transaction-1" } },
     } as unknown as RootState;
 
     await TransactionsAction.onUpdateStatus({ status: "processing" })(
@@ -84,8 +83,8 @@ describe("TransactionsAction", () => {
 
     expect(axios).toHaveBeenCalledWith(
       expect.objectContaining({
-        method: "PUT",
-        url: "api/v1/transactions/status/transaction-1",
+        method: "PATCH",
+        url: "api/v1/transactions/transaction-1/status",
       }),
     );
     const updateRequest = vi.mocked(axios).mock.calls[0][0] as unknown as {

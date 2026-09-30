@@ -6,25 +6,25 @@ export type TransactionPaymentMethod =
   (typeof TRANSACTION_PAYMENT_METHODS)[number];
 
 export type CreateTransactionRequest = {
-  id_order: string;
+  order_id: string;
   payment: TransactionPaymentMethod;
-  id_account?: string;
   note?: string;
 };
+
 export type TransactionRecord = {
-  _id?: string;
+  id?: string;
   status?: string;
-  createdAt?: string | number | Date;
-  id_account?: { _id?: string; username?: string } | string;
-  id_order?:
-    | (Omit<OrderRecord, "id_customer" | "id_table" | "status"> & {
-        id_customer?: { _id?: string; username?: string } | string;
-        id_table?: { _id?: string; name?: string } | string;
+  created_at?: string | number | Date;
+  updated_at?: string | number | Date;
+  user_id?: { id?: string; username?: string } | string;
+  order_id?:
+    | (Omit<OrderRecord, "customer_id" | "table_id" | "status"> & {
+        customer_id?: { id?: string; username?: string } | string;
+        table_id?: { id?: string; name?: string } | string;
         status?: string;
       })
     | string;
-  account_id?: string;
-  account_username?: string;
+  user_username?: string;
   order_customer_id?: string;
   order_customer_username?: string;
   order_table_id?: string;
@@ -42,8 +42,8 @@ export type UpdateTransactionStatusRequest = {
 };
 
 export type UpdateTransactionRequest = UpdateTransactionStatusRequest & {
-  id_account: string;
-  id_order: string;
+  user_id: string;
+  order_id: string;
   note: string;
 };
 
@@ -52,50 +52,57 @@ export type OrderPaymentStatus = (typeof ORDER_PAYMENT_STATUSES)[number];
 export type UpdateOrderStatusRequest = { status: OrderPaymentStatus };
 
 export type OrderMenuSelectionRequest = {
-  id_menu: string;
+  menu_id: string;
   quality: string;
   note?: string;
 };
 
 export type CreateOrderRequest = {
-  id_customer: string;
-  id_table: string;
+  customer_id: string;
+  table_id: string;
   note?: string;
-  Menus: OrderMenuSelectionRequest[];
+  items: OrderMenuSelectionRequest[];
 };
 
-export type UpdateOrderRequest = Omit<CreateOrderRequest, "Menus"> & {
-  Menus: (OrderMenuSelectionRequest & { note: string })[];
+export type UpdateOrderRequest = Omit<CreateOrderRequest, "items"> & {
+  items: (OrderMenuSelectionRequest & { note: string })[];
 };
+
 export type OrderRecord = {
-  _id?: string;
-  id_customer?: { _id?: string; username?: string } | string;
-  id_table?: { _id?: string; name?: string } | string;
+  id?: string;
+  customer_id?: { id?: string; username?: string } | string;
+  table_id?: { id?: string; name?: string } | string;
   status?: string;
-  estimatedReadyAt?: string | number | Date;
+  estimated_ready_at?: string | number | Date;
+  expires_at?: string | number | Date;
+  created_at?: string | number | Date;
+  updated_at?: string | number | Date;
+  is_expired?: boolean;
   customer_username?: string;
   table_name?: string;
   categories?: OrderCategoryRecord[];
-  itemOrder?: ItemOrderRecord[];
+  items?: OrderItemRecord[];
   [key: string]: unknown;
 };
-export type OrderCategoryRecord = Pick<CategoryRecord, "_id" | "name"> & {
+
+export type OrderCategoryRecord = Pick<CategoryRecord, "id" | "name"> & {
   desc?: string;
   image?: string | null;
-  itemOrders: ItemOrderRecord[];
+  items: OrderItemRecord[];
 };
-export type ItemOrderRecord = {
-  _id?: string;
-  id_order?: string | { _id?: string; [key: string]: unknown };
-  id_menu?: string | MenuRecord;
+
+export type OrderItemRecord = {
+  id?: string;
+  order_id?: string | { id?: string; [key: string]: unknown };
+  menu_id?: string | MenuRecord;
   quality?: number | string;
   duration?: number | string;
   promo?: number | string;
   price?: number | string;
   total_price?: number | string;
   note?: string;
-  createdAt?: string | number | Date;
-  updatedAt?: string | number | Date;
+  created_at?: string | number | Date;
+  updated_at?: string | number | Date;
   [key: string]: unknown;
 };
 
@@ -110,89 +117,114 @@ export type ApiResponse<T = unknown> = {
 };
 
 export type RoleRecord = {
-  _id: string;
+  id: string;
   name: string;
-  createdAt?: unknown;
-  updatedAt?: unknown;
+  created_at?: unknown;
+  updated_at?: unknown;
   [key: string]: unknown;
 };
+
 export type UserRecord = {
-  _id: string;
+  id: string;
   username: string;
   email: string;
-  id_roles?: Pick<RoleRecord, "_id" | "name">[];
+  roles?: Pick<RoleRecord, "id" | "name">[];
   [key: string]: unknown;
 };
-export type TableRecord = { _id: string; name: string };
+
+export type TableRecord = {
+  id: string;
+  name: string;
+  created_at?: string | number | Date;
+  updated_at?: string | number | Date;
+};
+
 export type CategoryRecord = {
-  _id: string;
+  id: string;
   name: string;
   desc?: string;
   image?: string | null;
+  created_at?: string | number | Date;
+  updated_at?: string | number | Date;
   [field: string]: unknown;
 };
+
 export type MenuRecord = {
-  _id?: string;
+  id?: string;
   name?: string;
   desc?: string;
   price?: string | number;
   promo?: string | number;
+  duration?: string | number;
   image?: string | null;
-  id_category?:
-    | { _id?: string; name?: string; desc?: string; image?: string | null }
+  category_id?:
+    | { id?: string; name?: string; desc?: string; image?: string | null }
     | string
     | null;
-  category_id?: string;
   category_name?: string;
+  is_available?: boolean;
+  is_favorite?: boolean;
+  favorite?: boolean;
+  created_at?: string | number | Date;
+  updated_at?: string | number | Date;
   [key: string]: unknown;
 };
 
 export type UpdateCustomerRequest = { username: string };
 export type CustomerRecord = {
-  _id?: string;
+  id?: string;
   username?: string;
+  created_at?: string | number | Date;
+  updated_at?: string | number | Date;
   [key: string]: unknown;
 };
+
 export type CreateTableRequest = { name: string };
 export type UpdateTableRequest = { name: string };
 export type CreateCategoryRequest = { name: string; desc: string };
 export type UpdateCategoryRequest = { name: string; desc: string };
+
 export type MenuRequestFields = {
   name: string;
   desc: string;
   price: string | number;
   duration: string | number;
-  id_category: string;
-  isAvailable: string | boolean;
-  isFavorite: string | boolean;
+  category_id: string;
+  is_available: string | boolean;
+  is_favorite: string | boolean;
 };
+
 export type CreateMenuRequest = MenuRequestFields & {
   promo?: string | number;
 };
+
 export type UpdateMenuRequest = MenuRequestFields & {
   promo: string | number;
 };
+
 export type CreateUserRequest = {
   username: string;
   email: string;
-  id_roles: string[];
+  role_ids: string[];
   password: string;
   repeat_password: string;
 };
+
 export type UpdateUserRequest = Pick<
   CreateUserRequest,
-  "username" | "email" | "id_roles"
+  "username" | "email" | "role_ids"
 > & {
   password?: string;
   repeat_password?: string;
 };
 
-export type FavoriteMenuRecord = { _id?: string; [key: string]: unknown };
+export type FavoriteMenuRecord = { id?: string; [key: string]: unknown };
+
 export type FavoriteAnalysis = {
-  menu_favorit?: FavoriteMenuRecord[];
-  DataSet?: unknown[];
-  c_awal?: unknown[];
-  data_kmeans?: unknown[];
-  menu_cluster_akhir?: Record<string, unknown>;
+  favorite_menus?: FavoriteMenuRecord[];
+  data_set?: unknown[];
+  initial_centroids?: unknown[];
+  kmeans_data?: unknown[];
+  final_menu_clusters?: Record<string, unknown>;
   [key: string]: unknown;
 };

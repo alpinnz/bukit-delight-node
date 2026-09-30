@@ -9,9 +9,9 @@ const mocks = vi.hoisted(() => ({
     Orders: {
       dialog_review: { open: true },
       order: {
-        _id: "order-1",
-        id_table: { name: "Table 1" },
-        categories: [{ name: "Food", itemOrders: [] }],
+        id: "order-1",
+        table_id: { name: "Table 1" },
+        categories: [{ name: "Food", items: [] }],
       },
     },
   },
@@ -32,10 +32,10 @@ vi.mock("../../../../actions", () => ({
     },
   },
 }));
-vi.mock("../../../customer/components/invoice-overview", () => ({
+vi.mock("../../../orders/components/order-invoice-overview", () => ({
   default: () => <div>Invoice summary</div>,
 }));
-vi.mock("../../../customer/components/accordion-list-categories", () => ({
+vi.mock("../../../orders/components/order-category-accordion", () => ({
   default: () => <div>Order details</div>,
 }));
 
@@ -45,9 +45,9 @@ describe("CashierOrderReviewDialog", () => {
     vi.clearAllMocks();
     mocks.state.Orders.dialog_review.open = true;
     mocks.state.Orders.order = {
-      _id: "order-1",
-      id_table: { name: "Table 1" },
-      categories: [{ name: "Food", itemOrders: [] }],
+      id: "order-1",
+      table_id: { name: "Table 1" },
+      categories: [{ name: "Food", items: [] }],
     };
   });
 

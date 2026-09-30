@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import ContainerBase from "../../../../components/common/container.customer.base";
+import CustomerLayout from "../../../../components/templates/customer/layout";
 import Overview from "./overview";
 import CartOrders from "./cart-orders";
 import InvoiceOrder from "./invoice-order";
@@ -23,12 +23,12 @@ const CartContent = () => {
 };
 
 const CustomerCartMobilePage = () => (
-  <ContainerBase title={undefined} type={undefined}>
+  <CustomerLayout title={undefined} type={undefined}>
     <div className="px-2">
       <Overview />
       <CartContent />
     </div>
-  </ContainerBase>
+  </CustomerLayout>
 );
 
 export default CustomerCartMobilePage;

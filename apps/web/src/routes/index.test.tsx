@@ -12,8 +12,11 @@ vi.mock("./private.route", () => ({
 vi.mock("../features/cashier/pages/orders", () => ({
   default: () => <div>Cashier orders destination</div>,
 }));
-vi.mock("../features/admin/pages/favorites", () => ({
-  default: () => <div>Admin favorites destination</div>,
+vi.mock("../features/owner/pages/favorites", () => ({
+  default: () => <div>Owner favorites destination</div>,
+}));
+vi.mock("../features/owner/pages/dashboard", () => ({
+  default: () => <div>Owner dashboard destination</div>,
 }));
 
 const renderRoutesAt = (pathname: string) => {
@@ -31,8 +34,8 @@ afterEach(() => {
 });
 
 describe("canonical English routes", () => {
-  it("redirects legacy cashier URLs to the matching English route", async () => {
-    renderRoutesAt("/kasir/orders");
+  it("renders the canonical cashier orders route", async () => {
+    renderRoutesAt("/cashier/orders");
 
     expect(await screen.findByText("Cashier orders destination")).toBeDefined();
     await waitFor(() =>
@@ -40,14 +43,14 @@ describe("canonical English routes", () => {
     );
   });
 
-  it("redirects the legacy admin order URL to favorites", async () => {
-    renderRoutesAt("/admin/pemesanan");
+  it("redirects an unknown owner route to the owner dashboard", async () => {
+    renderRoutesAt("/owner/unknown");
 
     expect(
-      await screen.findByText("Admin favorites destination"),
+      await screen.findByText("Owner dashboard destination"),
     ).toBeDefined();
     await waitFor(() =>
-      expect(window.location.pathname).toBe("/admin/favorites"),
+      expect(window.location.pathname).toBe("/owner/dashboard"),
     );
   });
 });

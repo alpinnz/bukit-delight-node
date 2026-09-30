@@ -12,11 +12,11 @@ describe("RolesAction.onLoad", () => {
 
   it("loads role records with the saved staff credentials", async () => {
     const account = {
-      accessToken: "test-access-token",
-      refreshToken: "test-refresh-token",
+      access_token: "test-access-token",
+      refresh_token: "test-refresh-token",
     };
     localStorage.setItem("account", JSON.stringify(account));
-    const roles = [{ _id: "role-cashier", name: "cashier" }];
+    const roles = [{ id: "role-cashier", name: "cashier" }];
     vi.mocked(axios).mockResolvedValue({
       data: { name: "success", data: roles },
     } as never);
@@ -41,10 +41,10 @@ describe("RolesAction.onLoad", () => {
     expect(axios).toHaveBeenCalledWith(
       expect.objectContaining({
         method: "GET",
-        url: "api/v1/roles/",
+        url: "api/v1/roles",
         headers: expect.objectContaining({
-          "x-access-token": account.accessToken,
-          "x-refresh-token": account.refreshToken,
+          "x-access-token": account.access_token,
+          "x-refresh-token": account.refresh_token,
         }),
       }),
     );

@@ -1,25 +1,25 @@
 import { useDispatch } from "react-redux";
 import Actions from "../../../../actions";
 import CustomerCartItemList, { type CartLine } from "./cart-item-list";
-import CustomerCartRecipe from "./recipe";
-import TextCustom from "../../../../components/common/text.custom";
+import CustomerCartSummary from "./cart-summary";
+import Text from "../../../../components/atoms/text";
 import type { AppDispatch } from "../../../../store";
 
 const CustomerDesktopCartOrders = () => {
   const dispatch = useDispatch<AppDispatch>();
   const onEditItem = (item: CartLine) => {
     dispatch(
-      Actions.Cart.selectedEdit(item.menu, item._id, item.quality, item.note),
+      Actions.Cart.selectedEdit(item.menu, item.id, item.quality, item.note),
     );
   };
 
   return (
     <div>
-      <TextCustom className="m-4 text-brand-rust" variant="h6" align="center">
+      <Text className="m-4 text-brand-rust" variant="h6" align="center">
         Sudah siap pesan ?
-      </TextCustom>
+      </Text>
       <CustomerCartItemList onEditItem={onEditItem} />
-      <CustomerCartRecipe />
+      <CustomerCartSummary />
       <div className="my-4 flex items-center justify-center">
         <button
           type="button"

@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const { test } = require("node:test");
-const { validate } = require("../src/config/Environment");
+const { validate } = require("../src/config/environment");
 
 test("requires a positive order timeout", () => {
   const previousValues = new Map(

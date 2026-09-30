@@ -5,7 +5,7 @@ import { LOADING, MOUNT, SET_MENUS } from "../actions/menus.action";
 export type { MenuRecord } from "@bukit-delight/shared";
 
 type ApiMenuRecord = {
-  id_category: { _id: string; name: string };
+  category_id: { id: string; name: string };
   [key: string]: unknown;
 };
 
@@ -36,8 +36,8 @@ const MenusReducer = (
       loading: false,
       data: menus.map((menu): MenuRecord => ({
         ...menu,
-        category_id: menu.id_category._id,
-        category_name: menu.id_category.name,
+        category_id: menu.category_id.id,
+        category_name: menu.category_id.name,
       })),
     };
   }

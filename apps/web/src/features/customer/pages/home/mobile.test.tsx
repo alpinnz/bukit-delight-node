@@ -6,15 +6,15 @@ import { describe, expect, it, vi } from "vitest";
 import RootReducer from "../../../../reducers";
 import CustomerMobileHome from "./mobile";
 
-vi.mock("../../../../components/common/container.customer.base", () => ({
+vi.mock("../../../../components/templates/customer/layout", () => ({
   default: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("./slide", () => ({
+vi.mock("./promotional-carousel", () => ({
   default: () => <div>promo slides</div>,
 }));
 
-vi.mock("./list.horizontal", () => ({
+vi.mock("./horizontal-menu-list", () => ({
   default: ({
     title,
     data,

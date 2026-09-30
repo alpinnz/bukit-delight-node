@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useDispatch } from "react-redux";
 import Actions from "../../../actions";
-import Icons from "../../../assets/icons";
-import Convert from "../../../helpers/convert";
+import icons from "../../../assets/icons";
+import formatters from "../../../helpers/formatters";
 
 type MenuCard = {
-  _id?: string;
+  id?: string;
   name: string;
   image: string;
   price: number;
@@ -29,7 +29,7 @@ const MenuList = ({ data = [] }: MenuListProps) => {
       <div className="grid grid-cols-2 sm:grid-cols-3">
         {data.map((menu) => {
           return (
-            <div key={menu._id ?? menu.name}>
+            <div key={menu.id ?? menu.name}>
               <button
                 type="button"
                 aria-label={`Pilih ${menu.name}`}
@@ -45,7 +45,7 @@ const MenuList = ({ data = [] }: MenuListProps) => {
                   >
                     {menu.favorite && menu.favorite > 0 ? (
                       <div className="absolute -bottom-[17px] right-0 content-center">
-                        <img src={Icons.star} alt="" />
+                        <img src={icons.star} alt="" />
                       </div>
                     ) : (
                       <div />
@@ -59,16 +59,16 @@ const MenuList = ({ data = [] }: MenuListProps) => {
                         {menu.promo > 0 ? (
                           <div className="flex">
                             <p className="mr-2 text-lg font-semibold text-brand-teal line-through">
-                              {Convert.Price(menu.price)}
+                              {formatters.formatCompactPrice(menu.price)}
                             </p>
                             <p className="text-lg font-semibold text-brand-success">
-                              {Convert.Price(menu.price - menu.promo)}
+                              {formatters.formatCompactPrice(menu.price - menu.promo)}
                             </p>
                           </div>
                         ) : (
                           <div className="w-2/5">
                             <p className="text-lg font-semibold text-brand-teal">
-                              {Convert.Price(menu.price)}
+                              {formatters.formatCompactPrice(menu.price)}
                             </p>
                           </div>
                         )}

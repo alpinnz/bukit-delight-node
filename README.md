@@ -12,16 +12,9 @@ The project is designed with a modular architecture, shared packages, TypeScript
 - React
 - TypeScript
 - Vite
-- Tailwind CSS v4
-- Headless UI
-- Heroicons
-- React Router
-- Redux
-- Axios
-- Vitest
-- React Testing Library
+- Tailwind CSS
 
-### Backend
+## Backend
 
 - Node.js
 - Express.js
@@ -129,31 +122,34 @@ The root ESLint and TypeScript configuration files are shared directly; they are
 
 ## Frontend
 
-The frontend lives inside:
-
-```text
-apps/web
-```
-
-React UI is organized by the application's roles and flows.
+The React application lives in `apps/web`. Its source separates shared
+presentation, feature-owned UI, and application infrastructure:
 
 ```text
 apps/web/src/
-├── components/common/  shared UI and form components
+├── components/
+│   ├── atoms/
+│   ├── molecules/
+│   ├── organisms/
+│   └── templates/
 ├── features/
-│   ├── admin/
 │   ├── auth/
+│   ├── cashier/
 │   ├── customer/
-│   ├── kasir/
-│   └── landing/
-├── routes/             route guards and route declarations
-├── templates/          role-specific page layouts
-├── actions/            shared Redux actions
-└── reducers/           shared Redux state
+│   ├── landing/
+│   ├── orders/
+│   └── owner/
+├── config/
+├── hooks/
+├── routes/
+├── actions/
+└── reducers/
 ```
 
-Feature-specific pages and components belong under the relevant `features/*`
-directory. Reusable UI belongs under `components/common`.
+Use Atomic Design layers for shared presentation components. Keep domain UI
+inside its owning feature. Page entries belong in `features/<feature>/pages`;
+route declarations and guards belong in `routes`. Redux actions and reducers
+remain grouped by domain in their app-level folders.
 
 ## Backend
 
@@ -206,9 +202,9 @@ that owns them; add another layer only when it improves the current domain.
 ### Service
 
 Services in this project use Prisma directly where they own persistence and
-domain operations, for example `PrismaCatalog` and `PrismaOrders`. Keep that
-pattern consistent; introduce a repository only for a concrete isolation or
-reuse need.
+domain operations. Controllers handle HTTP concerns, and services own
+persistence and domain rules. Introduce a repository only when it provides a
+concrete isolation or reuse benefit.
 
 ## Validation
 
@@ -243,18 +239,9 @@ apps/api/prisma/
 └── seed.ts
 ```
 
-Example:
-
-```prisma
-model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-```
+`User` stores a unique username and email. Roles are connected through the
+`UserRole` join table, and refresh tokens reference `User`; see
+[`schema.prisma`](apps/api/prisma/schema.prisma) for the complete model.
 
 ## Redis
 
@@ -346,11 +333,6 @@ the production web app on port 8080 by default. See
 production release gates, PostgreSQL recovery procedure, and operational
 monitoring checklist.
 
-```text
-Development: Web :5174 -> API :3001 -> PostgreSQL :5432
-Production:  Nginx :8080 -> API :3000 -> PostgreSQL :5432
-```
-
 ## Local Development
 
 ### Requirements
@@ -420,19 +402,19 @@ Seed database:
 pnpm db:seed
 ```
 
-In non-production environments, the seed creates these starter accounts if
-they do not already exist:
+In non-production environments, the seed creates or refreshes these starter
+accounts and passwords:
 
 | Username   | Password        | Role       |
 | ---------- | --------------- | ---------- |
-| `owner`    | `Owner123!`     | `owner`    |
+| `owner`    | `owner`         | `owner`    |
 | `cashier`  | `cashier`       | `cashier`  |
-| `customer` | `Customer123!`  | `customer` |
+| `customer` | `customer`      | `customer` |
 
 These credentials are for local development only. The seed does not create
-them when `NODE_ENV=production` and does not reset passwords on existing
-users. Roles are assigned through the `user_roles` join table, so one user
-can hold multiple roles.
+them when `NODE_ENV=production`. Running the seed resets the passwords of
+these starter users. Roles are assigned through the `user_roles` join table,
+so one user can hold multiple roles.
 
 Customers sign in with their account before choosing a dining table and
 ordering. The guest QR/table initialization flow is no longer used.
@@ -470,23 +452,29 @@ http://localhost:3000
 The API is mounted at `/api/v1`. Current route groups include:
 
 ```text
-/api/v1/authentication
+/api/v1/auth
 /api/v1/users
 /api/v1/categories
 /api/v1/customers
-/api/v1/item-orders
+/api/v1/order-items
 /api/v1/menus
 /api/v1/orders
+/api/v1/recommendations
 /api/v1/roles
 /api/v1/tables
 /api/v1/transactions
 ```
 
+Request and response model fields use `snake_case`; primary keys use `id`,
+foreign keys use `<entity>_id`, and timestamps use names such as `created_at`
+and `estimated_ready_at`. Prisma maps its TypeScript fields to matching
+`snake_case` PostgreSQL columns.
+
 Examples:
 
 ```text
-POST   /api/v1/authentication/login
-POST   /api/v1/authentication/refresh-token
+POST   /api/v1/auth/login
+POST   /api/v1/auth/refresh-token
 GET    /api/v1/categories
 GET    /api/v1/menus
 GET    /api/v1/tables
@@ -533,7 +521,7 @@ Authentication should be handled centrally.
 Login
   │
   ▼
-POST /api/v1/authentication/login
+POST /api/v1/auth/login
   │
   ▼
 Validate credentials
@@ -809,75 +797,72 @@ packages/shared
 
 ## Adding a New Backend Module
 
-For a new API domain, follow the existing route/controller/service structure:
+Keep HTTP concerns in controllers, persistence/domain operations in services,
+and versioned endpoint wiring in routes:
 
 ```text
 apps/api/src/
-├── routes/v1/<Domain>.ts
-├── controllers/Prisma<Domain>.ts
-└── services/Prisma<Domain>.ts
+├── config/
+├── controllers/<domain>.controller.ts
+├── middlewares/
+├── routes/v1/<domain>.ts
+└── services/<domain>.service.ts
 ```
 
-Add only the files the domain needs, then mount its route in
+Add only the layers the domain needs, then mount its route in
 `apps/api/src/routes/v1/index.ts`. Use Joi for runtime validation and export
-shared TypeScript contracts only when both applications consume them. Do not
-add a repository layer unless it provides a concrete benefit.
+shared TypeScript contracts only when both applications consume them. Avoid
+adding a repository layer without a concrete isolation or reuse need.
 
 For example, catalog endpoints live at `/api/v1/categories`, `/api/v1/menus`,
-and `/api/v1/tables`.
+and `/api/v1/tables`; their route modules share the catalog controller and
+catalog service.
 
 ## Adding a New Frontend Feature
 
-Add pages and components under the feature that owns them:
+Add pages, domain components, and feature-specific state under the feature that
+owns them:
 
 ```text
 apps/web/src/features/<feature>/
+├── components/
+├── pages/
+└── <feature-specific modules>
 ```
 
-Current feature folders are `admin`, `auth`, `customer`, `kasir`, and `landing`.
-Shared UI belongs in `apps/web/src/components/common`; shared Redux actions and
-reducers currently live in `apps/web/src/actions` and `apps/web/src/reducers`.
+Current feature folders are `auth`, `cashier`, `customer`, `landing`, `orders`,
+and `owner`. Put shared UI in `apps/web/src/components`; keep route guards and
+route declarations in `apps/web/src/routes`.
 
 ## Naming Convention
 
-### Files
+### Files and folders
 
-Follow the naming used by the existing domain files and their framework
-conventions.
+Use lowercase kebab-case for domain names and folder names. Keep responsibility
+suffixes where they make module roles clear, and append `.test` to test files.
+Retain `index.ts(x)` for intentional directory entry points.
 
 ```text
-PrismaCatalog.ts
+catalog.controller.ts
+catalog.service.ts
 categories.action.ts
-form.tsx
+categories.reducer.ts
+order-summary.test.tsx
 ```
 
-### Components
+### Components and functions
 
-Use PascalCase:
+Use PascalCase for React component identifiers and camelCase for functions,
+variables, and object properties.
 
-```text
-CategoryCard.tsx
-LoginForm.tsx
-MenuTable.tsx
+```tsx
+const OrderSummary = () => <section />;
 ```
-
-### Functions
-
-Use camelCase:
 
 ```ts
 fetchCategories();
 createOrder();
 validateToken();
-```
-
-### Classes
-
-Use PascalCase:
-
-```ts
-PrismaCatalog;
-PrismaOrders;
 ```
 
 ## Folder Responsibilities

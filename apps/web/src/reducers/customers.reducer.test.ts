@@ -13,7 +13,7 @@ describe("CustomersReducer", () => {
   });
 
   it("stores and clears the authenticated customer profile", () => {
-    const customer = { _id: "customer-1", username: "customer@example.test" };
+    const customer = { id: "customer-1", username: "customer@example.test" };
     const selected = CustomersReducer(undefined, {
       type: SET_CUSTOMER,
       payload: customer,

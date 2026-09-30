@@ -23,8 +23,8 @@ prismaRouteTest(
     const { server } = require("../src/app");
     const { PrismaClient } = require("../src/generated/prisma/client");
     const { PrismaPg } = require("@prisma/adapter-pg");
-    const { HashPassword } = require("../src/services/Authentication");
-    const { createUser } = require("../src/services/PrismaAuthentication");
+    const { HashPassword } = require("../src/services/authentication-tokens.service");
+    const { createUser } = require("../src/services/authentication.service");
     const prisma = new PrismaClient({
       adapter: new PrismaPg({ connectionString: databaseUrl }),
     });
@@ -50,7 +50,7 @@ prismaRouteTest(
       baseUrl = `http://127.0.0.1:${server.address().port}`;
 
       const loginResponse = await fetch(
-        `${baseUrl}/api/v1/Authentication/login`,
+        `${baseUrl}/api/v1/auth/login`,
         {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -59,25 +59,25 @@ prismaRouteTest(
       );
       assert.equal(loginResponse.status, 200);
       const login = await loginResponse.json();
-      assert.equal(login.data._id, accountId);
+      assert.equal(login.data.id, accountId);
 
       const rolesResponse = await fetch(`${baseUrl}/api/v1/roles`, {
-        headers: { "x-access-token": login.data.accessToken },
+        headers: { "x-access-token": login.data.access_token },
       });
       assert.equal(rolesResponse.status, 200);
       const roles = await rolesResponse.json();
-      assert.ok(roles.data.some((item) => item._id === role.id));
+      assert.ok(roles.data.some((item) => item.id === role.id));
 
       const accountsResponse = await fetch(`${baseUrl}/api/v1/users`, {
-        headers: { "x-access-token": login.data.accessToken },
+        headers: { "x-access-token": login.data.access_token },
       });
       assert.equal(accountsResponse.status, 200);
       const accounts = await accountsResponse.json();
       const visibleAccount = accounts.data.find(
-        (item) => item._id === accountId,
+        (item) => item.id === accountId,
       );
       assert.equal(visibleAccount.username, username);
-      assert.deepEqual(visibleAccount.id_roles.map((item) => item.name), ["owner"]);
+      assert.deepEqual(visibleAccount.roles.map((item) => item.name), ["owner"]);
       assert.equal("password" in visibleAccount, false);
 
       const cashierRole = await prisma.role.findUnique({
@@ -91,12 +91,12 @@ prismaRouteTest(
         method: "POST",
         headers: {
           "content-type": "application/json",
-          "x-access-token": login.data.accessToken,
+          "x-access-token": login.data.access_token,
         },
         body: JSON.stringify({
           username: `phase4-created-${suffix}`,
           email: `phase4-created-${suffix}@example.com`,
-          id_roles: [cashierRole.id],
+          role_ids: [cashierRole.id],
           password: "phase4-route-password",
           repeat_password: "phase4-route-password",
         }),
@@ -114,7 +114,9 @@ prismaRouteTest(
         })
       ).id;
       assert.match(createdAccountId, /^[0-9a-f]{24}$/);
-      assert.deepEqual(createdAccount.data.roles, ["cashier"]);
+      assert.deepEqual(createdAccount.data.roles, [
+        { id: cashierRole.id, name: "cashier" },
+      ]);
 
       const accountUpdateResponse = await fetch(
         `${baseUrl}/api/v1/users/${createdAccountId}`,
@@ -122,12 +124,12 @@ prismaRouteTest(
           method: "PUT",
           headers: {
             "content-type": "application/json",
-            "x-access-token": login.data.accessToken,
+            "x-access-token": login.data.access_token,
           },
           body: JSON.stringify({
             username: `phase4-updated-${suffix}`,
             email: `phase4-updated-${suffix}@example.com`,
-            id_roles: [cashierRole.id],
+            role_ids: [cashierRole.id],
           }),
         },
       );
@@ -141,7 +143,7 @@ prismaRouteTest(
         `${baseUrl}/api/v1/users/${createdAccountId}`,
         {
           method: "DELETE",
-          headers: { "x-access-token": login.data.accessToken },
+          headers: { "x-access-token": login.data.access_token },
         },
       );
       assert.equal(accountDeleteResponse.status, 200);
@@ -152,29 +154,29 @@ prismaRouteTest(
       createdAccountId = undefined;
 
       const refreshResponse = await fetch(
-        `${baseUrl}/api/v1/Authentication/refresh-token`,
+        `${baseUrl}/api/v1/auth/refresh-token`,
         {
           method: "POST",
-          headers: { "x-refresh-token": login.data.refreshToken },
+          headers: { "x-refresh-token": login.data.refresh_token },
         },
       );
       assert.equal(refreshResponse.status, 200);
       const refreshed = await refreshResponse.json();
 
       const reusedTokenResponse = await fetch(
-        `${baseUrl}/api/v1/Authentication/refresh-token`,
+        `${baseUrl}/api/v1/auth/refresh-token`,
         {
           method: "POST",
-          headers: { "x-refresh-token": login.data.refreshToken },
+          headers: { "x-refresh-token": login.data.refresh_token },
         },
       );
       assert.equal(reusedTokenResponse.status, 401);
 
       const logoutResponse = await fetch(
-        `${baseUrl}/api/v1/Authentication/logout`,
+        `${baseUrl}/api/v1/auth/logout`,
         {
           method: "POST",
-          headers: { "x-refresh-token": refreshed.data.refreshToken },
+          headers: { "x-refresh-token": refreshed.data.refresh_token },
         },
       );
       assert.equal(logoutResponse.status, 200);
@@ -184,7 +186,7 @@ prismaRouteTest(
           server.close((error) => (error ? reject(error) : resolve())),
         );
       }
-      await prisma.refreshToken.deleteMany({ where: { userId: accountId } });
+      await prisma.refreshToken.deleteMany({ where: { user_id: accountId } });
       const createdAccountFixture = await prisma.user.findUnique({
         where: { username: `phase4-created-${suffix}` },
         select: { id: true },
@@ -192,13 +194,13 @@ prismaRouteTest(
       const cleanupAccountId = createdAccountId ?? createdAccountFixture?.id;
       if (cleanupAccountId) {
         await prisma.refreshToken.deleteMany({
-          where: { userId: cleanupAccountId },
+          where: { user_id: cleanupAccountId },
         });
         await prisma.user.deleteMany({ where: { id: cleanupAccountId } });
       }
       await prisma.user.deleteMany({ where: { id: accountId } });
       assert.equal(
-        await prisma.refreshToken.count({ where: { userId: accountId } }),
+        await prisma.refreshToken.count({ where: { user_id: accountId } }),
       0,
       );
       assert.equal(
@@ -212,7 +214,7 @@ prismaRouteTest(
         );
       }
       await prisma.$disconnect();
-      const { prisma: applicationPrisma } = require("../src/config/Prisma");
+      const { prisma: applicationPrisma } = require("../src/config/prisma");
       await applicationPrisma?.$disconnect();
     }
   },

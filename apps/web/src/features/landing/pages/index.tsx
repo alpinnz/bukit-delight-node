@@ -100,7 +100,7 @@ const LandingPage = () => {
 
   const roles = account?.roles ?? (account ? [account.role] : []);
   if (roles.some((role) => role.toLowerCase() === "owner")) {
-    return <Navigate to="/admin/dashboard" replace />;
+    return <Navigate to="/owner/dashboard" replace />;
   }
   if (roles.some((role) => role.toLowerCase() === "cashier")) {
     return <Navigate to="/cashier/home" replace />;
@@ -162,7 +162,7 @@ const LandingPage = () => {
           <p className="text-center text-sm text-slate-700">
             Belum punya akun?{" "}
             <Link
-              to="/daftar"
+              to="/register"
               className="font-bold text-brand-primary underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-primary"
             >
               Daftar

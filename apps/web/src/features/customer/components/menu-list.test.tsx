@@ -9,7 +9,7 @@ describe("MenuList", () => {
   it("selects a menu and opens the cart dialog", () => {
     const store = createStore(RootReducer);
     const menu = {
-      _id: "tea-id",
+      id: "tea-id",
       name: "Iced Tea",
       image: "/iced-tea.jpg",
       price: 1200,
@@ -25,7 +25,7 @@ describe("MenuList", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Pilih Iced Tea" }));
 
-    expect(store.getState().Cart.selected.menu._id).toBe("tea-id");
+    expect(store.getState().Cart.selected.menu.id).toBe("tea-id");
     expect(store.getState().Cart.dialog_menu.open).toBe(true);
   });
 });

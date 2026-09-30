@@ -1,41 +1,41 @@
 import express = require("express");
 
 const router = express.Router();
-const multer = require("./../../config/Multer");
-const PrismaAuthentication = require("./../../controllers/PrismaAuthentication");
-const rateLimits = require("./../../middlewares/AuthenticationRateLimit");
+const multer = require("../../config/multer");
+const authenticationController = require("../../controllers/authentication.controller");
+const rateLimits = require("../../middlewares/authentication-rate-limit");
 
 router.post(
   "/register",
   rateLimits.registration,
   multer.none,
-  PrismaAuthentication.Register,
+  authenticationController.register,
 );
 router.post(
   "/login",
   rateLimits.login,
   multer.none,
-  PrismaAuthentication.Login,
+  authenticationController.login,
 );
 router.post(
   "/forgot-password",
   rateLimits.recovery,
   multer.none,
-  PrismaAuthentication.ForgotPassword,
+  authenticationController.forgotPassword,
 );
 router.post(
   "/reset-password",
   rateLimits.tokenVerification,
   multer.none,
-  PrismaAuthentication.ResetPassword,
+  authenticationController.resetPassword,
 );
 router.post(
   "/activate",
   rateLimits.tokenVerification,
   multer.none,
-  PrismaAuthentication.Activate,
+  authenticationController.activate,
 );
-router.post("/logout", PrismaAuthentication.Logout);
-router.post("/refresh-token", PrismaAuthentication.RefreshToken);
+router.post("/logout", authenticationController.logout);
+router.post("/refresh-token", authenticationController.refreshToken);
 
 export = router;

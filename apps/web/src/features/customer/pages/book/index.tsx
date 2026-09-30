@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import CustomerBookMobilePage from "./mobile";
-import CustomerLaptopPage from "../laptop.page";
+import CustomerDesktopOrderingPage from "../desktop-ordering-page";
 
 const CustomerBookPage = () => {
   useEffect(() => {
@@ -13,7 +13,7 @@ const CustomerBookPage = () => {
         <CustomerBookMobilePage />
       </div>
       <div className="hidden md:block">
-        <CustomerLaptopPage />
+        <CustomerDesktopOrderingPage />
       </div>
     </div>
   );

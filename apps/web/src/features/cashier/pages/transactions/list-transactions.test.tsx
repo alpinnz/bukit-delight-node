@@ -30,16 +30,16 @@ vi.mock("../../../../actions", () => ({
 const transaction = (
   id: string,
   table: string,
-  createdAt: string,
+  created_at: string,
   status = "waiting",
 ) => ({
-  _id: id,
+  id: id,
   status,
-  createdAt,
-  id_account: { username: "cashier" },
-  id_order: {
-    id_table: { name: table },
-    id_customer: { username: `customer-${id}` },
+  created_at,
+  user_id: { username: "cashier" },
+  order_id: {
+    table_id: { name: table },
+    customer_id: { username: `customer-${id}` },
   },
 });
 
@@ -65,7 +65,7 @@ describe("CashierTransactionList", () => {
     );
 
     expect(mocks.setTransaction).toHaveBeenCalledWith(
-      expect.objectContaining({ _id: "early" }),
+      expect.objectContaining({ id: "early" }),
     );
     expect(mocks.openDialogReview).toHaveBeenCalledOnce();
     expect(mocks.dispatch).toHaveBeenCalledTimes(2);
@@ -83,7 +83,7 @@ describe("CashierTransactionList", () => {
     const cards = screen.getAllByRole("button", { name: /Transaksi antrian/ });
     expect(cards[0].textContent).toContain("Table 2");
     expect(cards[1].textContent).toContain("Table 10");
-    expect(reduxTransactions.map(({ _id }) => _id)).toEqual([
+    expect(reduxTransactions.map(({ id }) => id)).toEqual([
       "late",
       "early",
       "done",

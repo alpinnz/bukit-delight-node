@@ -2,7 +2,7 @@ import axios from "axios";
 import type { ApiResponse } from "@bukit-delight/shared";
 import type { AnyAction } from "redux";
 import type { ThunkAction } from "redux-thunk";
-import Const from "../../constant/const";
+import apiConfig from "../../config/api-config";
 import Actions from "../../actions";
 import type { RootState } from "../../reducers";
 import type { AuthenticationAccount } from "./authentication.reducer";
@@ -70,7 +70,7 @@ const errorMessage = (cause: unknown): string => {
 const mount = () => ({ type: MOUNT });
 
 const onMount = (): AuthenticationThunk => {
-  const URL_PATH = "api/v1/authentication/refresh-token";
+  const URL_PATH = "api/v1/auth/refresh-token";
   return async (dispatch) => {
     const account = await localGetAccount();
     if (!account) {
@@ -81,17 +81,17 @@ const onMount = (): AuthenticationThunk => {
     }
 
     const headers = {
-      "x-api-key": Const.X_API_KEY,
-      "x-app-key": Const.X_APP_KEY,
-      "x-access-token": account.accessToken,
-      "x-refresh-token": account.refreshToken,
+      "x-api-key": apiConfig.apiKey,
+      "x-app-key": apiConfig.appKey,
+      "x-access-token": account.access_token,
+      "x-refresh-token": account.refresh_token,
     };
 
     try {
       const response = await axios({
         method: "post",
         url: URL_PATH,
-        baseURL: Const.BASE_URL,
+        baseURL: apiConfig.baseUrl,
         headers,
       });
       const body =
@@ -112,7 +112,7 @@ const onMount = (): AuthenticationThunk => {
       if (accountHasRole(refreshedAccount, "customer")) {
         dispatch(
           Actions.Customers.setCustomer({
-            _id: refreshedAccount._id,
+            id: refreshedAccount.id,
             username: refreshedAccount.username,
           }),
         );
@@ -134,29 +134,29 @@ const onLogin = (
   credentials: LoginCredentials,
   replaceActiveSession = false,
 ): AuthenticationThunk<LoginResult> => {
-  const URL_PATH = "api/v1/authentication/login";
+  const URL_PATH = "api/v1/auth/login";
   return async (dispatch) => {
     dispatch(loading(true));
 
     const account = await localGetAccount();
     const headers = {
-      "x-api-key": Const.X_API_KEY,
-      "x-app-key": Const.X_APP_KEY,
-      "x-access-token": account ? account.accessToken : "",
-      "x-refresh-token": account ? account.refreshToken : "",
+      "x-api-key": apiConfig.apiKey,
+      "x-app-key": apiConfig.appKey,
+      "x-access-token": account ? account.access_token : "",
+      "x-refresh-token": account ? account.refresh_token : "",
       "Content-Type": "multipart/form-data",
     };
     const formData = new FormData();
     formData.append("username", credentials.username);
     formData.append("password", credentials.password);
-    formData.append("replaceSession", String(replaceActiveSession));
+    formData.append("replace_session", String(replaceActiveSession));
 
     try {
       const response = await axios({
         method: "post",
         url: URL_PATH,
         data: formData,
-        baseURL: Const.BASE_URL,
+        baseURL: apiConfig.baseUrl,
         headers,
       });
       const body =
@@ -174,7 +174,7 @@ const onLogin = (
         if (accountHasRole(loggedInAccount, "customer")) {
           dispatch(
             Actions.Customers.setCustomer({
-              _id: loggedInAccount._id,
+              id: loggedInAccount.id,
               username: loggedInAccount.username,
             }),
           );
@@ -216,7 +216,7 @@ const onLogin = (
 const onRegister = (
   credentials: RegistrationCredentials,
 ): AuthenticationThunk<boolean> => {
-  const URL_PATH = "api/v1/authentication/register";
+  const URL_PATH = "api/v1/auth/register";
   return async (dispatch) => {
     dispatch(loading(true));
     const email = credentials.email.trim().toLowerCase();
@@ -231,10 +231,10 @@ const onRegister = (
         method: "post",
         url: URL_PATH,
         data: formData,
-        baseURL: Const.BASE_URL,
+        baseURL: apiConfig.baseUrl,
         headers: {
-          "x-api-key": Const.X_API_KEY,
-          "x-app-key": Const.X_APP_KEY,
+          "x-api-key": apiConfig.apiKey,
+          "x-app-key": apiConfig.appKey,
           "Content-Type": "multipart/form-data",
         },
       });
@@ -257,7 +257,7 @@ const onRegister = (
 };
 
 const onForgotPassword = (email: string): AuthenticationThunk<boolean> => {
-  const URL_PATH = "api/v1/authentication/forgot-password";
+  const URL_PATH = "api/v1/auth/forgot-password";
   return async (dispatch) => {
     dispatch(loading(true));
     const formData = new FormData();
@@ -268,10 +268,10 @@ const onForgotPassword = (email: string): AuthenticationThunk<boolean> => {
         method: "post",
         url: URL_PATH,
         data: formData,
-        baseURL: Const.BASE_URL,
+        baseURL: apiConfig.baseUrl,
         headers: {
-          "x-api-key": Const.X_API_KEY,
-          "x-app-key": Const.X_APP_KEY,
+          "x-api-key": apiConfig.apiKey,
+          "x-app-key": apiConfig.appKey,
           "Content-Type": "multipart/form-data",
         },
       });
@@ -297,7 +297,7 @@ const onResetPassword = (
   password: string,
   repeatPassword: string,
 ): AuthenticationThunk<boolean> => {
-  const URL_PATH = "api/v1/authentication/reset-password";
+  const URL_PATH = "api/v1/auth/reset-password";
   return async (dispatch) => {
     dispatch(loading(true));
     const formData = new FormData();
@@ -310,10 +310,10 @@ const onResetPassword = (
         method: "post",
         url: URL_PATH,
         data: formData,
-        baseURL: Const.BASE_URL,
+        baseURL: apiConfig.baseUrl,
         headers: {
-          "x-api-key": Const.X_API_KEY,
-          "x-app-key": Const.X_APP_KEY,
+          "x-api-key": apiConfig.apiKey,
+          "x-app-key": apiConfig.appKey,
           "Content-Type": "multipart/form-data",
         },
       });
@@ -335,22 +335,22 @@ const onResetPassword = (
 };
 
 const onLogout = (): AuthenticationThunk => {
-  const URL_PATH = "api/v1/authentication/logout";
+  const URL_PATH = "api/v1/auth/logout";
   return async (dispatch) => {
     dispatch(loading(true));
 
     const account = await localGetAccount();
     const headers = {
-      "x-api-key": Const.X_API_KEY,
-      "x-app-key": Const.X_APP_KEY,
-      "x-access-token": account ? account.accessToken : "",
-      "x-refresh-token": account ? account.refreshToken : "",
+      "x-api-key": apiConfig.apiKey,
+      "x-app-key": apiConfig.appKey,
+      "x-access-token": account ? account.access_token : "",
+      "x-refresh-token": account ? account.refresh_token : "",
     };
 
     axios({
       method: "post",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers,
     })
       .then((response) => {

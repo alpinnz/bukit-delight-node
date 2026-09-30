@@ -4,7 +4,7 @@ import CustomerCartPage from "./index";
 
 vi.mock("./mobile", () => ({ default: () => <div>mobile cart</div> }));
 
-vi.mock("../laptop.page", () => ({
+vi.mock("../desktop-ordering-page", () => ({
   default: () => <div>desktop cart</div>,
 }));
 vi.mock("./payment-dialog", () => ({

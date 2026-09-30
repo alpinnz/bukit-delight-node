@@ -5,19 +5,19 @@ import CustomerOrderInvoice from "./invoice-order";
 import CustomerTransactionInvoice from "./invoice-transaction";
 
 vi.mock("react-redux", () => ({ useSelector: vi.fn() }));
-vi.mock("../../components/invoice-overview", () => ({
+vi.mock("../../../orders/components/order-invoice-overview", () => ({
   default: (props: {
     status?: string;
     no_transaction?: string;
     account?: { username: string };
-    data: { _id: string };
+    data: { id: string };
   }) => (
     <div>
-      {`invoice-${props.status}-${props.data._id}-${props.no_transaction ?? "none"}-${props.account?.username ?? "no-account"}`}
+      {`invoice-${props.status}-${props.data.id}-${props.no_transaction ?? "none"}-${props.account?.username ?? "no-account"}`}
     </div>
   ),
 }));
-vi.mock("../../components/accordion-list-categories", () => ({
+vi.mock("../../../orders/components/order-category-accordion", () => ({
   default: ({ data }: { data: unknown[] }) => (
     <div>{`categories-${data.length}`}</div>
   ),
@@ -29,9 +29,9 @@ describe("customer cart invoices", () => {
 
   it("passes the order and categories to the invoice components", () => {
     const order = {
-      _id: "order-1",
+      id: "order-1",
       status: "pending",
-      categories: [{ _id: "category-1" }],
+      categories: [{ id: "category-1" }],
     };
     vi.mocked(useSelector).mockReturnValueOnce(order);
 
@@ -45,12 +45,12 @@ describe("customer cart invoices", () => {
 
   it("passes transaction, order, cashier, and categories to the invoice components", () => {
     const transaction = {
-      _id: "transaction-1",
+      id: "transaction-1",
       status: "done",
-      id_account: { username: "cashier" },
-      id_order: {
-        _id: "order-2",
-        categories: [{ _id: "category-1" }, { _id: "category-2" }],
+      user_id: { username: "cashier" },
+      order_id: {
+        id: "order-2",
+        categories: [{ id: "category-1" }, { id: "category-2" }],
       },
     };
     vi.mocked(useSelector).mockReturnValueOnce(transaction);

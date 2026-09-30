@@ -38,14 +38,14 @@ describe("route guards", () => {
         path="/protected"
         element={
           <PrivateRoute role="owner">
-            <div>Admin</div>
+            <div>Owner</div>
           </PrivateRoute>
         }
       />,
     );
 
     expect(screen.getByTestId("current-path").textContent).toBe("/login");
-    expect(screen.queryByText("Admin")).toBeNull();
+    expect(screen.queryByText("Owner")).toBeNull();
   });
 
   it("renders a page for the matching staff role", () => {
@@ -56,7 +56,7 @@ describe("route guards", () => {
         path="/protected"
         element={
           <PrivateRoute role="OWNER">
-            <div>Admin</div>
+            <div>Owner</div>
           </PrivateRoute>
         }
       />,
@@ -64,7 +64,7 @@ describe("route guards", () => {
       store,
     );
 
-    expect(screen.getByText("Admin")).toBeTruthy();
+    expect(screen.getByText("Owner")).toBeTruthy();
   });
 
   it("redirects unauthenticated customers to login", () => {
@@ -89,11 +89,11 @@ describe("route guards", () => {
     store.dispatch({
       type: SET_ACCOUNT,
       payload: {
-        _id: "account-1",
+        id: "account-1",
         role: "customer",
       },
     });
-    store.dispatch({ type: SET_CUSTOMER, payload: { _id: "account-1" } });
+    store.dispatch({ type: SET_CUSTOMER, payload: { id: "account-1" } });
     renderRoute(
       <Route
         path="/protected"
@@ -118,11 +118,11 @@ describe("route guards", () => {
     store.dispatch({
       type: SET_ACCOUNT,
       payload: {
-        _id: "account-1",
+        id: "account-1",
         role: "customer",
       },
     });
-    store.dispatch({ type: SET_CUSTOMER, payload: { _id: "account-1" } });
+    store.dispatch({ type: SET_CUSTOMER, payload: { id: "account-1" } });
     renderRoute(
       <Route
         path="/protected"

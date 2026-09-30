@@ -1,13 +1,13 @@
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import ContainerBase from "../../../../components/common/container.customer.base";
+import CustomerLayout from "../../../../components/templates/customer/layout";
 import CategoryBanner from "../../components/category-banner";
 import MenuList from "../../components/menu-list";
 import MenuDialog from "../../components/menu-dialog";
 
 type MenuInCategory = {
-  _id?: string;
-  id_category: { _id: string };
+  id?: string;
+  category_id: { id: string };
   name: string;
   image: string;
   price: number;
@@ -16,7 +16,7 @@ type MenuInCategory = {
 };
 
 type Category = {
-  _id: string;
+  id: string;
   name: string;
   image?: string | null;
 };
@@ -27,21 +27,21 @@ type MenuPageState = {
 };
 
 const CustomerCategoryMenuPage = () => {
-  const { categoryId } = useParams<{ categoryId?: string }>();
+  const { category_id: categoryId } = useParams<{ category_id?: string }>();
   const menus = useSelector((state: MenuPageState) => state.Menus.data);
   const category = useSelector((state: MenuPageState) =>
-    state.Categories.data.find((entry) => entry._id === categoryId),
+    state.Categories.data.find((entry) => entry.id === categoryId),
   );
   const categoryMenus = menus.filter(
-    (menu) => menu.id_category._id === categoryId,
+    (menu) => menu.category_id.id === categoryId,
   );
 
   return (
-    <ContainerBase type="menu" title={category ? category.name : ""}>
+    <CustomerLayout type="menu" title={category ? category.name : ""}>
       <CategoryBanner image={category ? category.image : null} />
       <MenuList data={categoryMenus} />
       <MenuDialog />
-    </ContainerBase>
+    </CustomerLayout>
   );
 };
 

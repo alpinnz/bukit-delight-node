@@ -23,7 +23,7 @@ describe("CustomerCartItemList", () => {
         Cart: {
           data: [
             {
-              _id: "cart-1",
+              id: "cart-1",
               menu,
               quality: 2,
               note: "Less ice",

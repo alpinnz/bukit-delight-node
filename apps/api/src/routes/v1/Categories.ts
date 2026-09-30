@@ -1,19 +1,19 @@
 import express = require("express");
 
 const router = express.Router();
-const PrismaCatalog = require("./../../controllers/PrismaCatalog");
-const { CheckIdentifier } = require("../../middlewares/Identifier");
-const { uploadImage } = require("./../../config/Multer");
+const catalogController = require("../../controllers/catalog.controller");
+const { checkIdentifier } = require("../../middlewares/identifier");
+const { uploadImage } = require("../../config/multer");
 
-router.get("/", PrismaCatalog.Categories.ReadAll);
-router.get("/:_id", CheckIdentifier, PrismaCatalog.Categories.ReadOne);
-router.post("/", uploadImage.single("image"), PrismaCatalog.Categories.Create);
+router.get("/", catalogController.categories.readAll);
+router.get("/:id", checkIdentifier, catalogController.categories.readOne);
+router.post("/", uploadImage.single("image"), catalogController.categories.create);
 router.put(
-  "/:_id",
-  CheckIdentifier,
+  "/:id",
+  checkIdentifier,
   uploadImage.single("image"),
-  PrismaCatalog.Categories.Update,
+  catalogController.categories.update,
 );
-router.delete("/:_id", CheckIdentifier, PrismaCatalog.Categories.Delete);
+router.delete("/:id", checkIdentifier, catalogController.categories.delete);
 
 export = router;

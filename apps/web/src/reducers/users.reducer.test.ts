@@ -22,13 +22,13 @@ describe("UsersReducer", () => {
 
   it("masks passwords and maps populated role fields without mutating input", () => {
     const account = {
-      _id: "account-1",
+      id: "account-1",
       username: "staff",
       email: "staff@example.test",
       password: "hash-from-api",
-      id_roles: [
-        { _id: "role-1", name: "cashier" },
-        { _id: "role-2", name: "customer" },
+      roles: [
+        { id: "role-1", name: "cashier" },
+        { id: "role-2", name: "customer" },
       ],
     };
     const loaded = UsersReducer(

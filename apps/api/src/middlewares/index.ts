@@ -1,2 +1,2 @@
-export const Response = require("./Response");
-export const Authentication = require("./Authentication");
+export const response = require("./response");
+export const authentication = require("./authentication");

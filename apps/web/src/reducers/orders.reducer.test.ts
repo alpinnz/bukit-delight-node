@@ -29,7 +29,7 @@ describe("OrdersReducer", () => {
     const loading = OrdersReducer(mounted, { type: LOADING, payload: true });
     expect(loading.loading).toBe(true);
 
-    const order = { _id: "order-1", status: "pending" };
+    const order = { id: "order-1", status: "pending" };
     const selected = OrdersReducer(loading, {
       type: SET_ORDER,
       payload: order,
@@ -40,9 +40,9 @@ describe("OrdersReducer", () => {
 
   it("adds display fields to copied API order records", () => {
     const order = {
-      _id: "order-1",
-      id_customer: { username: "guest" },
-      id_table: { name: "A1" },
+      id: "order-1",
+      customer_id: { username: "guest" },
+      table_id: { name: "A1" },
     };
     const loaded = OrdersReducer(undefined, {
       type: SET_ORDERS,

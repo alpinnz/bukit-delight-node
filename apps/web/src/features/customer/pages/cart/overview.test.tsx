@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import CustomerCartOverview from "./overview";
 
 vi.mock("react-redux", () => ({ useSelector: vi.fn() }));
-vi.mock("../../../../components/common/countdown.custom", () => ({
+vi.mock("../../../../features/customer/components/order-countdown", () => ({
   default: ({ date }: { date?: string | number | Date }) => (
     <div>{`countdown-${date ?? "empty"}`}</div>
   ),
@@ -15,17 +15,17 @@ const cartOverviewState = {
   Cart: {
     order: null as { expires: string } | null,
     transaction: null as {
-      _id: string;
+      id: string;
       status: string;
-      id_order: { estimatedReadyAt: string };
+      order_id: { estimated_ready_at: string };
     } | null,
   },
   Transactions: {
     data: [] as {
-      _id: string;
+      id: string;
       status: string;
-      createdAt: string;
-      id_order: { estimatedReadyAt: string };
+      created_at: string;
+      order_id: { estimated_ready_at: string };
     }[],
   },
 };
@@ -68,32 +68,32 @@ describe("CustomerCartOverview", () => {
 
   it("shows transaction status and queue position without mutating transaction order", () => {
     cartOverviewState.Cart.transaction = {
-      _id: "tx-current",
+      id: "tx-current",
       status: "pending",
-      id_order: { estimatedReadyAt: "2026-10-01T12:30:00Z" },
+      order_id: { estimated_ready_at: "2026-10-01T12:30:00Z" },
     };
     cartOverviewState.Transactions.data = [
       {
-        _id: "tx-current",
+        id: "tx-current",
         status: "pending",
-        createdAt: "2026-09-26T10:00:00Z",
-        id_order: { estimatedReadyAt: "2026-10-01T12:30:00Z" },
+        created_at: "2026-09-26T10:00:00Z",
+        order_id: { estimated_ready_at: "2026-10-01T12:30:00Z" },
       },
       {
-        _id: "tx-first",
+        id: "tx-first",
         status: "pending",
-        createdAt: "2026-09-26T09:00:00Z",
-        id_order: { estimatedReadyAt: "2026-10-01T12:20:00Z" },
+        created_at: "2026-09-26T09:00:00Z",
+        order_id: { estimated_ready_at: "2026-10-01T12:20:00Z" },
       },
       {
-        _id: "tx-done",
+        id: "tx-done",
         status: "done",
-        createdAt: "2026-09-26T08:00:00Z",
-        id_order: { estimatedReadyAt: "2026-10-01T12:10:00Z" },
+        created_at: "2026-09-26T08:00:00Z",
+        order_id: { estimated_ready_at: "2026-10-01T12:10:00Z" },
       },
     ];
     const originalOrder = cartOverviewState.Transactions.data.map(
-      (item) => item._id,
+      (item) => item.id,
     );
     selectOverviewState();
 
@@ -101,7 +101,7 @@ describe("CustomerCartOverview", () => {
 
     expect(screen.getByText("Pesanan sedang antri")).toBeDefined();
     expect(screen.getByText("2")).toBeDefined();
-    expect(cartOverviewState.Transactions.data.map((item) => item._id)).toEqual(
+    expect(cartOverviewState.Transactions.data.map((item) => item.id)).toEqual(
       originalOrder,
     );
   });

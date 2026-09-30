@@ -4,12 +4,12 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
 import type { AppDispatch } from "../../../../store";
-import CustomerAccordionListCategories, {
+import OrderCategoryAccordion, {
   type OrderedCategory,
-} from "../../../customer/components/accordion-list-categories";
-import CustomerInvoiceOverview, {
+} from "../../../orders/components/order-category-accordion";
+import OrderInvoiceOverview, {
   type InvoiceRecord,
-} from "../../../customer/components/invoice-overview";
+} from "../../../orders/components/order-invoice-overview";
 
 type CashierOrder = InvoiceRecord & { categories?: OrderedCategory[] };
 type CashierOrderState = {
@@ -58,9 +58,9 @@ const CashierOrderReviewDialog = () => {
             </button>
           </header>
           <div id="cashier-order-review-content" tabIndex={-1} className="p-3">
-            <CustomerInvoiceOverview data={order} />
+            <OrderInvoiceOverview data={order} />
             <div className="mt-4" />
-            <CustomerAccordionListCategories data={order.categories ?? []} />
+            <OrderCategoryAccordion data={order.categories ?? []} />
             <button
               type="button"
               onClick={openPayment}

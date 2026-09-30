@@ -29,8 +29,8 @@ export type CartMenu = {
 };
 
 export type CartItem = {
-  _id: string;
-  id_menu?: string;
+  id: string;
+  menu_id?: string;
   menu: CartMenu;
   note: string;
   quality: number;
@@ -109,14 +109,14 @@ const CartReducer = (
       quality: number;
       note?: string;
     };
-    const _id = new Date().getTime().toString();
+    const id = new Date().getTime().toString();
     return {
       ...state,
       loading: false,
       data: [
         ...state.data,
         {
-          _id,
+          id,
           menu,
           note: note ?? "",
           quality,
@@ -126,14 +126,14 @@ const CartReducer = (
     };
   }
   if (action.type === UPDATE) {
-    const { _id, menu, quality, note } = action.payload as {
-      _id: string;
+    const { id, menu, quality, note } = action.payload as {
+      id: string;
       menu: CartMenu;
       quality: number;
       note?: string;
     };
     const updatedItem: CartItem = {
-      _id,
+      id,
       menu,
       quality,
       note: note ?? "",
@@ -142,14 +142,14 @@ const CartReducer = (
     return {
       ...state,
       loading: false,
-      data: state.data.map((item) => (item._id === _id ? updatedItem : item)),
+      data: state.data.map((item) => (item.id === id ? updatedItem : item)),
     };
   }
   if (action.type === DELETE) {
     return {
       ...state,
       loading: false,
-      data: state.data.filter((item) => item._id !== action.payload),
+      data: state.data.filter((item) => item.id !== action.payload),
     };
   }
   if (action.type === CLEAN) {

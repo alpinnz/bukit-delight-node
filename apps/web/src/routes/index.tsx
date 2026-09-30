@@ -8,20 +8,20 @@ import {
 
 import PrivateRoute from "./private.route";
 import CustomersRoute from "./customers.route";
-import LoadingCustom from "../components/common/loading.custom";
+import LoadingIndicator from "../components/atoms/loading-indicator";
 
 const LandingPage = lazy(() => import("../features/landing/pages"));
 const CustomerHomePage = lazy(() => import("../features/customer/pages/home"));
 const CustomerBookPage = lazy(() => import("../features/customer/pages/book"));
 const CustomerMenuPage = lazy(() => import("../features/customer/pages/menu"));
 const CustomerCartPage = lazy(() => import("../features/customer/pages/cart"));
-const LoginPage = lazy(() => import("../features/auth/pages/login.page"));
-const RegisterPage = lazy(() => import("../features/auth/pages/register.page"));
+const LoginPage = lazy(() => import("../features/auth/pages/login"));
+const RegisterPage = lazy(() => import("../features/auth/pages/register"));
 const ForgotPasswordPage = lazy(
-  () => import("../features/auth/pages/forgot-password.page"),
+  () => import("../features/auth/pages/forgot-password"),
 );
 const ResetPasswordPage = lazy(
-  () => import("../features/auth/pages/reset-password.page"),
+  () => import("../features/auth/pages/reset-password"),
 );
 const CashierHomePage = lazy(() => import("../features/cashier/pages/home"));
 const CashierMenusPage = lazy(() => import("../features/cashier/pages/menus"));
@@ -31,37 +31,37 @@ const CashierOrdersPage = lazy(
 const CashierTransactionsPage = lazy(
   () => import("../features/cashier/pages/transactions"),
 );
-const AdminDashboardPage = lazy(
-  () => import("../features/admin/pages/dashboard"),
+const OwnerDashboardPage = lazy(
+  () => import("../features/owner/pages/dashboard"),
 );
-const AdminFavoritesPage = lazy(
-  () => import("../features/admin/pages/favorites"),
+const OwnerFavoritesPage = lazy(
+  () => import("../features/owner/pages/favorites"),
 );
-const AdminMenusPage = lazy(() => import("../features/admin/pages/menus"));
-const AdminCategoriesPage = lazy(
-  () => import("../features/admin/pages/categories"),
+const OwnerMenusPage = lazy(() => import("../features/owner/pages/menus"));
+const OwnerCategoriesPage = lazy(
+  () => import("../features/owner/pages/categories"),
 );
-const AdminTablesPage = lazy(() => import("../features/admin/pages/tables"));
-const AdminUsersPage = lazy(
-  () => import("../features/admin/pages/users"),
+const OwnerTablesPage = lazy(() => import("../features/owner/pages/tables"));
+const OwnerUsersPage = lazy(
+  () => import("../features/owner/pages/users"),
 );
-const AdminTransactionsPage = lazy(
-  () => import("../features/admin/pages/transactions"),
+const OwnerTransactionsPage = lazy(
+  () => import("../features/owner/pages/transactions"),
 );
 
 const Routes = () => {
   return (
     <Router>
-      <Suspense fallback={<LoadingCustom />}>
+      <Suspense fallback={<LoadingIndicator />}>
         <RouteList>
           {/* Landding Page */}
           <Route path="/" element={<LandingPage />} />
           {/* login */}
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/daftar" element={<RegisterPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route
-            path="/authentication/reset-password/:token"
+            path="/reset-password/:token"
             element={<ResetPasswordPage />}
           />
 
@@ -75,7 +75,7 @@ const Routes = () => {
             }
           />
           <Route
-            path="/customer/book/:categoryId"
+            path="/customer/book/:category_id"
             element={
               <CustomersRoute requireTable>
                 <CustomerMenuPage />
@@ -140,92 +140,66 @@ const Routes = () => {
             path="/cashier/*"
             element={<Navigate to="/cashier/home" replace />}
           />
+          {/* OWNER ROUTES */}
           <Route
-            path="/kasir/home"
-            element={<Navigate to="/cashier/home" replace />}
-          />
-          <Route
-            path="/kasir/menus"
-            element={<Navigate to="/cashier/menus" replace />}
-          />
-          <Route
-            path="/kasir/orders"
-            element={<Navigate to="/cashier/orders" replace />}
-          />
-          <Route
-            path="/kasir/transactions"
-            element={<Navigate to="/cashier/transactions" replace />}
-          />
-          <Route
-            path="/kasir/*"
-            element={<Navigate to="/cashier/home" replace />}
-          />
-
-          {/* ADMIN ROUTE */}
-          <Route
-            path="/admin/menus"
+            path="/owner/menus"
             element={
               <PrivateRoute role="owner">
-                <AdminMenusPage />
+                <OwnerMenusPage />
               </PrivateRoute>
             }
           />
           <Route
-            path="/admin/categories"
+            path="/owner/categories"
             element={
               <PrivateRoute role="owner">
-                <AdminCategoriesPage />
+                <OwnerCategoriesPage />
               </PrivateRoute>
             }
           />
           <Route
-            path="/admin/tables"
+            path="/owner/tables"
             element={
               <PrivateRoute role="owner">
-                <AdminTablesPage />
+                <OwnerTablesPage />
               </PrivateRoute>
             }
           />
           <Route
-            path="/admin/users"
+            path="/owner/users"
             element={
               <PrivateRoute role="owner">
-                <AdminUsersPage />
+                <OwnerUsersPage />
               </PrivateRoute>
             }
           />
           <Route
-            path="/admin/dashboard"
+            path="/owner/dashboard"
             element={
               <PrivateRoute role="owner">
-                <AdminDashboardPage />
+                <OwnerDashboardPage />
               </PrivateRoute>
             }
           />
           <Route
-            path="/admin/transactions"
+            path="/owner/transactions"
             element={
               <PrivateRoute role="owner">
-                <AdminTransactionsPage />
+                <OwnerTransactionsPage />
               </PrivateRoute>
             }
           />
           <Route
-            path="/admin/favorites"
+            path="/owner/favorites"
             element={
               <PrivateRoute role="owner">
-                <AdminFavoritesPage />
+                <OwnerFavoritesPage />
               </PrivateRoute>
             }
           />
           <Route
-            path="/admin/pemesanan"
-            element={<Navigate to="/admin/favorites" replace />}
-          />
-
-          <Route
-            path="/admin/*"
-            element={<Navigate to="/admin/dashboard" replace />}
+            path="/owner/*"
+            element={<Navigate to="/owner/dashboard" replace />}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </RouteList>

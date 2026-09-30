@@ -32,7 +32,7 @@ describe("TransactionsReducer", () => {
     });
     expect(loading.loading).toBe(true);
 
-    const transaction = { _id: "transaction-1", status: "processing" };
+    const transaction = { id: "transaction-1", status: "processing" };
     const selected = TransactionsReducer(loading, {
       type: SET_TRANSACTION,
       payload: transaction,
@@ -45,11 +45,11 @@ describe("TransactionsReducer", () => {
 
   it("flattens populated account/order fields onto copies", () => {
     const transaction = {
-      _id: "transaction-1",
-      id_account: { _id: "account-1", username: "cashier" },
-      id_order: {
-        id_customer: { _id: "customer-1", username: "guest" },
-        id_table: { _id: "table-1", name: "A1" },
+      id: "transaction-1",
+      user_id: { id: "account-1", username: "cashier" },
+      order_id: {
+        customer_id: { id: "customer-1", username: "guest" },
+        table_id: { id: "table-1", name: "A1" },
         quality: 2,
         promo: 100,
         price: 5000,
@@ -64,8 +64,8 @@ describe("TransactionsReducer", () => {
 
     expect(loaded).toMatchObject({ mount: true, loading: false });
     expect(loaded.data[0]).toMatchObject({
-      account_id: "account-1",
-      account_username: "cashier",
+      user_id: "account-1",
+      user_username: "cashier",
       order_customer_id: "customer-1",
       order_customer_username: "guest",
       order_table_id: "table-1",
@@ -76,8 +76,8 @@ describe("TransactionsReducer", () => {
       order_total_price: 9900,
       order_status: "pending",
     });
-    expect(transaction).not.toHaveProperty("account_id");
-    expect(transaction.id_order).not.toHaveProperty("order_status");
+    expect(transaction).not.toHaveProperty("user_id");
+    expect(transaction.order_id).not.toHaveProperty("order_status");
   });
 
   it("opens and closes review and status dialogs", () => {

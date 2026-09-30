@@ -8,24 +8,24 @@ import homeActive from "./home-active.png";
 import home from "./home.png";
 import recommended from "./recommended.png";
 import star from "./star.png";
-import laptopPlater from "./laptop-plater.png";
+import laptopPlatter from "./laptop-platter.png";
 import laptopCart from "./laptop-cart.png";
 import close from "./close.png";
 
-const Icons = {
-  book_active: bookActive,
+const icons = {
+  bookActive,
   book,
-  cart_active: cartActive,
+  cartActive,
   cart,
   cashier,
-  e_money: eMoney,
-  home_active: homeActive,
+  eMoney,
+  homeActive,
   home,
   recommended,
   star,
-  laptop_plater: laptopPlater,
-  laptop_cart: laptopCart,
+  laptopPlatter,
+  laptopCart,
   close,
 };
 
-export default Icons;
+export default icons;

@@ -27,14 +27,14 @@ const pendingOrder = (
   id: string,
   tableName: string,
   status = "pending",
-  isExpired = false,
+  is_expired = false,
 ) => ({
-  _id: id,
+  id: id,
   status,
-  isExpired,
+  is_expired,
   table_name: tableName,
-  id_table: { name: tableName },
-  id_customer: { username: `customer-${id}` },
+  table_id: { name: tableName },
+  customer_id: { username: `customer-${id}` },
   note: `note-${id}`,
 });
 
@@ -63,7 +63,7 @@ describe("CashierOrderList", () => {
 
     fireEvent.click(screen.getByText("Table A"));
     expect(mocks.setOrder).toHaveBeenCalledWith(
-      expect.objectContaining({ _id: "order-a" }),
+      expect.objectContaining({ id: "order-a" }),
     );
     expect(mocks.openDialogReview).toHaveBeenCalledTimes(1);
     expect(mocks.dispatch).toHaveBeenCalledTimes(2);
@@ -85,7 +85,7 @@ describe("CashierOrderList", () => {
       .filter((button) => button.textContent?.includes("Customer"));
     expect(orderCards[0].textContent).toContain("Table A");
     expect(orderCards[1].textContent).toContain("Table Z");
-    expect(reduxOrders.map(({ _id }) => _id)).toEqual([
+    expect(reduxOrders.map(({ id }) => id)).toEqual([
       "order-z",
       "order-a",
       "order-expired",

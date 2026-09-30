@@ -1,7 +1,6 @@
 const config = {
-  Nodemailer: require("./Nodemailer"),
-  Multer: require("./Multer"),
-  Environment: require("./Environment"),
+  multer: require("./multer"),
+  environment: require("./environment"),
 };
 
 export = config;

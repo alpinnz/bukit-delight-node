@@ -3,19 +3,19 @@ import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
 import type { AppDispatch } from "../../../../store";
-import CustomerAccordionListCategories, {
+import OrderCategoryAccordion, {
   type OrderedCategory,
-} from "../../../customer/components/accordion-list-categories";
-import CustomerInvoiceOverview, {
+} from "../../../orders/components/order-category-accordion";
+import OrderInvoiceOverview, {
   type InvoiceRecord,
-} from "../../../customer/components/invoice-overview";
+} from "../../../orders/components/order-invoice-overview";
 
 type CompletedOrder = InvoiceRecord & { categories?: OrderedCategory[] };
 type CashierTransaction = {
-  _id: string;
+  id: string;
   status: string;
-  id_account?: { username?: string };
-  id_order: CompletedOrder;
+  user_id?: { username?: string };
+  order_id: CompletedOrder;
 };
 type TransactionReviewState = {
   Transactions: {
@@ -61,15 +61,15 @@ const CashierTransactionReviewDialog = () => {
             </button>
           </header>
           <div className="p-3">
-            <CustomerInvoiceOverview
+            <OrderInvoiceOverview
               status={transaction.status}
-              no_transaction={transaction._id}
-              account={transaction.id_account}
-              data={transaction.id_order}
+              no_transaction={transaction.id}
+              account={transaction.user_id}
+              data={transaction.order_id}
             />
             <div className="mt-4" />
-            <CustomerAccordionListCategories
-              data={transaction.id_order.categories ?? []}
+            <OrderCategoryAccordion
+              data={transaction.order_id.categories ?? []}
             />
             <button
               type="button"

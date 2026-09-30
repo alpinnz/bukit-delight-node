@@ -1,11 +1,11 @@
-import Slide from "./slide";
-import ContainerBase from "../../../../components/common/container.customer.base";
-import ListHorizontal from "./list.horizontal";
+import PromotionalCarousel from "./promotional-carousel";
+import CustomerLayout from "../../../../components/templates/customer/layout";
+import HorizontalMenuList from "./horizontal-menu-list";
 import MenuDialog from "../../components/menu-dialog";
 import { useSelector } from "react-redux";
 
 type CustomerMenu = {
-  _id?: string;
+  id?: string;
   name: string;
   title?: string;
   image: string;
@@ -19,19 +19,19 @@ type CustomerHomeState = {
   Menus: { data: CustomerMenu[] };
 };
 
-const MobilePage = () => {
+const CustomerMobileHomePage = () => {
   const menus = useSelector((state: CustomerHomeState) => state.Menus.data);
   const menuPromo = menus.filter((menu) => menu.promo > 0);
   const menuFavorite = menus.filter((menu) => menu.favorite === true);
 
   return (
-    <ContainerBase title={undefined} type={undefined}>
-      <Slide />
-      <ListHorizontal title="Promo" data={menuPromo} />
-      <ListHorizontal title="Favorites" data={menuFavorite} />
+    <CustomerLayout>
+      <PromotionalCarousel />
+      <HorizontalMenuList title="Promo" data={menuPromo} />
+      <HorizontalMenuList title="Favorites" data={menuFavorite} />
       <MenuDialog />
-    </ContainerBase>
+    </CustomerLayout>
   );
 };
 
-export default MobilePage;
+export default CustomerMobileHomePage;

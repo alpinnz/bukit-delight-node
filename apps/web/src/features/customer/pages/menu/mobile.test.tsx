@@ -7,7 +7,7 @@ import { describe, expect, it, vi } from "vitest";
 import RootReducer from "../../../../reducers";
 import CustomerCategoryMenuPage from "./mobile";
 
-vi.mock("../../../../components/common/container.customer.base", () => ({
+vi.mock("../../../../components/templates/customer/layout", () => ({
   default: ({ children, title }: { children: ReactNode; title: string }) => (
     <div data-testid="category-title">
       {title}
@@ -32,16 +32,16 @@ describe("CustomerCategoryMenuPage", () => {
         loading: false,
         data: [
           {
-            _id: "tea-id",
-            id_category: { _id: "drinks" },
+            id: "tea-id",
+            category_id: { id: "drinks" },
             name: "Iced Tea",
             image: "/tea.jpg",
             price: 1200,
             promo: 200,
           },
           {
-            _id: "cake-id",
-            id_category: { _id: "desserts" },
+            id: "cake-id",
+            category_id: { id: "desserts" },
             name: "Chocolate Cake",
             image: "/cake.jpg",
             price: 1800,
@@ -52,7 +52,7 @@ describe("CustomerCategoryMenuPage", () => {
       Categories: {
         mount: true,
         loading: false,
-        data: [{ _id: "drinks", name: "Drinks", image: "/drinks.jpg" }],
+        data: [{ id: "drinks", name: "Drinks", image: "/drinks.jpg" }],
       },
     });
 
@@ -61,7 +61,7 @@ describe("CustomerCategoryMenuPage", () => {
         <MemoryRouter initialEntries={["/customer/book/drinks"]}>
           <Routes>
             <Route
-              path="/customer/book/:categoryId"
+              path="/customer/book/:category_id"
               element={<CustomerCategoryMenuPage />}
             />
           </Routes>
@@ -80,6 +80,6 @@ describe("CustomerCategoryMenuPage", () => {
     ).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Pilih Iced Tea" }));
-    expect(store.getState().Cart.selected.menu._id).toBe("tea-id");
+    expect(store.getState().Cart.selected.menu.id).toBe("tea-id");
   });
 });

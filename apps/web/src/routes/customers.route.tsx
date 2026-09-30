@@ -27,8 +27,8 @@ const CustomersRoute = ({
   if (
     !account ||
     !hasCustomerRole ||
-    !customer?._id ||
-    account._id !== customer._id
+    !customer?.id ||
+    account.id !== customer.id
   ) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

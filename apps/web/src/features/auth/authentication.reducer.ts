@@ -13,13 +13,13 @@ const initialState = {
 };
 
 export type AuthenticationAccount = {
-  _id: string;
+  id: string;
   username: string;
   email: string;
   role: string;
   roles?: string[];
-  accessToken: string;
-  refreshToken: string;
+  access_token: string;
+  refresh_token: string;
 };
 
 export type AuthenticationState = {

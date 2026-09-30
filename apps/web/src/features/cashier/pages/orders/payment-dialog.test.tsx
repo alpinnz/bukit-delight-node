@@ -8,7 +8,7 @@ const mocks = vi.hoisted(() => ({
   state: {
     Orders: {
       dialog_payment: { open: true },
-      order: { _id: "order-1", total_price: 32000 },
+      order: { id: "order-1", total_price: 32000 },
     },
   },
   hideDialogPayment: vi.fn(() => ({ type: "order/payment/hide" })),
@@ -31,7 +31,7 @@ vi.mock("../../../../actions", () => ({
     Service: { pushInfoNotification: mocks.notify },
   },
 }));
-vi.mock("../../../customer/components/invoice-overview", () => ({
+vi.mock("../../../orders/components/order-invoice-overview", () => ({
   default: () => <div>Invoice summary</div>,
 }));
 
@@ -40,7 +40,7 @@ describe("CashierOrderPaymentDialog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.state.Orders.dialog_payment.open = true;
-    mocks.state.Orders.order = { _id: "order-1", total_price: 32000 };
+    mocks.state.Orders.order = { id: "order-1", total_price: 32000 };
   });
 
   it("requires a cash amount before submitting", () => {

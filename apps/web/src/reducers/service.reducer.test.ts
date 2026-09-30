@@ -22,7 +22,7 @@ describe("ServiceReducer", () => {
 
   it("opens and clears form dialog state without changing other service state", () => {
     const initialState = ServiceReducer(undefined, { type: "init" });
-    const row = { _id: "menu-1", name: "Iced Tea" };
+    const row = { id: "menu-1", name: "Iced Tea" };
     const openState = ServiceReducer(
       initialState,
       ServiceAction.openFormDialog("update", row),

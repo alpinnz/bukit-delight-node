@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
 
 const jwt = require("jsonwebtoken");
-const { prisma } = require("./../config/Prisma");
-const { findUserForToken } = require("./../services/PrismaAuthentication");
+const { prisma } = require("../config/prisma");
+const { findUserForToken } = require("../services/authentication.service");
 
 type DecodedToken = { id: string };
 type AuthContext = {

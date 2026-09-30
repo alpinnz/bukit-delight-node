@@ -1,14 +1,14 @@
 import express = require("express");
 
 const router = express.Router();
-const PrismaCatalog = require("./../../controllers/PrismaCatalog");
-const { CheckIdentifier } = require("../../middlewares/Identifier");
-const { Multer } = require("./../../config");
+const catalogController = require("../../controllers/catalog.controller");
+const { checkIdentifier } = require("../../middlewares/identifier");
+const { multer } = require("../../config");
 
-router.get("/", PrismaCatalog.Tables.ReadAll);
-router.get("/:_id", CheckIdentifier, PrismaCatalog.Tables.ReadOne);
-router.post("/", Multer.none, PrismaCatalog.Tables.Create);
-router.put("/:_id", CheckIdentifier, Multer.none, PrismaCatalog.Tables.Update);
-router.delete("/:_id", CheckIdentifier, PrismaCatalog.Tables.Delete);
+router.get("/", catalogController.tables.readAll);
+router.get("/:id", checkIdentifier, catalogController.tables.readOne);
+router.post("/", multer.none, catalogController.tables.create);
+router.put("/:id", checkIdentifier, multer.none, catalogController.tables.update);
+router.delete("/:id", checkIdentifier, catalogController.tables.delete);
 
 export = router;

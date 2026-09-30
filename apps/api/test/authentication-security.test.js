@@ -6,9 +6,9 @@ const {
   HashPassword,
   PasswordNeedsRehash,
   VerifyHashPassword,
-} = require("../src/services/Authentication");
-const { login } = require("../src/middlewares/AuthenticationRateLimit");
-const { Response } = require("../src/middlewares");
+} = require("../src/services/authentication-tokens.service");
+const { login } = require("../src/middlewares/authentication-rate-limit");
+const { response } = require("../src/middlewares");
 
 it("uses asynchronous bcrypt hashes and upgrades legacy password costs", async () => {
   const password = "security-regression-password";
@@ -49,7 +49,7 @@ it("loads the production SPA fallback with Express 5", () => {
 it("limits repeated login requests and returns the API error envelope", async () => {
   const app = express();
   app.post("/login", login, (_request, response) => response.sendStatus(204));
-  app.use(Response.Error);
+  app.use(response.error);
 
   const server = app.listen(0, "127.0.0.1");
   await new Promise((resolve) => server.once("listening", resolve));

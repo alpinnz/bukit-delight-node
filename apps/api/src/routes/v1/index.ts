@@ -4,16 +4,16 @@ import type { NextFunction, Request, Response } from "express";
 const router = express.Router();
 const middlewares = require("../../middlewares");
 
-const staff = middlewares.Authentication.checkAccessToken;
-const owner = middlewares.Authentication.requireRoles("owner");
-const staffOperations = middlewares.Authentication.requireRoles(
+const staff = middlewares.authentication.checkAccessToken;
+const owner = middlewares.authentication.requireRoles("owner");
+const staffOperations = middlewares.authentication.requireRoles(
   "cashier",
   "owner",
 );
-const customerOrStaff = middlewares.Authentication.checkCustomerOrStaffToken;
-const customer = middlewares.Authentication.checkCustomerToken;
+const customerOrStaff = middlewares.authentication.checkCustomerOrStaffToken;
+const customer = middlewares.authentication.checkCustomerToken;
 
-const requireAdminForWrites = (
+const requireOwnerForWrites = (
   req: Request,
   res: Response,
   next: NextFunction,
@@ -54,37 +54,37 @@ router.get("/", staff, (req: Request, res: Response) => {
   res.json({ index: "index" });
 });
 
-const Authentication = require("./Authentication");
-router.use("/Authentication", Authentication);
+const authenticationRoutes = require("./authentication");
+router.use("/auth", authenticationRoutes);
 
-const Users = require("./Users");
-router.use("/users", staff, owner, Users);
+const userRoutes = require("./users");
+router.use("/users", staff, owner, userRoutes);
 
-const Categories = require("./Categories");
-router.use("/Categories", requireAdminForWrites, Categories);
+const categoryRoutes = require("./categories");
+router.use("/categories", requireOwnerForWrites, categoryRoutes);
 
-const Menus = require("./Menus");
-router.use("/Menus", requireStaffOperationForWrites, Menus);
+const menuRoutes = require("./menus");
+router.use("/menus", requireStaffOperationForWrites, menuRoutes);
 
-const Tables = require("./Tables");
-router.use("/Tables", requireAdminForWrites, Tables);
+const tableRoutes = require("./tables");
+router.use("/tables", requireOwnerForWrites, tableRoutes);
 
-const Transactions = require("./Transactions");
-router.use("/Transactions", staff, staffOperations, Transactions);
+const transactionRoutes = require("./transactions");
+router.use("/transactions", staff, staffOperations, transactionRoutes);
 
-const Orders = require("./Orders");
-router.use("/Orders", requireCustomerOrderPolicy, Orders);
+const orderRoutes = require("./orders");
+router.use("/orders", requireCustomerOrderPolicy, orderRoutes);
 
-const ItemOrders = require("./ItemOrders");
-router.use("/item-orders", staff, staffOperations, ItemOrders);
+const orderItemRoutes = require("./order-items");
+router.use("/order-items", staff, staffOperations, orderItemRoutes);
 
-const Roles = require("./Roles");
-router.use("/roles", staff, owner, Roles);
+const roleRoutes = require("./roles");
+router.use("/roles", staff, owner, roleRoutes);
 
-const Customers = require("./Customers");
-router.use("/customers", staff, owner, Customers);
+const customerRoutes = require("./customers");
+router.use("/customers", staff, owner, customerRoutes);
 
-const Machine = require("./Machine");
-router.use("/machine", staff, owner, Machine);
+const recommendationRoutes = require("./recommendations");
+router.use("/recommendations", staff, owner, recommendationRoutes);
 
 export = router;

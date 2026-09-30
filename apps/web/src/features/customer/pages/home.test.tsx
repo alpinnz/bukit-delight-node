@@ -10,7 +10,7 @@ import CustomerHomePage from "./home";
 vi.mock("./home/mobile", () => ({
   default: () => <div>Customer menu</div>,
 }));
-vi.mock("./laptop.page", () => ({
+vi.mock("./desktop-ordering-page", () => ({
   default: () => <div>Customer desktop menu</div>,
 }));
 
@@ -23,11 +23,11 @@ describe("CustomerHomePage", () => {
     const store = createStore(RootReducer);
     store.dispatch({
       type: SET_CUSTOMER,
-      payload: { _id: "customer-1", username: "customer@example.test" },
+      payload: { id: "customer-1", username: "customer@example.test" },
     });
     store.dispatch({
       type: SET_TABLES,
-      payload: [{ _id: "table-1", name: "A1" }],
+      payload: [{ id: "table-1", name: "A1" }],
     });
 
     render(
@@ -43,7 +43,7 @@ describe("CustomerHomePage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Lanjut ke menu" }));
 
     expect(store.getState().Tables.table).toEqual({
-      _id: "table-1",
+      id: "table-1",
       name: "A1",
     });
     expect(screen.getByText("Customer menu")).toBeTruthy();

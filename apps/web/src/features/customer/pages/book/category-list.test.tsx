@@ -7,13 +7,13 @@ import CustomerCategoryList from "./category-list";
 vi.mock("react-redux", () => ({ useSelector: vi.fn() }));
 
 describe("CustomerCategoryList", () => {
-  let categories: { _id: string; name: string; image?: string }[] = [];
+  let categories: { id: string; name: string; image?: string }[] = [];
 
   beforeEach(() => {
     vi.clearAllMocks();
     categories = [
-      { _id: "drinks", name: "Minuman", image: "drinks.jpg" },
-      { _id: "food", name: "Makanan" },
+      { id: "drinks", name: "Minuman", image: "drinks.jpg" },
+      { id: "food", name: "Makanan" },
     ];
     vi.mocked(useSelector).mockImplementation((selector) =>
       selector({ Categories: { data: categories } } as never),

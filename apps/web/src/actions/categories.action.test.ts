@@ -10,12 +10,12 @@ describe("CategoriesAction", () => {
     vi.clearAllMocks();
   });
 
-  it("creates a category with its image and saved admin credentials", async () => {
+  it("creates a category with its image and saved owner credentials", async () => {
     localStorage.setItem(
       "account",
       JSON.stringify({
-        accessToken: "admin-access",
-        refreshToken: "admin-refresh",
+        access_token: "owner-access",
+        refresh_token: "owner-refresh",
       }),
     );
     vi.mocked(axios).mockResolvedValue({
@@ -35,10 +35,10 @@ describe("CategoriesAction", () => {
     expect(axios).toHaveBeenCalledWith(
       expect.objectContaining({
         method: "POST",
-        url: "api/v1/categories/",
+        url: "api/v1/categories",
         headers: expect.objectContaining({
-          "x-access-token": "admin-access",
-          "x-refresh-token": "admin-refresh",
+          "x-access-token": "owner-access",
+          "x-refresh-token": "owner-refresh",
         }),
       }),
     );

@@ -2,8 +2,8 @@ import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../actions";
-import ButtonCustom from "../../../components/common/button.custom";
-import Convert from "../../../helpers/convert";
+import Button from "../../../components/atoms/button";
+import formatters from "../../../helpers/formatters";
 import type { AppDispatch } from "../../../store";
 
 type MenuCard = {
@@ -90,12 +90,12 @@ export default function MenuDialog() {
                 {promo > 0 ? (
                   <>
                     <del className="text-sm font-normal">
-                      {Convert.Price(price)}
+                      {formatters.formatCompactPrice(price)}
                     </del>
-                    <span>{Convert.Price(price - promo)}</span>
+                    <span>{formatters.formatCompactPrice(price - promo)}</span>
                   </>
                 ) : (
-                  <span>{Convert.Price(price)}</span>
+                  <span>{formatters.formatCompactPrice(price)}</span>
                 )}
               </div>
               <input
@@ -127,7 +127,7 @@ export default function MenuDialog() {
                 <MinusIcon aria-hidden="true" className="size-5" />
               </button>
             </div>
-            <ButtonCustom
+            <Button
               label={
                 quality > 0
                   ? selected.id_cart

@@ -20,7 +20,7 @@ describe("LandingPage", () => {
       screen.getByRole("heading", { name: "Selamat Datang di Bukit Delight" }),
     ).toBeDefined();
     expect(screen.getByRole("link", { name: "Daftar" }).getAttribute("href"))
-      .toBe("/daftar");
+      .toBe("/register");
     expect(
       screen.getByRole("link", { name: "Mulai Menggunakan" }).getAttribute("href"),
     ).toBe("/login");

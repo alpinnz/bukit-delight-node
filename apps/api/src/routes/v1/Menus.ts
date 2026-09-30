@@ -1,25 +1,25 @@
 import express = require("express");
 
 const router = express.Router();
-const PrismaCatalog = require("./../../controllers/PrismaCatalog");
-const { CheckIdentifier } = require("../../middlewares/Identifier");
-const { uploadImage } = require("./../../config/Multer");
+const catalogController = require("../../controllers/catalog.controller");
+const { checkIdentifier } = require("../../middlewares/identifier");
+const { uploadImage } = require("../../config/multer");
 
-router.get("/", PrismaCatalog.Menus.ReadAll);
-router.get("/:_id", CheckIdentifier, PrismaCatalog.Menus.ReadOne);
-router.post("/", uploadImage.single("image"), PrismaCatalog.Menus.Create);
+router.get("/", catalogController.menus.readAll);
+router.get("/:id", checkIdentifier, catalogController.menus.readOne);
+router.post("/", uploadImage.single("image"), catalogController.menus.create);
 router.put(
-  "/:_id",
-  CheckIdentifier,
+  "/:id",
+  checkIdentifier,
   uploadImage.single("image"),
-  PrismaCatalog.Menus.Update,
+  catalogController.menus.update,
 );
-router.put(
-  "/isAvailable/:_id",
-  CheckIdentifier,
+router.patch(
+  "/:id/availability",
+  checkIdentifier,
   uploadImage.none(),
-  PrismaCatalog.Menus.UpdateisAvailable,
+  catalogController.menus.updateAvailability,
 );
-router.delete("/:_id", CheckIdentifier, PrismaCatalog.Menus.Delete);
+router.delete("/:id", checkIdentifier, catalogController.menus.delete);
 
 export = router;

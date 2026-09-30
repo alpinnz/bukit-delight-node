@@ -29,13 +29,13 @@ async function seedLocalAccounts(): Promise<void> {
     {
       username: "customer",
       email: "customer@bukit-delight.local",
-      password: "Customer123!",
+      password: "customer",
       roleName: "customer",
     },
     {
       username: "owner",
       email: "owner@bukit-delight.local",
-      password: "Owner123!",
+      password: "owner",
       roleName: "owner",
     },
     {
@@ -53,20 +53,21 @@ async function seedLocalAccounts(): Promise<void> {
     });
     if (!role) throw new Error(`Role ${credential.roleName} is missing`);
 
+    const hashedPassword = bcrypt.hashSync(credential.password, 8);
     const user = await prisma.user.upsert({
       where: { username: credential.username },
-      update: {},
+      update: { password: hashedPassword },
       create: {
         username: credential.username,
         email: credential.email,
-        password: bcrypt.hashSync(credential.password, 8),
+        password: hashedPassword,
       },
       select: { id: true },
     });
     await prisma.userRole.upsert({
-      where: { userId_roleId: { userId: user.id, roleId: role.id } },
+      where: { user_id_role_id: { user_id: user.id, role_id: role.id } },
       update: {},
-      create: { userId: user.id, roleId: role.id },
+      create: { user_id: user.id, role_id: role.id },
     });
   }
 }

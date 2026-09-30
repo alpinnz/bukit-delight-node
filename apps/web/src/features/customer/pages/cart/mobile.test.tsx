@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import CustomerCartMobilePage from "./mobile";
 
 vi.mock("react-redux", () => ({ useSelector: vi.fn() }));
-vi.mock("../../../../components/common/container.customer.base", () => ({
+vi.mock("../../../../components/templates/customer/layout", () => ({
   default: ({ children }: { children: React.ReactNode }) => (
     <main>{children}</main>
   ),

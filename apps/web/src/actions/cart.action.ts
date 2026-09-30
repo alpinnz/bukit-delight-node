@@ -33,8 +33,8 @@ type CartMountState = {
   Menus: { data: MenuRecord[] };
   Cart: {
     data: Array<{
-      _id: string;
-      id_menu: string;
+      id: string;
+      menu_id: string;
       quality: number | string;
       note?: string;
     }>;
@@ -46,7 +46,7 @@ const onMount = (): CartThunk => {
     dispatch(onLoading(true));
     const { Menus, Cart } = getState() as CartMountState;
     const data: CartItem[] = Cart.data.flatMap((item) => {
-      const menu = Menus.data.find(({ _id }) => `${_id}` === `${item.id_menu}`);
+      const menu = Menus.data.find(({ id }) => `${id}` === `${item.menu_id}`);
       if (!menu) return [];
 
       const quality = Number(item.quality);
@@ -55,8 +55,8 @@ const onMount = (): CartThunk => {
       const total_promo = promo * quality;
       return [
         {
-          _id: item._id,
-          id_menu: item.id_menu,
+          id: item.id,
+          menu_id: item.menu_id,
           menu,
           quality,
           note: item.note ?? "",
@@ -89,7 +89,7 @@ const onUpdate = (
   id: string,
   quality: number,
   note: string,
-) => ({ type: UPDATE, payload: { menu, _id: id, quality, note } });
+) => ({ type: UPDATE, payload: { menu, id: id, quality, note } });
 const onDelete = (id: string) => ({ type: DELETE, payload: id });
 const onClean = () => ({ type: CLEAN });
 const onLoading = (isLoading: boolean) => ({

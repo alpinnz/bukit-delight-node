@@ -13,8 +13,8 @@ describe("RolesReducer", () => {
       payload: true,
     });
     const roles = [
-      { _id: "role-owner", name: "owner" },
-      { _id: "role-cashier", name: "cashier" },
+      { id: "role-owner", name: "owner" },
+      { id: "role-cashier", name: "cashier" },
     ];
     const loadedState = RolesReducer(loadingState, {
       type: SET_ROLES,

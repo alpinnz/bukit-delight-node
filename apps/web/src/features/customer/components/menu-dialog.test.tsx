@@ -10,7 +10,7 @@ describe("MenuDialog", () => {
   it("adds the selected menu and note to the cart", () => {
     const store = createStore(RootReducer);
     const menu = {
-      _id: "menu-id",
+      id: "menu-id",
       name: "Iced Tea",
       image: "/iced-tea.jpg",
       price: 1500,

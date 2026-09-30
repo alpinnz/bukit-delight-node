@@ -2,7 +2,7 @@ import axios from "axios";
 import type { ApiResponse, CreateMenuRequest } from "@bukit-delight/shared";
 import type { AnyAction } from "redux";
 import type { ThunkAction } from "redux-thunk";
-import Const from "../constant/const";
+import apiConfig from "../config/api-config";
 import Actions from "./";
 import type { RootState } from "../reducers";
 import type { FavoriteAnalysis } from "../reducers/favorites.reducer";
@@ -13,7 +13,7 @@ export const LOADING = "MENUS/LOADING";
 export const SET_MENUS = "MENUS/SET_MENUS";
 
 type MenuThunk = ThunkAction<void, RootState, unknown, AnyAction>;
-type StoredAccount = { accessToken?: string; refreshToken?: string };
+type StoredAccount = { access_token?: string; refresh_token?: string };
 type MenuForm = Partial<CreateMenuRequest> & { image?: File };
 type MenuListResponse = ApiResponse<MenuRecord[]>;
 
@@ -27,10 +27,10 @@ const readAccount = (): StoredAccount | null => {
 const requestHeaders = () => {
   const account = readAccount();
   return {
-    "x-api-key": Const.X_API_KEY,
-    "x-app-key": Const.X_APP_KEY,
-    "x-access-token": account?.accessToken ?? "",
-    "x-refresh-token": account?.refreshToken ?? "",
+    "x-api-key": apiConfig.apiKey,
+    "x-app-key": apiConfig.appKey,
+    "x-access-token": account?.access_token ?? "",
+    "x-refresh-token": account?.refresh_token ?? "",
   };
 };
 
@@ -62,9 +62,9 @@ const setMenus = (menus: MenuRecord[]) => ({
 const onLoadSelectors = (): MenuThunk => {
   return (dispatch, getState) => {
     const { Menus, Cart, Favorites } = getState();
-    const selectedMenuId = Cart.selected.menu._id;
+    const selectedMenuId = Cart.selected.menu.id;
     if (typeof selectedMenuId === "string") {
-      const selectedMenu = Menus.data.find(({ _id }) => _id === selectedMenuId);
+      const selectedMenu = Menus.data.find(({ id }) => id === selectedMenuId);
       if (selectedMenu) {
         dispatch(
           Cart.selected.id_cart
@@ -80,13 +80,13 @@ const onLoadSelectors = (): MenuThunk => {
     }
 
     const favoriteData = Favorites.data as FavoriteAnalysis | [];
-    if (!Array.isArray(favoriteData) && favoriteData.menu_favorit) {
+    if (!Array.isArray(favoriteData) && favoriteData.favorite_menus) {
       const favoriteIds = new Set(
-        favoriteData.menu_favorit.map(({ _id }) => _id),
+        favoriteData.favorite_menus.map(({ id }) => id),
       );
       const menus = Menus.data.map((menu) => ({
         ...menu,
-        favorite: menu._id ? favoriteIds.has(menu._id) : false,
+        favorite: menu.id ? favoriteIds.has(menu.id) : false,
       }));
       dispatch(setMenus(menus));
     }
@@ -102,7 +102,7 @@ const loadMenus = (isInitialLoad: boolean): MenuThunk => {
     axios({
       method: "GET",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(),
     })
       .then((response) => {
@@ -162,9 +162,9 @@ const menuFormData = (form: MenuForm, includeImage: boolean): FormData => {
     appendFormValue(formData, "duration", form.duration);
     if (form.image) formData.append("image", form.image);
   }
-  appendFormValue(formData, "id_category", form.id_category);
-  appendFormValue(formData, "isAvailable", Boolean(form.isAvailable));
-  appendFormValue(formData, "isFavorite", Boolean(form.isFavorite));
+  appendFormValue(formData, "category_id", form.category_id);
+  appendFormValue(formData, "is_available", Boolean(form.is_available));
+  appendFormValue(formData, "is_favorite", Boolean(form.is_favorite));
   return formData;
 };
 
@@ -179,7 +179,7 @@ const saveMenu = (
     axios({
       method,
       url,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       data: menuFormData(form, isCreate),
       headers: requestHeaders(),
     })
@@ -225,7 +225,7 @@ const onDelete = (id: string): MenuThunk => {
     axios({
       method: "DELETE",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: requestHeaders(),
     })
       .then((response) => {

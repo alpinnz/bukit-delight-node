@@ -10,7 +10,7 @@ vi.mock("./cart-item-list", () => ({
     onEditItem,
   }: {
     onEditItem?: (item: {
-      _id: string;
+      id: string;
       menu: { name: string };
       quality: number;
       note: string;
@@ -19,7 +19,7 @@ vi.mock("./cart-item-list", () => ({
     <button
       onClick={() =>
         onEditItem?.({
-          _id: "cart-1",
+          id: "cart-1",
           menu: { name: "Kopi" },
           quality: 2,
           note: "Less ice",
@@ -30,7 +30,7 @@ vi.mock("./cart-item-list", () => ({
     </button>
   ),
 }));
-vi.mock("./recipe", () => ({ default: () => <div>cart recipe</div> }));
+vi.mock("./cart-summary", () => ({ default: () => <div>cart recipe</div> }));
 describe("CustomerDesktopCartOrders", () => {
   const dispatch = vi.fn();
 

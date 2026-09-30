@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
-import Convert from "../../../../helpers/convert";
-import TextCustom from "../../../../components/common/text.custom";
+import formatters from "../../../../helpers/formatters";
+import Text from "../../../../components/atoms/text";
 import type { AppDispatch } from "../../../../store";
 
 type CartMenu = { name?: string; promo?: number | string };
 export type CartLine = {
-  _id: string;
+  id: string;
   menu: CartMenu;
   quality: number;
   note?: string;
@@ -30,7 +30,7 @@ const CartItem = ({
     }
 
     dispatch(
-      Actions.Cart.selectedEdit(item.menu, item._id, item.quality, item.note),
+      Actions.Cart.selectedEdit(item.menu, item.id, item.quality, item.note),
     );
     dispatch(Actions.Cart.dialogMenuOpen());
   };
@@ -39,9 +39,9 @@ const CartItem = ({
     <div className="my-4 flex items-center rounded-lg bg-[#FFFFFF66] p-1">
       <div className="w-1/5 px-1">
         <div className="flex size-[35px] items-center justify-center bg-[#FFBC03]">
-          <TextCustom className="text-center text-white">
+          <Text className="text-center text-white">
             {`${item.quality || 0}x`}
-          </TextCustom>
+          </Text>
         </div>
         <button
           type="button"
@@ -49,34 +49,34 @@ const CartItem = ({
           className="mt-2 size-10 min-w-0 p-0"
           onClick={onEdit}
         >
-          <TextCustom variant="h6" className="text-center text-brand-primary">
+          <Text variant="h6" className="text-center text-brand-primary">
             Edit
-          </TextCustom>
+          </Text>
         </button>
       </div>
       <div className="relative w-4/5 px-1 text-right">
-        <TextCustom variant="h6" className="text-black">
+        <Text variant="h6" className="text-black">
           {item.menu.name || "name"}
-        </TextCustom>
+        </Text>
         {item.note && (
           <div className="flex items-end justify-end">
-            <TextCustom className="text-[#AEA2A2]">Note</TextCustom>
-            <TextCustom className="ml-4 text-black">{item.note}</TextCustom>
+            <Text className="text-[#AEA2A2]">Note</Text>
+            <Text className="ml-4 text-black">{item.note}</Text>
           </div>
         )}
         {item.menu.promo && (
           <div className="flex items-end justify-end">
-            <TextCustom className="text-brand-success">Promo</TextCustom>
-            <TextCustom className="ml-4 text-black line-through">
-              {Convert.Rp(item.total_promo ?? 0)}
-            </TextCustom>
+            <Text className="text-brand-success">Promo</Text>
+            <Text className="ml-4 text-black line-through">
+              {formatters.formatRupiah(item.total_promo ?? 0)}
+            </Text>
           </div>
         )}
         <div className="flex items-end justify-end">
-          <TextCustom className="text-[#AEA2A2]">Total</TextCustom>
-          <TextCustom className="ml-4 text-black">
-            {Convert.Rp(item.total_price ?? 0)}
-          </TextCustom>
+          <Text className="text-[#AEA2A2]">Total</Text>
+          <Text className="ml-4 text-black">
+            {formatters.formatRupiah(item.total_price ?? 0)}
+          </Text>
         </div>
       </div>
     </div>
@@ -92,7 +92,7 @@ const CustomerCartItemList = ({
   return (
     <>
       {items.map((item) => (
-        <CartItem key={item._id} item={item} onEditItem={onEditItem} />
+        <CartItem key={item.id} item={item} onEditItem={onEditItem} />
       ))}
     </>
   );

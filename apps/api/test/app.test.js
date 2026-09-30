@@ -2,7 +2,7 @@ const { after, before, describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const jwt = require("jsonwebtoken");
 const { server } = require("../src/app");
-const AuthenticationService = require("../src/services/Authentication");
+const AuthenticationService = require("../src/services/authentication-tokens.service");
 
 describe("HTTP health and error contracts", () => {
   let baseUrl;
@@ -63,7 +63,7 @@ describe("HTTP health and error contracts", () => {
   });
 
   it("rejects malformed identifiers before database access", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/Menus/not-an-id`);
+    const response = await fetch(`${baseUrl}/api/v1/menus/not-an-id`);
     const body = await response.json();
 
     assert.equal(response.status, 400);
@@ -71,7 +71,7 @@ describe("HTTP health and error contracts", () => {
   });
 
   it("validates registration payloads before database access", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/Authentication/register`, {
+    const response = await fetch(`${baseUrl}/api/v1/auth/register`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ email: "not-an-email" }),
@@ -84,7 +84,7 @@ describe("HTTP health and error contracts", () => {
   });
 
   it("requires a password policy for customer registration", async () => {
-    const response = await fetch(`${baseUrl}/api/v1/Authentication/register`, {
+    const response = await fetch(`${baseUrl}/api/v1/auth/register`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({

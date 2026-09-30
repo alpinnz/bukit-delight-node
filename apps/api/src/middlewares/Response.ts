@@ -1,4 +1,4 @@
-const logger = require("./../utils/logger");
+const logger = require("../utils/logger");
 import type { ApiResponse } from "@bukit-delight/shared";
 
 type HttpResponse = {
@@ -32,21 +32,48 @@ const createResponse = (
   data,
 });
 
-exports.Success = async (
+const toSnakeCase = (field: string) =>
+  field
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1_$2")
+    .replace(/([a-z\d])([A-Z])/g, "$1_$2")
+    .toLowerCase();
+
+const serializeResponseData = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(serializeResponseData);
+  if (!value || typeof value !== "object" || value instanceof Date) {
+    return value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).map(([field, fieldValue]) => [
+      toSnakeCase(field),
+      serializeResponseData(fieldValue),
+    ]),
+  );
+};
+
+exports.success = async (
   res: HttpResponse,
   message: string,
   code = 0,
   status = 200,
   data?: unknown,
 ): Promise<unknown> => {
+  const serializedData = serializeResponseData(data);
   const json: ApiResponse = {
     success: true,
-    ...createResponse("Success", `${message} success`, code, status, data),
+    ...createResponse(
+      "Success",
+      `${message} success`,
+      code,
+      status,
+      serializedData,
+    ),
   };
   return res.status(status).json(json);
 };
 
-exports.Error = async (
+exports.error = async (
   err: ApiError,
   req: HttpRequest,
   res: HttpResponse,

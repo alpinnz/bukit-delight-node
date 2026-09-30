@@ -1,14 +1,14 @@
-import TextCustom from "../../../../components/common/text.custom";
+import Text from "../../../../components/atoms/text";
 import { useSelector } from "react-redux";
-import CountdownCustom from "../../../../components/common/countdown.custom";
+import OrderCountdown from "../../components/order-countdown";
 
 type Table = { name: string };
 type CartOrder = { expires: string | number | Date };
 type Transaction = {
-  _id: string;
+  id: string;
   status: string;
-  createdAt: string | number | Date;
-  id_order: { estimatedReadyAt: string | number | Date };
+  created_at: string | number | Date;
+  order_id: { estimated_ready_at: string | number | Date };
 };
 type CartState = { order: CartOrder | null; transaction: Transaction | null };
 type CustomerCartOverviewState = {
@@ -27,25 +27,25 @@ const TableQueueView = ({
   <div className="flex w-full items-center justify-center">
     <div className="mr-1 h-[130px] min-w-24 rounded-[9px] bg-brand-rust">
       <div className="flex h-7 items-center justify-center rounded-t-[9px] bg-brand-brown p-1">
-        <TextCustom className="text-center text-white">No. Meja</TextCustom>
+        <Text className="text-center text-white">No. Meja</Text>
       </div>
       <div className="h-1 bg-white" />
       <div className="flex h-[88px] items-center justify-center">
-        <TextCustom variant="h3" className="text-center text-white">
+        <Text variant="h3" className="text-center text-white">
           {table || "- -"}
-        </TextCustom>
+        </Text>
       </div>
     </div>
     <div className="w-4" />
     <div className="relative ml-1 h-[130px] min-w-40 rounded-[9px] bg-[#FF833D]">
       <div className="flex h-7 items-center justify-center rounded-t-[9px] bg-brand-brown p-1">
-        <TextCustom className="text-center text-white">No. Antrian</TextCustom>
+        <Text className="text-center text-white">No. Antrian</Text>
       </div>
       <div className="h-1 bg-white" />
       <div className="flex h-[88px] items-center justify-center">
-        <TextCustom variant="h3" className="text-center text-white">
+        <Text variant="h3" className="text-center text-white">
           {queue || "- -"}
-        </TextCustom>
+        </Text>
       </div>
     </div>
   </div>
@@ -64,11 +64,11 @@ const CustomerCartOverview = () => {
     return (
       <div className="pt-[15px]">
         <div className="flex h-12 items-center justify-center">
-          <TextCustom variant="h6" className="text-center text-brand-success">
+          <Text variant="h6" className="text-center text-brand-success">
             Selesaikan pembayaran dikasir
-          </TextCustom>
+          </Text>
         </div>
-        <CountdownCustom date={cart.order.expires} />
+        <OrderCountdown date={cart.order.expires} />
         <TableQueueView table={table.name} />
       </div>
     );
@@ -80,12 +80,12 @@ const CustomerCartOverview = () => {
       .slice()
       .sort(
         (first, second) =>
-          new Date(first.createdAt).getTime() -
-          new Date(second.createdAt).getTime(),
+          new Date(first.created_at).getTime() -
+          new Date(second.created_at).getTime(),
       );
     const queue =
       pendingTransactions.findIndex(
-        (transaction) => transaction._id === cart.transaction?._id,
+        (transaction) => transaction.id === cart.transaction?.id,
       ) + 1;
     const statusMessage = {
       pending: "Pesanan sedang antri",
@@ -96,11 +96,11 @@ const CustomerCartOverview = () => {
     return (
       <div className="pt-[15px]">
         <div className="flex h-12 items-center justify-center">
-          <TextCustom variant="h6" className="text-center text-brand-success">
+          <Text variant="h6" className="text-center text-brand-success">
             {statusMessage}
-          </TextCustom>
+          </Text>
         </div>
-        <CountdownCustom date={cart.transaction.id_order.estimatedReadyAt} />
+        <OrderCountdown date={cart.transaction.order_id.estimated_ready_at} />
         <TableQueueView queue={queue} table={table.name} />
       </div>
     );
@@ -109,11 +109,11 @@ const CustomerCartOverview = () => {
   return (
     <div className="pt-[15px]">
       <div className="flex h-12 items-center justify-center">
-        <TextCustom variant="h6" className="text-center text-brand-success">
+        <Text variant="h6" className="text-center text-brand-success">
           Bukit Delight
-        </TextCustom>
+        </Text>
       </div>
-      <CountdownCustom />
+      <OrderCountdown />
       <TableQueueView />
     </div>
   );

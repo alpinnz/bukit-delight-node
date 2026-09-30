@@ -6,7 +6,7 @@ import type {
 } from "@bukit-delight/shared";
 import type { AnyAction } from "redux";
 import type { ThunkAction } from "redux-thunk";
-import Const from "../constant/const";
+import apiConfig from "../config/api-config";
 import Actions from "./";
 import type { RootState } from "../reducers";
 
@@ -21,7 +21,7 @@ export const DIALOG_REVIEW_OPEN = "ORDERS/DIALOG_REVIEW_OPEN";
 export const DIALOG_REVIEW_HIDE = "ORDERS/DIALOG_REVIEW_HIDE";
 
 type OrderThunk = ThunkAction<void, RootState, unknown, AnyAction>;
-type StoredAccount = { accessToken: string; refreshToken: string };
+type StoredAccount = { access_token: string; refresh_token: string };
 type OrdersResponse = ApiResponse<OrderRecord[]>;
 type CreateOrderInput = { note?: string };
 
@@ -33,8 +33,8 @@ const localGetAccount = (): StoredAccount | null => {
 const getHeaders = () => {
   const account = localGetAccount();
   return {
-    "x-access-token": account?.accessToken ?? "",
-    "x-refresh-token": account?.refreshToken ?? "",
+    "x-access-token": account?.access_token ?? "",
+    "x-refresh-token": account?.refresh_token ?? "",
   };
 };
 
@@ -63,7 +63,7 @@ const loadOrders = (isInitialLoad: boolean): OrderThunk => {
     axios({
       method: "GET",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       headers: getHeaders(),
     })
       .then((response) => {
@@ -103,30 +103,30 @@ const onLoadSelectors = (): OrderThunk => {
     const orders = state.Orders;
     const customer = state.Customers.customer;
 
-    if (orders.order?._id) {
+    if (orders.order?.id) {
       const selectedOrder = orders.data.find(
-        ({ _id }) => _id === orders.order?._id,
+        ({ id }) => id === orders.order?.id,
       );
       if (selectedOrder) dispatch(setOrder(selectedOrder));
     }
 
-    if (customer?._id) {
+    if (customer?.id) {
       const activeOrder = orders.data.find((order) => {
         const customerId =
-          typeof order.id_customer === "object"
-            ? order.id_customer?._id
+          typeof order.customer_id === "object"
+            ? order.customer_id?.id
             : undefined;
-        return order.isExpired === false && customerId === customer._id;
+        return order.is_expired === false && customerId === customer.id;
       });
       if (activeOrder) {
         const table =
-          typeof activeOrder.id_table === "object"
-            ? activeOrder.id_table
+          typeof activeOrder.table_id === "object"
+            ? activeOrder.table_id
             : undefined;
-        if (table?._id && table.name) {
+        if (table?.id && table.name) {
           dispatch(
             Actions.Tables.setTable({
-              _id: table._id,
+              id: table.id,
               name: table.name,
             }),
           );
@@ -149,8 +149,8 @@ const onCreate = (input: CreateOrderInput): OrderThunk => {
   return (dispatch, getState) => {
     dispatch(loading(true));
     const state = getState();
-    const customerId = state.Customers.customer?._id;
-    const tableId = state.Tables.table?._id;
+    const customerId = state.Customers.customer?.id;
+    const tableId = state.Tables.table?.id;
     if (!customerId || !tableId) {
       dispatch(
         Actions.Service.pushErrorNotification(
@@ -162,29 +162,29 @@ const onCreate = (input: CreateOrderInput): OrderThunk => {
     }
 
     const orderRequest: CreateOrderRequest = {
-      id_customer: customerId,
-      id_table: tableId,
+      customer_id: customerId,
+      table_id: tableId,
       ...(input.note ? { note: input.note } : {}),
-      Menus: state.Cart.data.map((item) => ({
-        id_menu: String(item.menu._id ?? ""),
+      items: state.Cart.data.map((item) => ({
+        menu_id: String(item.menu.id ?? ""),
         quality: String(item.quality),
         ...(item.note ? { note: item.note } : {}),
       })),
     };
     const formData = new FormData();
-    formData.append("id_customer", orderRequest.id_customer);
-    formData.append("id_table", orderRequest.id_table);
+    formData.append("customer_id", orderRequest.customer_id);
+    formData.append("table_id", orderRequest.table_id);
     if (orderRequest.note) formData.append("note", orderRequest.note);
-    orderRequest.Menus.forEach((item, index) => {
-      formData.append(`Menus[${index}][id_menu]`, item.id_menu);
-      formData.append(`Menus[${index}][quality]`, item.quality);
-      if (item.note) formData.append(`Menus[${index}][note]`, item.note);
+    orderRequest.items.forEach((item, index) => {
+      formData.append(`items[${index}][menu_id]`, item.menu_id);
+      formData.append(`items[${index}][quality]`, item.quality);
+      if (item.note) formData.append(`items[${index}][note]`, item.note);
     });
 
     axios({
       method: "POST",
       url: URL_PATH,
-      baseURL: Const.BASE_URL,
+      baseURL: apiConfig.baseUrl,
       data: formData,
       headers: getHeaders(),
     })

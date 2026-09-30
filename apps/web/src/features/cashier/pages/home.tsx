@@ -1,5 +1,5 @@
-import ContainerBase from "../../../components/templates/cashier/container.base";
+import CashierLayout from "../../../components/templates/cashier/layout";
 
-const CashierHomePage = () => <ContainerBase title="Home">home</ContainerBase>;
+const CashierHomePage = () => <CashierLayout title="Home">home</CashierLayout>;
 
 export default CashierHomePage;

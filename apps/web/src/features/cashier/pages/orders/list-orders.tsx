@@ -4,16 +4,16 @@ import { FunnelIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import type { OrderPaymentStatus } from "@bukit-delight/shared";
 import Actions from "../../../../actions";
-import TextCustom from "../../../../components/common/text.custom";
+import Text from "../../../../components/atoms/text";
 import type { AppDispatch } from "../../../../store";
 
 type CashierOrder = {
-  _id: string;
+  id: string;
   status: OrderPaymentStatus | Uppercase<OrderPaymentStatus>;
-  isExpired: boolean;
+  is_expired: boolean;
   table_name: string;
-  id_table: { name: string };
-  id_customer: { username: string };
+  table_id: { name: string };
+  customer_id: { username: string };
   note?: string;
 };
 type OrderSortKey = "status" | "table_name" | null;
@@ -28,19 +28,19 @@ type TextTitleValueProps = {
 const TextTitleValue = ({ title, value, color }: TextTitleValueProps) => (
   <div className="flex">
     <div className="w-24">
-      <TextCustom align="left" color={color}>
+      <Text align="left" color={color}>
         {title}
-      </TextCustom>
+      </Text>
     </div>
     <div className="mr-4">
-      <TextCustom align="left" color={color}>
+      <Text align="left" color={color}>
         :
-      </TextCustom>
+      </Text>
     </div>
     <div>
-      <TextCustom align="left" color={color}>
+      <Text align="left" color={color}>
         {value}
-      </TextCustom>
+      </Text>
     </div>
   </div>
 );
@@ -69,7 +69,7 @@ const CashierOrderList = () => {
   };
 
   const visibleOrders = sortOrders(orders, sortKey).filter(
-    (order) => !order.isExpired && order.status === "pending",
+    (order) => !order.is_expired && order.status === "pending",
   );
 
   return (
@@ -108,7 +108,7 @@ const CashierOrderList = () => {
       </div>
 
       {visibleOrders.map((order) => (
-        <div key={order._id} className="pt-2">
+        <div key={order.id} className="pt-2">
           <button
             type="button"
             className="block w-full rounded-2xl p-4 text-left shadow-[1px_0.5px_2.5px_0.5px_#9E9E9E] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-indigo-600"
@@ -118,12 +118,12 @@ const CashierOrderList = () => {
               <TextTitleValue
                 color="textSecondary"
                 title="No Meja"
-                value={order.id_table.name}
+                value={order.table_id.name}
               />
               <TextTitleValue
                 color="textSecondary"
                 title="Customer"
-                value={order.id_customer.username}
+                value={order.customer_id.username}
               />
               <TextTitleValue
                 color="textSecondary"

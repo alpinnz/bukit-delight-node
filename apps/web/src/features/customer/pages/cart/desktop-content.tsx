@@ -1,9 +1,9 @@
 import { MinusIcon, PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useDispatch, useSelector } from "react-redux";
 import Actions from "../../../../actions";
-import Icons from "../../../../assets/icons";
-import ButtonCustom from "../../../../components/common/button.custom";
-import TextCustom from "../../../../components/common/text.custom";
+import icons from "../../../../assets/icons";
+import Button from "../../../../components/atoms/button";
+import Text from "../../../../components/atoms/text";
 import type { AppDispatch } from "../../../../store";
 import CustomerCartOverview from "./overview";
 import CustomerDesktopCartOrders from "./desktop-cart-orders";
@@ -11,7 +11,7 @@ import CustomerOrderInvoice from "./invoice-order";
 import CustomerTransactionInvoice from "./invoice-transaction";
 
 type CartMenu = {
-  _id?: string;
+  id?: string;
   name?: string;
   image?: string;
   promo?: number;
@@ -26,7 +26,7 @@ type SelectedCartItem = {
   menu: CartMenu;
 };
 type CartLine = {
-  _id: string;
+  id: string;
   menu: CartMenu;
   quality: number;
   note?: string;
@@ -75,9 +75,9 @@ const SelectedMenuPanel = () => {
     <div className="relative h-[90vh] bg-surface-blush px-[3vw] py-[3vh]">
       <div className="flex h-[5vh] w-full items-center">
         <div className="w-1/2">
-          <TextCustom variant="h4" className="text-brand-teal">
+          <Text variant="h4" className="text-brand-teal">
             {displayPrice}
-          </TextCustom>
+          </Text>
         </div>
         <div className="flex w-1/2 items-end justify-end">
           <button
@@ -91,9 +91,9 @@ const SelectedMenuPanel = () => {
         </div>
       </div>
       <div className="flex h-[5vh] w-full items-center">
-        <TextCustom variant="h5" className="text-[#AD3737]">
+        <Text variant="h5" className="text-[#AD3737]">
           {menu.name || "Name"}
-        </TextCustom>
+        </Text>
       </div>
       <div className="flex h-[40vh] w-full items-center justify-center">
         <div
@@ -104,13 +104,13 @@ const SelectedMenuPanel = () => {
         >
           {menu.promo ? (
             <div className="absolute -bottom-[17px] right-0 content-center">
-              <img src={Icons.star} alt="Promo" />
+              <img src={icons.star} alt="Promo" />
             </div>
           ) : null}
         </div>
       </div>
       <div className="flex h-[10vh] w-full">
-        <TextCustom>{menu.desc || "Desc"}</TextCustom>
+        <Text>{menu.desc || "Desc"}</Text>
       </div>
       <div className="flex h-[20vh] w-full justify-end">
         <div className="w-[70%]">
@@ -132,7 +132,7 @@ const SelectedMenuPanel = () => {
             >
               <PlusIcon aria-hidden="true" className="size-5" />
             </button>
-            <TextCustom className="text-[#AD3636]">{quality}</TextCustom>
+            <Text className="text-[#AD3636]">{quality}</Text>
             <button
               type="button"
               aria-label="Kurangi jumlah"
@@ -142,7 +142,7 @@ const SelectedMenuPanel = () => {
               <MinusIcon aria-hidden="true" className="size-5" />
             </button>
           </div>
-          <ButtonCustom
+          <Button
             label={
               quality > 0
                 ? selected.id_cart
