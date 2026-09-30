@@ -1,0 +1,32 @@
+import { combineReducers } from "redux";
+import Authentication from "../features/auth/authentication.reducer";
+import Users from "./users.reducer";
+import Service from "./service.reducer";
+import Tables from "./tables.reducer";
+import Categories from "./categories.reducer";
+import Roles from "./roles.reducer";
+import Menus from "./menus.reducer";
+import Cart from "./cart.reducer";
+import Orders from "./orders.reducer";
+import Transactions from "./transactions.reducer";
+import Customers from "./customers.reducer";
+import Favorites from "./favorites.reducer";
+
+const RootReducer = combineReducers({
+  Authentication,
+  Service,
+  Users,
+  Tables,
+  Categories,
+  Roles,
+  Menus,
+  Orders,
+  Cart,
+  Transactions,
+  Customers,
+  Favorites,
+});
+
+export type RootState = ReturnType<typeof RootReducer>;
+
+export default RootReducer;

@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="1440" height="176" viewBox="0 0 1440 176" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="waves">
+<path id="Rectangle 4" d="M340.846 52C636.569 51.9999 570.935 100.119 913.646 100.119C1256.36 100.119 1432 175.471 1432 175.471V176H0C0 176 45.1229 52.0001 340.846 52Z" fill="#006210"/>
+<path id="Rectangle 3" d="M348.75 134.62C646.5 114.102 630.375 8.42894 918.75 77.8513C1207.12 147.274 1440 77.8513 1440 77.8513V176H0V31C0 31 51 155.139 348.75 134.62Z" fill="#40B58C"/>
+<path id="Rectangle 2" d="M1065 175.75C1065 175.75 1103.48 105.996 1241.37 105.996C1379.26 105.996 1440 31 1440 31V176H1065V175.75Z" fill="#FFBF3D"/>
+</g>
+</svg>

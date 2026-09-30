@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Roboto, ui-sans-serif, system-ui, sans-serif;
+  --color-brand-primary: #cf672e;
+  --color-brand-accent: #ffa472;
+  --color-brand-soft: #ffba94;
+  --color-brand-teal: #37929e;
+  --color-brand-success: #288806;
+  --color-brand-danger: #a42121;
+  --color-brand-rust: #d95c17;
+  --color-brand-brown: #632f11;
+  --color-surface-customer: #ccc1c1;
+  --color-surface-blush: #ffecec;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.internet-error {
+  @apply fixed inset-x-0 top-0 z-50 bg-red-700 px-4 py-2 text-center text-sm font-medium text-white;
+}

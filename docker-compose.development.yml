@@ -1,0 +1,90 @@
+x-development-build: &development-build
+  context: .
+  dockerfile: docker/api.Dockerfile
+  target: development
+  entitlements:
+    - network.host
+
+services:
+  api:
+    build: *development-build
+    image: bukit-delight-development:local
+    working_dir: /app
+    command:
+      - sh
+      - -c
+      - >-
+        pnpm --filter @bukit-delight/api db:generate
+        && pnpm --filter @bukit-delight/api db:deploy
+        && pnpm --filter @bukit-delight/api db:seed
+        && pnpm --filter @bukit-delight/api dev:docker
+    environment:
+      NODE_ENV: development
+      API_PORT: 3000
+      API_KEY: local-development-api-key
+      APP_KEY: local-development-app-key
+      ACCESS_TOKEN_KEY: local-development-access-token-key
+      ACCESS_TOKEN_TIMEOUT: 900000
+      REFRESH_TOKEN_KEY: local-development-refresh-token-key
+      REFRESH_TOKEN_TIMEOUT: 604800000
+      ORDERS_TIMEOUT: 60000
+      CLIENT_URL: http://localhost:${WEB_PORT:-5174}
+      PATH_UPLOADS: public/uploads
+      DATABASE_URL: ${DATABASE_URL_DOCKER:-postgresql://postgres:postgres@postgres:5432/bukit-delight-development?schema=public}
+    networks:
+      default:
+        aliases:
+          - bukit-delight-development-api
+    ports:
+      - "127.0.0.1:3001:3000"
+    volumes:
+      - .:/app
+      - development_root_node_modules:/app/node_modules
+      - development_api_node_modules:/app/apps/api/node_modules
+      - development_web_node_modules:/app/apps/web/node_modules
+      - development_api_generated:/app/apps/api/src/generated/prisma
+      - development_api_uploads:/app/apps/api/public/uploads
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/readyz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+
+  web:
+    build: *development-build
+    image: bukit-delight-development:local
+    working_dir: /app
+    command: ["pnpm", "--filter", "@bukit-delight/web", "start"]
+    environment:
+      API_HOST: bukit-delight-development-api
+      API_PORT: 3000
+      VITE_HMR_CLIENT_PORT: ${WEB_PORT:-5174}
+      VITE_USE_POLLING: "true"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-5174}:5173"
+    volumes:
+      - .:/app
+      - development_root_node_modules:/app/node_modules
+      - development_web_node_modules:/app/apps/web/node_modules
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  development_root_node_modules:
+  development_api_node_modules:
+  development_web_node_modules:
+  development_api_generated:
+  development_api_uploads:
+
+networks:
+  default:
+    external: true
+    name: ${LOCAL_INFRA_NETWORK:-local-infra_local-infra}

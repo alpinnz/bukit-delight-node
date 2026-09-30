@@ -1,0 +1,9 @@
+# Project guidance is user-maintained, not application source.
+AGENTS.md
+
+# Generated output and package-manager lockfile.
+apps/web/build/
+apps/web/dist/
+apps/api/dist/
+apps/api/src/generated/prisma/
+pnpm-lock.yaml
